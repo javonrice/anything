@@ -48,10 +48,10 @@ SEED_KEYWORDS = [
     "onboarding tool",
 ]
 
-# Minimum thresholds — tune these to widen/narrow results
-MIN_MONTHLY_VOLUME = 200
-MAX_COMPETITION = 0.5      # 0.0 (none) → 1.0 (max)
-MIN_CPC = 1.0              # USD — higher CPC = more purchase intent
+# No filtering — dump everything and let you sort in Sheets
+MIN_MONTHLY_VOLUME = 0
+MAX_COMPETITION = 1.0
+MIN_CPC = 0.0
 
 # Opportunity score weights (must sum to 1.0)
 W_VOLUME = 0.25
@@ -251,11 +251,7 @@ def main():
     print(f"\nTotal unique keywords collected: {len(all_results)}")
 
     scored = filter_and_score(all_results)
-    print(f"After filtering (vol≥{MIN_MONTHLY_VOLUME}, comp≤{MAX_COMPETITION}, cpc≥${MIN_CPC}): {len(scored)} opportunities\n")
-
-    if not scored:
-        print("No results passed the filters. Try loosening MIN_MONTHLY_VOLUME, MAX_COMPETITION, or MIN_CPC.")
-        return
+    print(f"Scored {len(scored)} keywords — saving all to CSV\n")
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_file = OUTPUT_DIR / f"keyword_opportunities_{timestamp}.csv"
