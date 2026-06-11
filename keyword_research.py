@@ -20,9 +20,6 @@ from datetime import datetime
 from pathlib import Path
 
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -79,9 +76,7 @@ class GoogleKeywordInsightClient:
     BASE_URL = "https://google-keyword-insight1.p.rapidapi.com/globalkey/"
 
     def __init__(self):
-        self.key = os.getenv("RAPIDAPI_KEY_1")
-        if not self.key:
-            raise EnvironmentError("RAPIDAPI_KEY_1 not set in .env")
+        self.key = "4809f29274msh8fc3b37e2f08a5cp1f44f9jsn4f902fb893c0"
 
     def fetch(self, keyword: str) -> list[dict]:
         headers = {
@@ -123,9 +118,7 @@ class TwinwordClient:
     BASE_URL = "https://twinword-keyword-suggestion.p.rapidapi.com/suggest/"
 
     def __init__(self):
-        self.key = os.getenv("RAPIDAPI_KEY_2")
-        if not self.key:
-            raise EnvironmentError("RAPIDAPI_KEY_2 not set in .env")
+        self.key = "4809f29274msh8fc3b37e2f08a5cp1f44f9jsn4f902fb893c0"
 
     def fetch(self, keyword: str) -> list[dict]:
         headers = {
