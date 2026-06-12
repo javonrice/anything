@@ -29,7 +29,7 @@ ACCOUNTS = [
     "TheProfessor305",
 ]
 
-TWEETS_PER_USER = 100   # up to 100 per call; increase if needed
+TWEETS_PER_USER = 500   # total target per user (paginated)
 
 
 # ---------------------------------------------------------------------------
@@ -126,20 +126,14 @@ def extract_tweet(tweet_result: dict, username: str) -> dict | None:
     }
 
 
-def get_tweets(username: str, user_id: str, count: int = TWEETS_PER_USER) -> list[dict]:
-    data = api_get(f"/user-tweets?user={user_id}&count={count}")
-
-    instructions = (
-        data.get("result", {})
-            .get("timeline", {})
-            .get("instructions", [])
-    )
-
+def parse_instructions(instructions: list, username: str) -> tuple[list[dict], str | None]:
+    """Extract tweets and next cursor from a timeline instructions block."""
     tweets = []
+    next_cursor = None
+
     for instruction in instructions:
         inst_type = instruction.get("type", "")
 
-        # pinned tweet
         if inst_type == "TimelinePinEntry":
             tr = (
                 instruction.get("entry", {})
@@ -160,7 +154,6 @@ def get_tweets(username: str, user_id: str, count: int = TWEETS_PER_USER) -> lis
             content = entry.get("content", {})
             entry_type = content.get("entryType", "")
 
-            # single tweet
             if entry_type == "TimelineTimelineItem":
                 tr = (
                     content.get("itemContent", {})
@@ -171,7 +164,6 @@ def get_tweets(username: str, user_id: str, count: int = TWEETS_PER_USER) -> lis
                 if t:
                     tweets.append(t)
 
-            # thread / conversation module
             elif entry_type == "TimelineTimelineModule":
                 for item in content.get("items", []):
                     tr = (
@@ -183,6 +175,38 @@ def get_tweets(username: str, user_id: str, count: int = TWEETS_PER_USER) -> lis
                     t = extract_tweet(tr, username)
                     if t:
                         tweets.append(t)
+
+            elif entry_type == "TimelineTimelineCursor":
+                if content.get("cursorType") == "Bottom":
+                    next_cursor = content.get("value")
+
+    return tweets, next_cursor
+
+
+def get_tweets(username: str, user_id: str, target: int = TWEETS_PER_USER) -> list[dict]:
+    tweets = []
+    cursor = None
+
+    while len(tweets) < target:
+        url = f"/user-tweets?user={user_id}&count=100"
+        if cursor:
+            url += f"&cursor={cursor}"
+
+        data = api_get(url)
+        instructions = (
+            data.get("result", {})
+                .get("timeline", {})
+                .get("instructions", [])
+        )
+
+        page_tweets, next_cursor = parse_instructions(instructions, username)
+        tweets.extend(page_tweets)
+
+        if not next_cursor or next_cursor == cursor or not page_tweets:
+            break
+
+        cursor = next_cursor
+        time.sleep(1.5)
 
     return tweets
 
