@@ -130,8 +130,8 @@ def extract_tweet(tweet_result: dict, username: str) -> dict | None:
     }
 
 
-def get_tweets(username: str, count: int = TWEETS_PER_USER) -> list[dict]:
-    data = api_get(f"/user-tweets?username={username}&count={count}")
+def get_tweets(username: str, user_id: str, count: int = TWEETS_PER_USER) -> list[dict]:
+    data = api_get(f"/user-tweets?user={user_id}&count={count}")
 
     instructions = (
         data.get("result", {})
@@ -212,8 +212,9 @@ def main():
 
         time.sleep(1.5)
 
+        user_id = profile.get("user_id", "") if profile else ""
         try:
-            tweets = get_tweets(username)
+            tweets = get_tweets(username, user_id)
             all_tweets.extend(tweets)
             print(f"  ✓ Tweets: {len(tweets)} pulled")
         except Exception as e:
