@@ -78,64 +78,115 @@ def get_user(username: str) -> dict:
     }
 
 
+def extract_tweet(tweet_result: dict, username: str) -> dict | None:
+    if tweet_result.get("__typename") == "TweetWithVisibilityResults":
+        tweet_result = tweet_result.get("tweet", {})
+
+    legacy = tweet_result.get("legacy", {})
+    if not legacy:
+        return None
+
+    # long tweets use note_tweet for full text
+    note = tweet_result.get("note_tweet", {})
+    if note:
+        full_text = note.get("note_tweet_results", {}).get("result", {}).get("text", "") or legacy.get("full_text", "")
+    else:
+        full_text = legacy.get("full_text", "")
+
+    created_raw = legacy.get("created_at", "")
+    try:
+        dt = datetime.strptime(created_raw, "%a %b %d %H:%M:%S +0000 %Y").replace(tzinfo=timezone.utc)
+    except ValueError:
+        dt = None
+
+    is_retweet = full_text.startswith("RT @")
+    is_reply   = bool(legacy.get("in_reply_to_screen_name"))
+    has_media  = "media" in legacy.get("entities", {}) or "media" in legacy.get("extended_entities", {})
+    has_url    = bool(legacy.get("entities", {}).get("urls"))
+    hashtags   = [h["text"] for h in legacy.get("entities", {}).get("hashtags", [])]
+    mentions   = [m["screen_name"] for m in legacy.get("entities", {}).get("user_mentions", [])]
+    views      = tweet_result.get("views", {}).get("count", "")
+
+    return {
+        "username":       username,
+        "tweet_id":       legacy.get("id_str", ""),
+        "created_at_raw": created_raw,
+        "date":           dt.strftime("%Y-%m-%d") if dt else "",
+        "time_utc":       dt.strftime("%H:%M") if dt else "",
+        "hour_utc":       dt.hour if dt else "",
+        "day_of_week":    dt.strftime("%A") if dt else "",
+        "type":           "retweet" if is_retweet else ("reply" if is_reply else "original"),
+        "has_media":      has_media,
+        "has_url":        has_url,
+        "hashtags":       "|".join(hashtags),
+        "mentions":       "|".join(mentions),
+        "views":          views,
+        "likes":          legacy.get("favorite_count", 0),
+        "retweets":       legacy.get("retweet_count", 0),
+        "replies":        legacy.get("reply_count", 0),
+        "quotes":         legacy.get("quote_count", 0),
+        "bookmarks":      legacy.get("bookmark_count", 0),
+        "text":           full_text.replace("\n", " "),
+    }
+
+
 def get_tweets(username: str, count: int = TWEETS_PER_USER) -> list[dict]:
     data = api_get(f"/user-tweets?username={username}&count={count}")
-    entries = (
+
+    instructions = (
         data.get("result", {})
             .get("timeline", {})
-            .get("instructions", [{}])[0]
-            .get("entries", [])
+            .get("instructions", [])
     )
-    tweets = []
-    for entry in entries:
-        tweet_result = (
-            entry.get("content", {})
-                 .get("itemContent", {})
-                 .get("tweet_results", {})
-                 .get("result", {})
-        )
-        # handle retweet wrappers
-        if tweet_result.get("__typename") == "TweetWithVisibilityResults":
-            tweet_result = tweet_result.get("tweet", {})
 
-        legacy = tweet_result.get("legacy", {})
-        if not legacy:
+    tweets = []
+    for instruction in instructions:
+        inst_type = instruction.get("type", "")
+
+        # pinned tweet
+        if inst_type == "TimelinePinEntry":
+            tr = (
+                instruction.get("entry", {})
+                           .get("content", {})
+                           .get("itemContent", {})
+                           .get("tweet_results", {})
+                           .get("result", {})
+            )
+            t = extract_tweet(tr, username)
+            if t:
+                tweets.append(t)
             continue
 
-        created_raw = legacy.get("created_at", "")
-        try:
-            dt = datetime.strptime(created_raw, "%a %b %d %H:%M:%S +0000 %Y").replace(tzinfo=timezone.utc)
-        except ValueError:
-            dt = None
+        if inst_type != "TimelineAddEntries":
+            continue
 
-        full_text   = legacy.get("full_text", "")
-        is_retweet  = full_text.startswith("RT @")
-        is_reply    = bool(legacy.get("in_reply_to_screen_name"))
-        has_media   = "media" in legacy.get("entities", {})
-        has_url     = bool(legacy.get("entities", {}).get("urls"))
-        hashtags    = [h["text"] for h in legacy.get("entities", {}).get("hashtags", [])]
-        mentions    = [m["screen_name"] for m in legacy.get("entities", {}).get("user_mentions", [])]
+        for entry in instruction.get("entries", []):
+            content = entry.get("content", {})
+            entry_type = content.get("entryType", "")
 
-        tweets.append({
-            "username":       username,
-            "tweet_id":       legacy.get("id_str", ""),
-            "created_at_raw": created_raw,
-            "date":           dt.strftime("%Y-%m-%d") if dt else "",
-            "time_utc":       dt.strftime("%H:%M") if dt else "",
-            "hour_utc":       dt.hour if dt else "",
-            "day_of_week":    dt.strftime("%A") if dt else "",
-            "type":           "retweet" if is_retweet else ("reply" if is_reply else "original"),
-            "has_media":      has_media,
-            "has_url":        has_url,
-            "hashtags":       "|".join(hashtags),
-            "mentions":       "|".join(mentions),
-            "likes":          legacy.get("favorite_count", 0),
-            "retweets":       legacy.get("retweet_count", 0),
-            "replies":        legacy.get("reply_count", 0),
-            "quotes":         legacy.get("quote_count", 0),
-            "bookmarks":      legacy.get("bookmark_count", 0),
-            "text":           full_text.replace("\n", " "),
-        })
+            # single tweet
+            if entry_type == "TimelineTimelineItem":
+                tr = (
+                    content.get("itemContent", {})
+                           .get("tweet_results", {})
+                           .get("result", {})
+                )
+                t = extract_tweet(tr, username)
+                if t:
+                    tweets.append(t)
+
+            # thread / conversation module
+            elif entry_type == "TimelineTimelineModule":
+                for item in content.get("items", []):
+                    tr = (
+                        item.get("item", {})
+                            .get("itemContent", {})
+                            .get("tweet_results", {})
+                            .get("result", {})
+                    )
+                    t = extract_tweet(tr, username)
+                    if t:
+                        tweets.append(t)
 
     return tweets
 
