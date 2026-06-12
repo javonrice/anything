@@ -134,7 +134,7 @@ def get_tweets(username: str, count: int = TWEETS_PER_USER) -> list[dict]:
             "replies":        legacy.get("reply_count", 0),
             "quotes":         legacy.get("quote_count", 0),
             "bookmarks":      legacy.get("bookmark_count", 0),
-            "text":           full_text[:280].replace("\n", " "),
+            "text":           full_text.replace("\n", " "),
         })
 
     return tweets
