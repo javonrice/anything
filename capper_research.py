@@ -26,11 +26,7 @@ HEADERS = {
 
 ACCOUNTS = [
     "MJCLocks",
-    "MCbets__",
     "TheProfessor305",
-    "DanGambleAI",
-    "ParlayScience",
-    "CodyBrownBets",
 ]
 
 TWEETS_PER_USER = 100   # up to 100 per call; increase if needed
