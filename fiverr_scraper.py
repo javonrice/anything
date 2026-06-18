@@ -23,7 +23,7 @@ KEYWORDS = [
     "social media management",
 ]
 
-PAGES_PER_KEYWORD = 3   # 48 gigs/page → ~144 gigs per keyword
+MAX_PAGES = 0           # 0 = all pages; set to e.g. 5 to cap per keyword
 OUTPUT = "fiverr_demand.csv"
 
 HEADERS = {
@@ -39,39 +39,53 @@ HEADERS = {
 # Scraper
 # ---------------------------------------------------------------------------
 
-async def get_gig_urls(page, keyword: str, max_pages: int) -> list[tuple[str, str]]:
-    """Return list of (title, url) from search results pages."""
+async def get_gig_urls(page, keyword: str) -> list[tuple[str, str]]:
+    """Paginate all search result pages until Fiverr returns no more gigs."""
     results = []
-    for n in range(1, max_pages + 1):
+    n = 1
+    while True:
+        if MAX_PAGES and n > MAX_PAGES:
+            break
+
         url = (
             f"https://www.fiverr.com/search/gigs"
             f"?query={keyword.replace(' ', '+')}"
             f"&sort=best_selling&page={n}"
         )
-        print(f"  Searching page {n}: {url}")
+        print(f"  Searching page {n}...")
         await page.goto(url, wait_until="domcontentloaded", timeout=30000)
 
         try:
             await page.wait_for_selector("[class*='gig-card']", timeout=15000)
         except Exception:
-            print(f"  No gig cards found on page {n}, stopping pagination.")
+            print(f"  No gig cards on page {n} — reached end of results.")
             break
 
         cards = await page.query_selector_all("[class*='gig-card']")
+        if not cards:
+            print(f"  Page {n} empty — reached end of results.")
+            break
+
+        page_results = []
         for card in cards:
-            # title
             title_el = await card.query_selector("h3, [class*='title']")
             title = (await title_el.inner_text()).strip() if title_el else ""
 
-            # url
             link_el = await card.query_selector("a")
             href = await link_el.get_attribute("href") if link_el else ""
             if href and not href.startswith("http"):
                 href = "https://www.fiverr.com" + href
 
             if title and href:
-                results.append((title, href))
+                page_results.append((title, href))
 
+        if not page_results:
+            print(f"  Page {n} yielded no gigs — stopping.")
+            break
+
+        results.extend(page_results)
+        print(f"  Page {n}: {len(page_results)} gigs (total so far: {len(results)})")
+        n += 1
         await asyncio.sleep(random.uniform(1.5, 2.5))
 
     return results
@@ -120,7 +134,7 @@ async def main():
 
         for keyword in KEYWORDS:
             print(f"\nKeyword: '{keyword}'")
-            gigs = await get_gig_urls(page, keyword, PAGES_PER_KEYWORD)
+            gigs = await get_gig_urls(page, keyword)
             print(f"  Found {len(gigs)} gigs")
 
             for title, url in gigs:
