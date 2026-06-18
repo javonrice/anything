@@ -53,25 +53,34 @@ async def get_gig_urls(page, keyword: str) -> list[tuple[str, str]]:
             f"&sort=best_selling&page={n}"
         )
         print(f"  Searching page {n}...")
-        await page.goto(url, wait_until="domcontentloaded", timeout=30000)
+        await page.goto(url, wait_until="networkidle", timeout=45000)
+        await asyncio.sleep(random.uniform(2.0, 3.5))
 
         try:
-            await page.wait_for_selector("[class*='gig-card']", timeout=15000)
+            await page.wait_for_selector(
+                "[class*='gig-card'], [data-testid*='gig'], li[class*='gig']",
+                timeout=20000,
+            )
         except Exception:
             print(f"  No gig cards on page {n} — reached end of results.")
             break
 
-        cards = await page.query_selector_all("[class*='gig-card']")
+        cards = await page.query_selector_all(
+            "[class*='gig-card'], [data-testid*='gig'], li[class*='gig'], "
+            "[class*='GigCard'], article[class*='gig']"
+        )
         if not cards:
             print(f"  Page {n} empty — reached end of results.")
             break
 
         page_results = []
         for card in cards:
-            title_el = await card.query_selector("h3, [class*='title']")
+            title_el = await card.query_selector(
+                "h3, p[class*='title'], [class*='title'], [class*='gig-title']"
+            )
             title = (await title_el.inner_text()).strip() if title_el else ""
 
-            link_el = await card.query_selector("a")
+            link_el = await card.query_selector("a[href*='/']")
             href = await link_el.get_attribute("href") if link_el else ""
             if href and not href.startswith("http"):
                 href = "https://www.fiverr.com" + href
@@ -94,8 +103,8 @@ async def get_gig_urls(page, keyword: str) -> list[tuple[str, str]]:
 async def get_orders_in_queue(page, gig_url: str) -> str:
     """Visit a gig page and extract the orders-in-queue count."""
     try:
-        await page.goto(gig_url, wait_until="domcontentloaded", timeout=30000)
-        await asyncio.sleep(random.uniform(1.0, 2.0))
+        await page.goto(gig_url, wait_until="networkidle", timeout=45000)
+        await asyncio.sleep(random.uniform(2.0, 3.0))
 
         content = await page.content()
         match = re.search(r"(\d+)\s+orders?\s+in\s+queue", content, re.IGNORECASE)
@@ -125,10 +134,24 @@ async def main():
     seen_urls = set()
 
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(
+            headless=True,
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+            ],
+        )
         context = await browser.new_context(
             user_agent=HEADERS["user-agent"],
             viewport={"width": 1920, "height": 1080},
+            locale="en-US",
+            timezone_id="America/New_York",
+            extra_http_headers={"Accept-Language": "en-US,en;q=0.9"},
+        )
+        # Hide webdriver property
+        await context.add_init_script(
+            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
         )
         page = await context.new_page()
 
