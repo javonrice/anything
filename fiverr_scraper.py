@@ -1,21 +1,25 @@
 """
-Fiverr Demand Scraper
+Fiverr Demand Scraper — via RapidAPI
 Pulls gig title, orders in queue, and URL for target keywords.
 Sorted by orders desc — highest demand surfaces first.
+
+API: Fiverr Data API on RapidAPI
+Set RAPIDAPI_KEY as a GitHub Actions secret or hardcode below for testing.
 """
 
-import asyncio
 import csv
-import random
-import re
+import http.client
+import json
+import os
 import time
 from pathlib import Path
-
-from playwright.async_api import async_playwright
 
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
+
+RAPIDAPI_KEY  = os.environ.get("RAPIDAPI_KEY", "")
+RAPIDAPI_HOST = "fiverr-data-scraper-api.p.rapidapi.com"
 
 KEYWORDS = [
     "logo design",
@@ -23,163 +27,127 @@ KEYWORDS = [
     "social media management",
 ]
 
-MAX_PAGES = 0           # 0 = all pages; set to e.g. 5 to cap per keyword
-OUTPUT = "fiverr_demand.csv"
+MAX_PAGES = 0   # 0 = all pages; set e.g. 5 to cap
+OUTPUT    = "fiverr_demand.csv"
 
 HEADERS = {
-    "user-agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/124.0.0.0 Safari/537.36"
-    )
+    "x-rapidapi-key":  RAPIDAPI_KEY,
+    "x-rapidapi-host": RAPIDAPI_HOST,
 }
 
 
 # ---------------------------------------------------------------------------
-# Scraper
+# API helpers
 # ---------------------------------------------------------------------------
 
-async def get_gig_urls(page, keyword: str) -> list[tuple[str, str]]:
-    """Paginate all search result pages until Fiverr returns no more gigs."""
-    results = []
-    n = 1
-    while True:
-        if MAX_PAGES and n > MAX_PAGES:
-            break
-
-        url = (
-            f"https://www.fiverr.com/search/gigs"
-            f"?query={keyword.replace(' ', '+')}"
-            f"&sort=best_selling&page={n}"
-        )
-        print(f"  Searching page {n}...")
-        await page.goto(url, wait_until="networkidle", timeout=45000)
-        await asyncio.sleep(random.uniform(2.0, 3.5))
-
-        try:
-            await page.wait_for_selector(
-                "[class*='gig-card'], [data-testid*='gig'], li[class*='gig']",
-                timeout=20000,
-            )
-        except Exception:
-            print(f"  No gig cards on page {n} — reached end of results.")
-            break
-
-        cards = await page.query_selector_all(
-            "[class*='gig-card'], [data-testid*='gig'], li[class*='gig'], "
-            "[class*='GigCard'], article[class*='gig']"
-        )
-        if not cards:
-            print(f"  Page {n} empty — reached end of results.")
-            break
-
-        page_results = []
-        for card in cards:
-            title_el = await card.query_selector(
-                "h3, p[class*='title'], [class*='title'], [class*='gig-title']"
-            )
-            title = (await title_el.inner_text()).strip() if title_el else ""
-
-            link_el = await card.query_selector("a[href*='/']")
-            href = await link_el.get_attribute("href") if link_el else ""
-            if href and not href.startswith("http"):
-                href = "https://www.fiverr.com" + href
-
-            if title and href:
-                page_results.append((title, href))
-
-        if not page_results:
-            print(f"  Page {n} yielded no gigs — stopping.")
-            break
-
-        results.extend(page_results)
-        print(f"  Page {n}: {len(page_results)} gigs (total so far: {len(results)})")
-        n += 1
-        await asyncio.sleep(random.uniform(1.5, 2.5))
-
-    return results
+def api_get(path: str) -> dict:
+    conn = http.client.HTTPSConnection(RAPIDAPI_HOST)
+    conn.request("GET", path, headers=HEADERS)
+    res  = conn.getresponse()
+    body = res.read().decode("utf-8")
+    if res.status == 429:
+        raise RuntimeError("Rate limit hit")
+    if res.status != 200:
+        raise RuntimeError(f"HTTP {res.status}: {body[:300]}")
+    return json.loads(body)
 
 
-async def get_orders_in_queue(page, gig_url: str) -> str:
-    """Visit a gig page and extract the orders-in-queue count."""
-    try:
-        await page.goto(gig_url, wait_until="networkidle", timeout=45000)
-        await asyncio.sleep(random.uniform(2.0, 3.0))
-
-        content = await page.content()
-        match = re.search(r"(\d+)\s+orders?\s+in\s+queue", content, re.IGNORECASE)
-        if match:
-            return match.group(1)
-
-        # fallback: check visible text
-        els = await page.query_selector_all("*")
-        for el in els:
-            try:
-                text = (await el.inner_text()).strip()
-                m = re.search(r"(\d+)\s+orders?\s+in\s+queue", text, re.IGNORECASE)
-                if m:
-                    return m.group(1)
-            except Exception:
-                continue
-    except Exception as e:
-        print(f"    Error fetching gig: {e}")
-
-    return ""
+def search_gigs(keyword: str, page: int = 1) -> dict:
+    encoded = keyword.replace(" ", "%20")
+    return api_get(f"/search?query={encoded}&page={page}&sort=best_selling")
 
 
-async def main():
+def get_gig_details(gig_id: str) -> dict:
+    return api_get(f"/gig?id={gig_id}")
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def main():
     print("\n=== Fiverr Demand Scraper ===\n")
 
-    rows = []
-    seen_urls = set()
+    rows     = []
+    seen_ids = set()
 
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(
-            headless=True,
-            args=[
-                "--disable-blink-features=AutomationControlled",
-                "--no-sandbox",
-                "--disable-dev-shm-usage",
-            ],
-        )
-        context = await browser.new_context(
-            user_agent=HEADERS["user-agent"],
-            viewport={"width": 1920, "height": 1080},
-            locale="en-US",
-            timezone_id="America/New_York",
-            extra_http_headers={"Accept-Language": "en-US,en;q=0.9"},
-        )
-        # Hide webdriver property
-        await context.add_init_script(
-            "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
-        )
-        page = await context.new_page()
+    for keyword in KEYWORDS:
+        print(f"\nKeyword: '{keyword}'")
+        page = 1
 
-        for keyword in KEYWORDS:
-            print(f"\nKeyword: '{keyword}'")
-            gigs = await get_gig_urls(page, keyword)
-            print(f"  Found {len(gigs)} gigs")
+        while True:
+            if MAX_PAGES and page > MAX_PAGES:
+                break
 
-            for title, url in gigs:
-                if url in seen_urls:
+            print(f"  Page {page}...")
+            try:
+                data = search_gigs(keyword, page)
+            except Exception as e:
+                print(f"  Search error: {e}")
+                break
+
+            # Normalize response — different RapidAPI endpoints vary
+            gigs = (
+                data.get("gigs") or
+                data.get("results") or
+                data.get("data", {}).get("gigs") or
+                []
+            )
+
+            if not gigs:
+                print(f"  No gigs on page {page} — done.")
+                break
+
+            print(f"  Found {len(gigs)} gigs on page {page}")
+
+            for gig in gigs:
+                gig_id = str(gig.get("id") or gig.get("gig_id") or "")
+                if not gig_id or gig_id in seen_ids:
                     continue
-                seen_urls.add(url)
+                seen_ids.add(gig_id)
 
-                print(f"  Checking: {title[:60]}...")
-                orders = await get_orders_in_queue(page, url)
-                print(f"    Orders in queue: {orders or 'n/a'}")
+                title = gig.get("title") or gig.get("gig_title") or ""
+                url   = gig.get("url") or gig.get("gig_url") or ""
+                if url and not url.startswith("http"):
+                    url = "https://www.fiverr.com" + url
+
+                # orders in queue may be in search result or need gig detail call
+                orders = (
+                    gig.get("orders_in_queue") or
+                    gig.get("queue") or
+                    gig.get("queue_size") or
+                    ""
+                )
+
+                # if not in search result, fetch gig detail page
+                if not orders and gig_id:
+                    try:
+                        detail = get_gig_details(gig_id)
+                        orders = (
+                            detail.get("orders_in_queue") or
+                            detail.get("queue") or
+                            detail.get("data", {}).get("orders_in_queue") or
+                            ""
+                        )
+                        time.sleep(0.5)
+                    except Exception:
+                        pass
 
                 rows.append({
-                    "keyword":          keyword,
-                    "title":            title,
-                    "orders_in_queue":  orders,
-                    "url":              url,
+                    "keyword":         keyword,
+                    "title":           title,
+                    "orders_in_queue": str(orders) if orders else "",
+                    "url":             url,
                 })
 
-        await browser.close()
+            page += 1
+            time.sleep(1.0)
 
-    # Sort by orders desc (blank = 0)
-    rows.sort(key=lambda r: int(r["orders_in_queue"]) if r["orders_in_queue"] else 0, reverse=True)
+    # Sort by orders desc
+    rows.sort(
+        key=lambda r: int(r["orders_in_queue"]) if r["orders_in_queue"].isdigit() else 0,
+        reverse=True,
+    )
 
     out = Path(OUTPUT)
     with open(out, "w", newline="", encoding="utf-8") as f:
@@ -197,4 +165,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

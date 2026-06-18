@@ -13,12 +13,9 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
-        run: |
-          pip install playwright
-          playwright install chromium
-
       - name: Run scraper
+        env:
+          RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
         run: python fiverr_scraper.py
 
       - uses: actions/upload-artifact@v4
