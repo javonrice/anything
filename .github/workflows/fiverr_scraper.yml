@@ -16,7 +16,10 @@ jobs:
       - name: Run scraper
         env:
           RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
-        run: python fiverr_scraper.py
+        run: |
+          python fiverr_scraper.py
+          echo "Exit code: $?"
+          wc -l fiverr_demand.csv || true
 
       - uses: actions/upload-artifact@v4
         with:

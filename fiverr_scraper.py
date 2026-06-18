@@ -18,7 +18,7 @@ from pathlib import Path
 # Config
 # ---------------------------------------------------------------------------
 
-RAPIDAPI_KEY  = os.environ.get("RAPIDAPI_KEY", "4809f29274msh8fc3b37e2f08a5cp1f44f9jsn4f902fb893c0")
+RAPIDAPI_KEY  = os.environ.get("RAPIDAPI_KEY", "")
 RAPIDAPI_HOST = "fiverr4.p.rapidapi.com"
 
 KEYWORDS = [
@@ -174,4 +174,10 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import traceback
+    try:
+        main()
+    except Exception as e:
+        print(f"\nFATAL ERROR: {e}")
+        traceback.print_exc()
+        raise SystemExit(1)
