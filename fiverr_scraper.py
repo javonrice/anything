@@ -18,8 +18,8 @@ from pathlib import Path
 # Config
 # ---------------------------------------------------------------------------
 
-RAPIDAPI_KEY  = os.environ.get("RAPIDAPI_KEY", "")
-RAPIDAPI_HOST = "fiverr-data-scraper-api.p.rapidapi.com"
+RAPIDAPI_KEY  = os.environ.get("RAPIDAPI_KEY", "4809f29274msh8fc3b37e2f08a5cp1f44f9jsn4f902fb893c0")
+RAPIDAPI_HOST = "fiverr4.p.rapidapi.com"
 
 KEYWORDS = [
     "logo design",
@@ -48,17 +48,19 @@ def api_get(path: str) -> dict:
     if res.status == 429:
         raise RuntimeError("Rate limit hit")
     if res.status != 200:
-        raise RuntimeError(f"HTTP {res.status}: {body[:300]}")
+        raise RuntimeError(f"HTTP {res.status}: {body[:500]}")
     return json.loads(body)
 
 
 def search_gigs(keyword: str, page: int = 1) -> dict:
     encoded = keyword.replace(" ", "%20")
-    return api_get(f"/search?query={encoded}&page={page}&sort=best_selling")
+    # fiverr4 endpoint — offset-based pagination, 48 per page
+    offset = (page - 1) * 48
+    return api_get(f"/search?query={encoded}&offset={offset}&filter=best_selling")
 
 
 def get_gig_details(gig_id: str) -> dict:
-    return api_get(f"/gig?id={gig_id}")
+    return api_get(f"/gig?gig_id={gig_id}")
 
 
 # ---------------------------------------------------------------------------
@@ -86,11 +88,18 @@ def main():
                 print(f"  Search error: {e}")
                 break
 
+            # Debug: show top-level keys on first page so we can tune if needed
+            if page == 1:
+                print(f"  Response keys: {list(data.keys())[:10]}")
+
             # Normalize response — different RapidAPI endpoints vary
             gigs = (
                 data.get("gigs") or
                 data.get("results") or
+                data.get("items") or
                 data.get("data", {}).get("gigs") or
+                data.get("data", {}).get("results") or
+                (data.get("data") if isinstance(data.get("data"), list) else None) or
                 []
             )
 
