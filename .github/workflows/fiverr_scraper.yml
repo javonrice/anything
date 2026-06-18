@@ -1,0 +1,28 @@
+name: Fiverr Demand Scraper
+
+on:
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install playwright
+          playwright install chromium
+
+      - name: Run scraper
+        run: python fiverr_scraper.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fiverr-demand
+          path: fiverr_demand.csv
+          if-no-files-found: error
