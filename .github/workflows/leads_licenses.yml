@@ -31,8 +31,8 @@ jobs:
         working-directory: lead_scraper
         run: |
           python run.py \
-            --states "${{ github.event.inputs.states }}" \
-            --category "${{ github.event.inputs.category }}"
+            --states "${{ github.event.inputs.states || '' }}" \
+            --category "${{ github.event.inputs.category || '' }}"
 
       - name: Show row counts
         working-directory: lead_scraper

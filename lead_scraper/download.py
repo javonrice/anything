@@ -144,16 +144,19 @@ def _discover_link(discover_url: str, patterns: list[str]) -> str | None:
         if score > 0:
             candidates.append((score, href, text))
 
+    # Always print ALL links found on the page for debugging
+    print(f"    [discover] all links on {discover_url}:")
+    for a in soup.find_all("a", href=True)[:40]:
+        t = a.get_text().strip().replace("\n", " ")[:50]
+        print(f"      {t!r:52}  →  {a['href'][:100]}")
+
     if not candidates:
-        print(f"    [discover] no matching links on {discover_url}")
-        # Print all links for debugging
-        for a in soup.find_all("a", href=True)[:20]:
-            print(f"      link: {a.get_text().strip()[:60]}  →  {a['href'][:80]}")
+        print(f"    [discover] no links matched patterns {patterns}")
         return None
 
     candidates.sort(reverse=True)
     best_href = candidates[0][1]
-    print(f"    [discover] found: {candidates[0][2][:60]} → {best_href[:80]}")
+    print(f"    [discover] BEST MATCH: {candidates[0][2][:60]} → {best_href[:80]}")
 
     # Make absolute if needed
     if best_href.startswith("http"):
