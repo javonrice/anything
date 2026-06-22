@@ -25,7 +25,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install requests pandas openpyxl
+        run: pip install requests pandas openpyxl beautifulsoup4 lxml
 
       - name: Run scraper
         working-directory: lead_scraper

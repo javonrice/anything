@@ -88,6 +88,16 @@ def parse(path: Path, cfg: dict) -> pd.DataFrame:
     df = filter_active(df, cfg)
     print(f"    active rows: {len(df):,}")
 
+    # Combine split name columns (_first, _last, _mid) → full_name
+    if "_last" in df.columns or "_first" in df.columns:
+        parts = []
+        for col in ["_first", "_mid", "_last"]:
+            if col in df.columns:
+                parts.append(df[col].fillna("").astype(str).str.strip())
+        df["full_name"] = pd.concat(parts, axis=1).apply(
+            lambda r: " ".join(v for v in r if v), axis=1
+        ).str.strip()
+
     # Ensure all standard fields exist
     for field in OUTPUT_FIELDS:
         if field not in df.columns:
