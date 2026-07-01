@@ -1,0 +1,59 @@
+name: Lead scraper
+
+on:
+  workflow_dispatch:
+    inputs:
+      states:
+        description: "Comma-separated two-letter state codes (e.g. TX,CA)"
+        required: true
+        default: "TX"
+      taxonomy:
+        description: "NPI taxonomy_description to search"
+        required: false
+        default: "Home Health Agency"
+      enrich:
+        description: "Also run website/email discovery"
+        type: boolean
+        required: false
+        default: true
+      enrich_limit:
+        description: "Max leads to enrich (email lookup is slow, be modest)"
+        required: false
+        default: "50"
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r lead_scraper/requirements.txt
+
+      - name: Fetch NPI leads
+        working-directory: lead_scraper
+        run: |
+          STATE_ARGS=""
+          IFS=',' read -ra STATES <<< "${{ inputs.states }}"
+          for s in "${STATES[@]}"; do
+            STATE_ARGS="$STATE_ARGS --state $(echo "$s" | xargs)"
+          done
+          python npi_leads.py $STATE_ARGS --taxonomy "${{ inputs.taxonomy }}" --out leads.csv
+
+      - name: Find emails
+        if: ${{ inputs.enrich == 'true' }}
+        working-directory: lead_scraper
+        run: python find_emails.py --in leads.csv --out leads_enriched.csv --limit "${{ inputs.enrich_limit }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: leads-${{ github.run_id }}
+          path: |
+            lead_scraper/leads.csv
+            lead_scraper/leads_enriched.csv
+          if-no-files-found: ignore
+          retention-days: 14
