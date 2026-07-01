@@ -1,0 +1,20 @@
+SUBJECT: Quick question about {{org_name}}'s day-to-day tools
+
+Hi {{org_name}} team,
+
+I build custom software for home health agencies — the kind of tool that
+fits how your office actually runs instead of forcing you into a generic
+system. Scheduling, caregiver-family communication, visit documentation,
+billing handoffs, whatever the actual bottleneck is day to day.
+
+If something in your workflow is held together with spreadsheets and phone
+calls, I'd like to hear what it is. No pitch deck — just a short call to
+find out if there's something worth building.
+
+Reply here or call {{reply_phone}} if you'd rather talk it through.
+
+{{sender_name}}
+{{sender_title}}
+{{mailing_address}}
+
+Don't want to hear from me again? {{unsubscribe_url}}
