@@ -17,6 +17,14 @@ pip install -r requirements.txt
 python npi_leads.py --state TX --out leads_tx.csv
 ```
 
+Prints the API's reported match count per state to stderr, so if a run
+comes back empty you'll see whether the API found 0 matches (bad
+`--taxonomy` text) versus something else going wrong. The taxonomy filter
+uses a trailing wildcard (`Home Health*`) plus a client-side keyword check,
+since NPI's `taxonomy_description` param does prefix/exact matching, not
+substring — an unwildcarded exact string like `Home Health Agency` won't
+match the actual NUCC text (`Home Health`) and silently returns nothing.
+
 Pulls home health agencies from the NPI Registry (NPPES) — free, public,
 official U.S. government provider data. No API key, no ToS issue. Gives
 you org name, address, phone. No email/website (NPI doesn't have it).

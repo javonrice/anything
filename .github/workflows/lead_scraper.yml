@@ -8,9 +8,9 @@ on:
         required: true
         default: "TX"
       taxonomy:
-        description: "NPI taxonomy_description to search"
+        description: "NPI taxonomy_description to search (trailing * wildcard supported)"
         required: false
-        default: "Home Health Agency"
+        default: "Home Health*"
       enrich:
         description: "Also run website/email discovery"
         type: boolean

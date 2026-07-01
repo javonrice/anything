@@ -40,15 +40,23 @@ def fetch_state(state: str, taxonomy_description: str):
         resp = requests.get(API_URL, params=params, timeout=30)
         resp.raise_for_status()
         data = resp.json()
+        if skip == 0:
+            print(f"  {state}: API reports {data.get('result_count', 0)} matching result(s)", file=sys.stderr)
         results = data.get("results", [])
         if not results:
             return
         for r in results:
-            yield parse_result(r)
+            if matches_keyword(r, "home health"):
+                yield parse_result(r)
         if len(results) < PAGE_SIZE:
             return
         skip += PAGE_SIZE
         time.sleep(0.3)  # be polite
+
+
+def matches_keyword(r, keyword: str) -> bool:
+    keyword = keyword.lower()
+    return any(keyword in t.get("desc", "").lower() for t in r.get("taxonomies", []))
 
 
 def parse_result(r):
@@ -75,7 +83,7 @@ def parse_result(r):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--state", action="append", required=True, help="Two-letter state code, repeatable")
-    ap.add_argument("--taxonomy", default="Home Health Agency", help="NPI taxonomy_description to search")
+    ap.add_argument("--taxonomy", default="Home Health*", help="NPI taxonomy_description to search (trailing * wildcard is supported and recommended)")
     ap.add_argument("--out", default="leads.csv")
     args = ap.parse_args()
 
