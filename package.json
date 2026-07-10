@@ -5,6 +5,8 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "resolve:betslip": "tsx src/betslip-to-links.ts",
+    "resolve:betslip:sample": "tsx src/betslip-to-links.ts --sample-live --sample-legs 2",
     "test:links": "tsx src/propline-mlb-link-test.ts",
     "typecheck": "tsc --noEmit"
   },

@@ -1,0 +1,50 @@
+{
+  "betType": "parlay",
+  "sportKey": "baseball_mlb",
+  "legs": [
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Ben Rice",
+      "team": "NYY",
+      "opponent": "WSH",
+      "marketKey": "batter_home_runs",
+      "side": "Over",
+      "point": 0.5,
+      "price": 320,
+      "rawText": "Ben Rice To Hit A Home Run"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Seiya Suzuki",
+      "team": "CHC",
+      "opponent": "CIN",
+      "marketKey": "batter_home_runs",
+      "side": "Over",
+      "point": 0.5,
+      "price": 340,
+      "rawText": "Seiya Suzuki To Hit A Home Run"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Munetaka Murakami",
+      "team": "ATH",
+      "opponent": "CWS",
+      "marketKey": "batter_home_runs",
+      "side": "Over",
+      "point": 0.5,
+      "price": 300,
+      "rawText": "Munetaka Murakami To Hit A Home Run"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Kazuma Okamoto",
+      "team": "TOR",
+      "opponent": "SD",
+      "marketKey": "batter_home_runs",
+      "side": "Over",
+      "point": 0.5,
+      "price": 300,
+      "rawText": "Kazuma Okamoto To Hit A Home Run"
+    }
+  ]
+}
