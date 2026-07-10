@@ -10,6 +10,7 @@ type ExtractedSlip = {
 };
 
 type ExtractedLeg = {
+  eventId?: string;
   sportKey?: string;
   player?: string;
   team?: string;
@@ -353,6 +354,7 @@ function validateLeg(value: JsonValue, index: number): ExtractedLeg {
 
   return {
     sportKey: typeof value.sportKey === "string" ? value.sportKey : undefined,
+    eventId: typeof value.eventId === "string" ? value.eventId : undefined,
     player: typeof value.player === "string" ? value.player : undefined,
     team: typeof value.team === "string" ? value.team : undefined,
     opponent: typeof value.opponent === "string" ? value.opponent : undefined,
@@ -555,6 +557,7 @@ async function buildLiveSampleSlip(apiKey: string, options: CliOptions): Promise
         sportKey,
         legs: sampleOutcomes.map((outcome) => ({
           sportKey,
+          eventId: outcome.eventId,
           player: outcome.player ?? undefined,
           team: undefined,
           opponent: undefined,
@@ -576,6 +579,13 @@ async function buildLiveSampleSlip(apiKey: string, options: CliOptions): Promise
 function findCandidateEvents(leg: ExtractedLeg, events: OddsApiEvent[]): OddsApiEvent[] {
   const legSportKey = leg.sportKey ?? DEFAULT_SPORT_KEY;
   const relevantEvents = events.filter((event) => event.sport_key === legSportKey);
+
+  if (leg.eventId) {
+    const exactEvent = relevantEvents.find((event) => event.id === leg.eventId);
+    if (exactEvent) {
+      return [exactEvent];
+    }
+  }
 
   if (leg.team || leg.opponent) {
     const matched = relevantEvents.filter((event) => eventContainsTeams(event, leg.team, leg.opponent));

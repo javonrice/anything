@@ -149,6 +149,7 @@ type ExtractedSlip = {
 ```ts
 type ExtractedLeg = {
   sportKey?: string;
+  eventId?: string;
   player?: string;
   team?: string;
   opponent?: string;
