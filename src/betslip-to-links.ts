@@ -757,6 +757,9 @@ function scoreOutcomeMatch(legIndex: number, leg: ExtractedLeg, outcome: Normali
     reasons.push("player_name");
   } else if (player) {
     return null;
+  } else if (!isPlayerPropMarket(marketKey)) {
+    score += 0.2;
+    reasons.push("non_player_market");
   }
 
   const side = leg.side ?? inferSide(leg.rawText);
@@ -798,6 +801,14 @@ function scoreOutcomeMatch(legIndex: number, leg: ExtractedLeg, outcome: Normali
     confidence: Math.min(score, 1),
     matchReasons: reasons,
   };
+}
+
+function isPlayerPropMarket(marketKey: string): boolean {
+  return (
+    marketKey.startsWith("batter_") ||
+    marketKey.startsWith("pitcher_") ||
+    marketKey.startsWith("player_")
+  );
 }
 
 function buildSportsbookGroups(slip: ExtractedSlip, matchesByBook: Map<string, MatchedLeg[]>): SportsbookGroup[] {
