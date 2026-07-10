@@ -21,6 +21,31 @@ The first working resolver accepts extracted betslip JSON. OCR/image extraction 
 
 It reads The Odds API key from `ODDS_API_KEY` or `THE_ODDS_API_KEY`.
 
+### Image to sportsbook links
+
+This command sends a betslip screenshot to Gemini, saves the extracted JSON, then resolves sportsbook links through The Odds API.
+
+macOS/Linux:
+
+```bash
+GEMINI_API_KEY="your-gemini-key" ODDS_API_KEY="your-odds-api-key" npm run resolve:betslip:image -- --image path/to/betslip.jpg
+```
+
+PowerShell:
+
+```powershell
+$env:GEMINI_API_KEY="your-gemini-key"; $env:ODDS_API_KEY="your-odds-api-key"; npm run resolve:betslip:image -- --image path/to/betslip.jpg
+```
+
+Outputs:
+
+```text
+output/extracted-betslip.json
+output/betslip-image-link-result.json
+```
+
+### Extracted JSON to sportsbook links
+
 macOS/Linux:
 
 ```bash
@@ -67,6 +92,7 @@ $env:PROPLINE_API_KEY="your-key"; npm run test:links
 
 ## Scripts
 
+- `npm run resolve:betslip:image` - extracts a betslip image with Gemini, then resolves sportsbook links through The Odds API.
 - `npm run resolve:betslip` - resolves extracted betslip JSON through The Odds API, groups matching outcome links by sportsbook, and builds a FanDuel parlay URL when possible.
 - `npm run resolve:betslip:sample` - creates a small live MLB home-run sample from The Odds API and runs it through the resolver.
 - `npm run test:links` - fetches the next upcoming MLB event, requests pitcher/batter prop odds with `includeLinks=true` and `includeSids=true`, writes a redacted response to `output/propline-mlb-link-test.json`, and prints a link/SID support report.

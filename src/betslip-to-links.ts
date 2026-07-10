@@ -1,15 +1,16 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
-type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
-type ExtractedSlip = {
+export type ExtractedSlip = {
   betType?: "single" | "parlay" | "same_game_parlay" | "unknown";
   sportKey?: string;
   legs: ExtractedLeg[];
 };
 
-type ExtractedLeg = {
+export type ExtractedLeg = {
   eventId?: string;
   sportKey?: string;
   player?: string;
@@ -133,7 +134,7 @@ type ApiUsage = {
   requestsRemaining?: string | null;
 };
 
-type CliOptions = {
+export type CliOptions = {
   inputPath?: string;
   outputPath: string;
   regions: string;
@@ -324,7 +325,7 @@ async function readSlipInput(inputPath: string | undefined): Promise<ExtractedSl
   return slip;
 }
 
-function validateSlip(value: JsonValue): ExtractedSlip {
+export function validateSlip(value: JsonValue): ExtractedSlip {
   if (!isRecord(value) || !Array.isArray(value.legs)) {
     throw new Error("Input JSON must be an object with a legs array.");
   }
@@ -337,7 +338,7 @@ function validateSlip(value: JsonValue): ExtractedSlip {
   const betType = typeof value.betType === "string" ? value.betType : "unknown";
   return {
     betType: isKnownBetType(betType) ? betType : "unknown",
-    sportKey: typeof value.sportKey === "string" ? value.sportKey : undefined,
+    sportKey: optionalKnownString(value.sportKey),
     legs,
   };
 }
@@ -353,18 +354,26 @@ function validateLeg(value: JsonValue, index: number): ExtractedLeg {
   const side = typeof value.side === "string" ? value.side : inferSide(rawText);
 
   return {
-    sportKey: typeof value.sportKey === "string" ? value.sportKey : undefined,
+    sportKey: optionalKnownString(value.sportKey),
     eventId: typeof value.eventId === "string" ? value.eventId : undefined,
     player: typeof value.player === "string" ? value.player : undefined,
     team: typeof value.team === "string" ? value.team : undefined,
     opponent: typeof value.opponent === "string" ? value.opponent : undefined,
-    marketKey,
+    marketKey: marketKey === "unknown" ? undefined : marketKey,
     side,
     point,
     price: typeof value.price === "number" ? value.price : null,
     commenceTimeHint: typeof value.commenceTimeHint === "string" ? value.commenceTimeHint : null,
     rawText,
   };
+}
+
+function optionalKnownString(value: JsonValue | undefined): string | undefined {
+  if (typeof value !== "string") {
+    return undefined;
+  }
+
+  return value.toLowerCase() === "unknown" ? undefined : value;
 }
 
 function isKnownBetType(value: string): value is NonNullable<ExtractedSlip["betType"]> {
@@ -418,7 +427,7 @@ function inferPoint(rawText: string): number | null | undefined {
   return undefined;
 }
 
-async function resolveBetslipToLinks(
+export async function resolveBetslipToLinks(
   slip: ExtractedSlip,
   apiKey: string,
   options: CliOptions,
@@ -1040,7 +1049,7 @@ function usageFromHeaders(
   };
 }
 
-function printReport(result: ResolutionResult, outputPath: string): void {
+export function printReport(result: ResolutionResult, outputPath: string): void {
   console.log("Betslip sportsbook link resolution report");
   console.log("=========================================");
   console.log(`Status: ${result.status}`);
@@ -1127,4 +1136,6 @@ function isAbortError(error: unknown): boolean {
   return error instanceof Error && error.name === "AbortError";
 }
 
-void main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  void main();
+}
