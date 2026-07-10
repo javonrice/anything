@@ -1,0 +1,86 @@
+{
+  "betType": "same_game_parlay",
+  "sportKey": "basketball_wnba",
+  "legs": [
+    {
+      "sportKey": "basketball_wnba",
+      "player": "Gabby Williams",
+      "team": "Golden State Valkyries",
+      "opponent": "Connecticut Sun",
+      "marketKey": "player_points_alternate",
+      "side": "Over",
+      "point": 9.5,
+      "rawText": "Gabby Williams To Score 10+ Points"
+    },
+    {
+      "sportKey": "basketball_wnba",
+      "player": "Leila Lacan",
+      "team": "Golden State Valkyries",
+      "opponent": "Connecticut Sun",
+      "marketKey": "player_points_alternate",
+      "side": "Over",
+      "point": 9.5,
+      "rawText": "Leila Lacan To Score 10+ Points"
+    },
+    {
+      "sportKey": "basketball_wnba",
+      "player": "Kayla Thornton",
+      "team": "Golden State Valkyries",
+      "opponent": "Connecticut Sun",
+      "marketKey": "player_rebounds_alternate",
+      "side": "Over",
+      "point": 3.5,
+      "rawText": "Kayla Thornton To Record 4+ Rebounds"
+    },
+    {
+      "sportKey": "basketball_wnba",
+      "player": "Paige Bueckers",
+      "team": "Dallas Wings",
+      "opponent": "Toronto Tempo",
+      "marketKey": "player_points_alternate",
+      "side": "Over",
+      "point": 14.5,
+      "rawText": "Paige Bueckers To Score 15+ Points"
+    },
+    {
+      "sportKey": "basketball_wnba",
+      "player": "Marina Mabrey",
+      "team": "Dallas Wings",
+      "opponent": "Toronto Tempo",
+      "marketKey": "player_points_alternate",
+      "side": "Over",
+      "point": 14.5,
+      "rawText": "Marina Mabrey To Score 15+ Points"
+    },
+    {
+      "sportKey": "basketball_wnba",
+      "player": "Jessica Shepard",
+      "team": "Dallas Wings",
+      "opponent": "Toronto Tempo",
+      "marketKey": "player_points_alternate",
+      "side": "Over",
+      "point": 9.5,
+      "rawText": "Jessica Shepard To Score 10+ Points"
+    },
+    {
+      "sportKey": "basketball_wnba",
+      "player": "Maria Conde",
+      "team": "Dallas Wings",
+      "opponent": "Toronto Tempo",
+      "marketKey": "player_rebounds_alternate",
+      "side": "Over",
+      "point": 3.5,
+      "rawText": "Maria Conde To Record 4+ Rebounds"
+    },
+    {
+      "sportKey": "basketball_wnba",
+      "player": "Nyara Sabally",
+      "team": "Dallas Wings",
+      "opponent": "Toronto Tempo",
+      "marketKey": "player_rebounds_alternate",
+      "side": "Over",
+      "point": 3.5,
+      "rawText": "Nyara Sabally To Record 4+ Rebounds"
+    }
+  ]
+}

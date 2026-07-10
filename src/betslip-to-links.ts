@@ -382,14 +382,35 @@ function isKnownBetType(value: string): value is NonNullable<ExtractedSlip["betT
 
 function inferMarketKey(rawText: string): string | undefined {
   const normalized = normalizeText(rawText);
+  if (/moneyline|\bml\b/.test(normalized)) {
+    return "h2h";
+  }
+  if (/1st inning|first inning/.test(normalized) && /runs?|total/.test(normalized)) {
+    return "totals_1st_1_innings";
+  }
+  if (/total runs?|game total/.test(normalized)) {
+    return "totals";
+  }
   if (/home runs?|homer|to hit a home run/.test(normalized)) {
     return "batter_home_runs";
+  }
+  if (/record a hit|to record a hit|1\+ hits?/.test(normalized)) {
+    return "batter_hits";
+  }
+  if (/hits?\s*\+\s*runs?\s*\+\s*rbis?|hits runs rbis/.test(normalized)) {
+    return "batter_hits_runs_rbis";
+  }
+  if (/hitter fs|batter fantasy|fantasy score|fantasy points/.test(normalized)) {
+    return "batter_fantasy_score";
   }
   if (/total bases?/.test(normalized)) {
     return "batter_total_bases";
   }
   if (/\bhits?\b/.test(normalized)) {
     return "batter_hits";
+  }
+  if (/alt strikeouts?|alternate strikeouts?|strikeouts?\s*\d\+|\d\+\s*strikeouts?/.test(normalized)) {
+    return "pitcher_strikeouts_alternate";
   }
   if (/strikeouts?|ks\b/.test(normalized)) {
     return "pitcher_strikeouts";
@@ -400,6 +421,9 @@ function inferMarketKey(rawText: string): string | undefined {
 function inferSide(rawText: string): string | undefined {
   const normalized = normalizeText(rawText);
   if (/\bover\b|\bo\s*0/.test(normalized) || /to hit a home run/.test(normalized)) {
+    return "Over";
+  }
+  if (/\d\+/.test(normalized) || /record a hit|to record a hit|hitter fs/.test(normalized)) {
     return "Over";
   }
   if (/\bunder\b|\bu\s*0/.test(normalized)) {
@@ -422,6 +446,11 @@ function inferPoint(rawText: string): number | null | undefined {
 
   if (/to hit a home run|1\+\s*home runs?/i.test(rawText)) {
     return 0.5;
+  }
+
+  const milestoneMatch = rawText.match(/\b(\d+)\s*\+/);
+  if (milestoneMatch?.[1]) {
+    return Number(milestoneMatch[1]) - 0.5;
   }
 
   return undefined;

@@ -1,0 +1,66 @@
+{
+  "betType": "parlay",
+  "sportKey": "baseball_mlb",
+  "legs": [
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Kevin McGonigle",
+      "team": "DET",
+      "opponent": "PHI",
+      "marketKey": "batter_fantasy_score",
+      "side": "Over",
+      "point": 5.5,
+      "rawText": "Kevin McGonigle Hitter FS Over 5.5"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Ben Rice",
+      "team": "NYY",
+      "opponent": "WSH",
+      "marketKey": "batter_fantasy_score",
+      "side": "Over",
+      "point": 6.5,
+      "rawText": "Ben Rice Hitter FS Over 6.5"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Sal Stewart",
+      "team": "CIN",
+      "opponent": "CHC",
+      "marketKey": "batter_fantasy_score",
+      "side": "Over",
+      "point": 4.5,
+      "rawText": "Sal Stewart Hitter FS Over 4.5"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Yordan Alvarez",
+      "team": "HOU",
+      "opponent": "TEX",
+      "marketKey": "batter_fantasy_score",
+      "side": "Over",
+      "point": 6.5,
+      "rawText": "Yordan Alvarez Hitter FS Over 6.5"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Ernie Clement",
+      "team": "TOR",
+      "opponent": "SD",
+      "marketKey": "batter_hits_runs_rbis",
+      "side": "Over",
+      "point": 1.5,
+      "rawText": "Ernie Clement Hits+Runs+RBIs Over 1.5"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Hunter Goodman",
+      "team": "COL",
+      "opponent": "SF",
+      "marketKey": "batter_hits_runs_rbis",
+      "side": "Over",
+      "point": 1.5,
+      "rawText": "Hunter Goodman Hits+Runs+RBIs Over 1.5"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "betType": "parlay",
+  "sportKey": "baseball_mlb",
+  "legs": [
+    {
+      "sportKey": "baseball_mlb",
+      "team": "TB",
+      "opponent": "SEA",
+      "marketKey": "h2h",
+      "side": "Tampa Bay Rays",
+      "price": 101,
+      "rawText": "Tampa Bay Rays Moneyline"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "team": "MIA",
+      "opponent": "CLE",
+      "marketKey": "h2h",
+      "side": "Miami Marlins",
+      "price": -101,
+      "rawText": "Miami Marlins Moneyline"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "team": "BOS",
+      "opponent": "NYM",
+      "marketKey": "h2h",
+      "side": "Boston Red Sox",
+      "price": 131,
+      "rawText": "Boston Red Sox Moneyline"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "team": "ATH",
+      "opponent": "CWS",
+      "marketKey": "totals",
+      "side": "Over",
+      "point": 8.5,
+      "price": -108,
+      "rawText": "Over 8.5 Total Runs"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "team": "MIN",
+      "opponent": "LAA",
+      "marketKey": "h2h",
+      "side": "Minnesota Twins",
+      "price": -110,
+      "rawText": "Minnesota Twins Moneyline"
+    }
+  ]
+}
