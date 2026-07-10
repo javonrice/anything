@@ -539,6 +539,11 @@ function printReport(input: {
   rows: OutcomeRow[];
 }): void {
   const sportsbookLabels = unique(input.bookmakerEntries.map(({ bookmaker }) => bookmakerLabel(bookmaker)));
+  const sportsbookKeys = unique(
+    input.bookmakerEntries.map(
+      ({ bookmaker }) => stringValue(bookmaker.key) ?? stringValue(bookmaker.id) ?? bookmakerLabel(bookmaker),
+    ),
+  ).map((sportsbook) => sportsbook.toLowerCase());
   const marketKeys = unique(
     input.marketEntries.map(({ market }) =>
       stringValue(market.key) ?? stringValue(market.market_key) ?? stringValue(market.title) ?? "Unknown",
@@ -551,6 +556,7 @@ function printReport(input: {
   const bookmakerLinkCount = linkDiscoveries.filter((discovery) => discovery.level === "bookmaker").length;
   const strongestLinkingLevel = determineStrongestLinkingLevel(linkDiscoveries, idDiscoveries);
   const queryStatus = determineQueryStatus({
+    sportsbookKeys,
     sportsbookLabels,
     marketKeys,
     linkDiscoveries,
@@ -618,13 +624,17 @@ function printReport(input: {
 }
 
 function determineQueryStatus(input: {
+  sportsbookKeys: string[];
   sportsbookLabels: string[];
   marketKeys: string[];
   linkDiscoveries: Discovery[];
   idDiscoveries: Discovery[];
 }): string[] {
-  const sportsbookText = input.sportsbookLabels.join(" ").toLowerCase();
-  const returnedRequestedBooks = BOOKMAKERS.filter((bookmaker) => sportsbookText.includes(bookmaker));
+  const returnedRequestedBooks = BOOKMAKERS.filter((bookmaker) => input.sportsbookKeys.includes(bookmaker));
+  const missingRequestedBooks = BOOKMAKERS.filter((bookmaker) => !input.sportsbookKeys.includes(bookmaker));
+  const unrequestedBooks = input.sportsbookKeys.filter(
+    (bookmaker) => !BOOKMAKERS.includes(bookmaker) && bookmaker !== "unknown",
+  );
   const returnedRequestedMarkets = MARKETS.filter((market) => input.marketKeys.includes(market));
 
   return [
@@ -633,11 +643,11 @@ function determineQueryStatus(input: {
         ? `supported (${returnedRequestedMarkets.join(", ")} returned)`
         : "accepted but no requested markets were returned; possibly no data or the filter was ignored"
     }`,
-    `bookmakers=${BOOKMAKERS.join(",")}: ${
-      returnedRequestedBooks.length > 0
-        ? `supported (${returnedRequestedBooks.join(", ")} returned)`
-        : "accepted but none of the requested bookmakers were returned"
-    }`,
+    `bookmakers=${BOOKMAKERS.join(",")}: ${bookmakerSupportText(
+      returnedRequestedBooks,
+      missingRequestedBooks,
+      unrequestedBooks,
+    )}`,
     `includeLinks=true: ${
       input.linkDiscoveries.length > 0
         ? "supported/populated (link-like fields returned)"
@@ -649,6 +659,30 @@ function determineQueryStatus(input: {
         : "accepted but no SID/native ID-like fields were returned; possibly ignored or unavailable for this event"
     }`,
   ];
+}
+
+function bookmakerSupportText(
+  returnedRequestedBooks: string[],
+  missingRequestedBooks: string[],
+  unrequestedBooks: string[],
+): string {
+  if (returnedRequestedBooks.length === BOOKMAKERS.length && unrequestedBooks.length === 0) {
+    return `supported (${returnedRequestedBooks.join(", ")} returned)`;
+  }
+
+  if (returnedRequestedBooks.length === 0) {
+    return "accepted but none of the requested bookmakers were returned";
+  }
+
+  const details = [`returned requested: ${returnedRequestedBooks.join(", ")}`];
+  if (missingRequestedBooks.length > 0) {
+    details.push(`missing requested: ${missingRequestedBooks.join(", ")}`);
+  }
+  if (unrequestedBooks.length > 0) {
+    details.push(`also returned unrequested: ${unrequestedBooks.join(", ")}`);
+  }
+
+  return `accepted but appears partially supported or ignored (${details.join("; ")})`;
 }
 
 function determineStrongestLinkingLevel(
