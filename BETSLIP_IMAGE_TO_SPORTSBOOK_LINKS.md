@@ -563,10 +563,11 @@ Example:
 Rules:
 
 1. If a sportsbook has all requested legs with outcome-level links, it is eligible for a parlay link if an adapter supports that book.
-2. If a sportsbook has all requested legs with outcome-level links but no tested parlay adapter, show individual links only.
-3. If a sportsbook has only some legs, mark it as partial or hide it.
-4. If a sportsbook has only market/event links, do not show it as an exact betslip option.
-5. If a sportsbook has no usable links, do not show it.
+2. If a sportsbook has at least two matched legs with outcome-level links, it may receive a partial parlay link if an adapter supports that book.
+3. If a sportsbook has all requested legs with outcome-level links but no tested parlay adapter, show individual links only.
+4. If a sportsbook has only some legs, mark it as partial; include a partial parlay URL only when it is explicitly adapter-supported.
+5. If a sportsbook has only market/event links, do not show it as an exact betslip option.
+6. If a sportsbook has no usable links, do not show it.
 
 ---
 
@@ -759,7 +760,11 @@ Show:
 DraftKings has 3 of 4 legs available
 ```
 
-Do not show this as a complete parlay option.
+Do not show this as a complete parlay option. If a tested sportsbook adapter can build a link from the matched subset, label it clearly as a partial parlay, for example:
+
+```text
+Open 3-leg FanDuel parlay from matched legs
+```
 
 ### Event or market links only
 

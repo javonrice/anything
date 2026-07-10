@@ -149,6 +149,11 @@ type FanDuelSelection = {
   selectionId: string;
 };
 
+type SportsbookParlayAdapter = {
+  sportsbookKey: string;
+  createParlayLink(matches: MatchedLeg[]): string | null;
+};
+
 const ODDS_API_BASE_URL = "https://api.the-odds-api.com/v4";
 const REQUEST_TIMEOUT_MS = 15_000;
 const DEFAULT_OUTPUT_PATH = path.join("output", "betslip-link-result.json");
@@ -832,8 +837,7 @@ function buildSportsbookGroups(slip: ExtractedSlip, matchesByBook: Map<string, M
       .map((match) => (match.outcome.linkLevel === "outcome" ? match.outcome.link : null))
       .filter((link): link is string => Boolean(link));
 
-    const canBuildParlay = sportsbookKey === "fanduel" && allLegsHaveOutcomeLinks && requestedLegCount > 1;
-    const parlayUrl = canBuildParlay ? buildFanDuelParlayFromMatches(legs) : null;
+    const parlayUrl = buildSportsbookParlayLink(sportsbookKey, legs);
     const status = determineGroupStatus({
       requestedLegCount,
       allLegsMatched,
@@ -905,6 +909,27 @@ function groupPriority(group: SportsbookGroup): number {
     case "unavailable":
       return 1;
   }
+}
+
+const SPORTSBOOK_PARLAY_ADAPTERS: SportsbookParlayAdapter[] = [
+  {
+    sportsbookKey: "fanduel",
+    createParlayLink: buildFanDuelParlayFromMatches,
+  },
+];
+
+function buildSportsbookParlayLink(sportsbookKey: string, matches: MatchedLeg[]): string | null {
+  const adapter = SPORTSBOOK_PARLAY_ADAPTERS.find((candidate) => candidate.sportsbookKey === sportsbookKey);
+  if (!adapter) {
+    return null;
+  }
+
+  const outcomeLinkedMatches = matches.filter((match) => match.outcome.linkLevel === "outcome");
+  if (outcomeLinkedMatches.length < 2) {
+    return null;
+  }
+
+  return adapter.createParlayLink(outcomeLinkedMatches);
 }
 
 function buildFanDuelParlayFromMatches(matches: MatchedLeg[]): string | null {

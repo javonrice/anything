@@ -11,7 +11,7 @@ The chat images were not exposed as local files in the workspace, so these tests
 | `examples/edge-hr-placed.json` | 4-leg MLB HR parlay | Partial | BetRivers matched 3/4 legs with outcome links |
 | `examples/edge-batter-hits.json` | 6-leg MLB "record a hit" parlay | Partial | BetMGM, BetRivers, DraftKings, BetOnline each matched 4/6 legs |
 | `examples/edge-game-lines.json` | 4-leg MLB moneyline + 1st inning totals parlay | Ready | FanDuel matched 4/4 and produced a parlay URL |
-| `examples/edge-moneyline-total.json` | 5-leg MLB moneyline + full-game total parlay | Partial | Multiple books matched 4/5; full-game total leg did not complete |
+| `examples/edge-moneyline-total.json` | 5-leg MLB moneyline + full-game total parlay | Partial | FanDuel matched 4/5 and produced a partial parlay URL; full-game total leg did not complete |
 | `examples/edge-alt-strikeouts.json` | 3-leg MLB alternate strikeouts parlay | Ready | FanDuel matched 3/3 and produced a parlay URL |
 | `examples/edge-prizepicks-fantasy.json` | 6-leg MLB DFS fantasy/H+R+RBI slip | Ready | PrizePicks matched 6/6 with outcome links |
 | `examples/edge-wnba-sgp.json` | WNBA SGP-style alternate points/rebounds slip | Ready | FanDuel matched 8/8 and produced a parlay URL; DraftKings matched 8/8 individual links |
@@ -65,7 +65,7 @@ Several slips returned partial matches. This confirms the product rule:
 Only show a sportsbook as a complete parlay option when it returns every requested leg.
 ```
 
-Partial books should be shown separately or hidden behind "not fully available".
+Partial books should be shown separately or hidden behind "not fully available". If a tested adapter exists and at least two matched legs have outcome-level links, the resolver provides a clearly labeled partial parlay URL for the matched subset. For example, the moneyline/total fixture now returns a 4-leg FanDuel parlay URL even though the full requested slip is 5 legs.
 
 ### DFS slips can resolve through `us_dfs`
 
