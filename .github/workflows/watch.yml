@@ -20,7 +20,19 @@ jobs:
         run: sudo apt-get install -y ffmpeg
 
       - name: Install Python dependencies
-        run: pip install "yt-dlp>=2024.11.18" requests
+        run: pip install "yt-dlp>=2024.11.18" requests bgutil-ytdlp-pot-provider
+
+      - name: Install bgutil Node.js server dependencies
+        run: |
+          SERVER_HOME=$(python3 -c "
+import importlib.util, os
+spec = importlib.util.find_spec('bgutil_ytdlp_pot_provider')
+print(os.path.join(os.path.dirname(spec.origin), 'server'))
+")
+          echo "SERVER_HOME=$SERVER_HOME" >> $GITHUB_ENV
+          echo "Server home: $SERVER_HOME"
+          ls "$SERVER_HOME" || true
+          cd "$SERVER_HOME" && npm install 2>&1 | tail -5
 
       - name: Clone claude-video
         run: git clone https://github.com/bradautomates/claude-video.git
@@ -39,43 +51,19 @@ jobs:
 
           VIDEO_URL="${{ github.event.inputs.video_url }}"
 
-          # Try tv_embedded client — doesn't require sign-in for most videos
-          echo "=== Attempt 1: tv_embedded client ==="
+          echo "=== Downloading with bgutil PO token provider ==="
           yt-dlp \
-            --extractor-args "youtube:player_client=tv_embedded" \
+            --extractor-args "youtubepot-bgutilscript:server_home=$SERVER_HOME" \
             --format "bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best[ext=mp4][height<=720]/best" \
             -o "workspace/download/video.%(ext)s" \
             "$VIDEO_URL" 2>&1 | tee workspace/download_output.txt || true
 
-          VIDEO_FILE=$(ls workspace/download/video.* 2>/dev/null | grep -v "\.txt" | head -1)
-
-          # Try web_creator client as fallback
-          if [ -z "$VIDEO_FILE" ]; then
-            echo "=== Attempt 2: web_creator client ==="
-            yt-dlp \
-              --extractor-args "youtube:player_client=web_creator" \
-              --format "bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best[ext=mp4][height<=720]/best" \
-              -o "workspace/download/video.%(ext)s" \
-              "$VIDEO_URL" 2>&1 | tee -a workspace/download_output.txt || true
-            VIDEO_FILE=$(ls workspace/download/video.* 2>/dev/null | grep -v "\.txt" | head -1)
-          fi
-
-          # Try mweb client as fallback
-          if [ -z "$VIDEO_FILE" ]; then
-            echo "=== Attempt 3: mweb client ==="
-            yt-dlp \
-              --extractor-args "youtube:player_client=mweb" \
-              --format "bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best[ext=mp4][height<=720]/best" \
-              -o "workspace/download/video.%(ext)s" \
-              "$VIDEO_URL" 2>&1 | tee -a workspace/download_output.txt || true
-            VIDEO_FILE=$(ls workspace/download/video.* 2>/dev/null | grep -v "\.txt" | head -1)
-          fi
-
           echo "=== Download directory ==="
           ls -la workspace/download/
 
+          VIDEO_FILE=$(ls workspace/download/video.* 2>/dev/null | grep -v "\.txt" | head -1)
           if [ -z "$VIDEO_FILE" ]; then
-            echo "ERROR: All download attempts failed. Output:"
+            echo "ERROR: Download failed. Output:"
             cat workspace/download_output.txt
             exit 1
           fi
@@ -83,7 +71,6 @@ jobs:
 
       - name: Process video and ask Claude
         run: |
-          VIDEO_URL="${{ github.event.inputs.video_url }}"
           VIDEO_FILE=$(ls workspace/download/video.* 2>/dev/null | grep -v "\.txt" | head -1)
 
           echo "=== Running watch.py on $VIDEO_FILE ==="
@@ -98,7 +85,6 @@ jobs:
           echo "=== watch output ==="
           cat workspace/watch_output.txt
 
-          # Find transcript/report output
           TRANSCRIPT=""
           for f in workspace/*.txt workspace/*.vtt workspace/*.srt workspace/transcript* workspace/report*; do
             [ -f "$f" ] && [ "$f" != "workspace/watch_output.txt" ] && TRANSCRIPT=$(cat "$f") && break
