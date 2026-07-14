@@ -18,11 +18,11 @@ jobs:
         run: npm install -g @anthropic-ai/claude-code
 
       - name: Install skill
-        run: claude skills add ./watch.skill --no-interactive
+        run: claude skills add ./watch.skill
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
       - name: Run watch skill
-        run: claude --no-interactive "/watch ${{ github.event.inputs.video_url }}"
+        run: claude -p "/watch ${{ github.event.inputs.video_url }}"
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
