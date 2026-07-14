@@ -1,5 +1,0 @@
-__pycache__/
-*.pyc
-.env
-*.csv
-sent_log.csv
