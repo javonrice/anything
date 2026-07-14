@@ -1,6 +1,10 @@
 name: Watch Video
 
 on:
+  push:
+    branches:
+      - main
+      - claude/focused-darwin-ozxzcj
   workflow_dispatch:
     inputs:
       video_url:
