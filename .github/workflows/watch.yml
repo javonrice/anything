@@ -20,7 +20,7 @@ jobs:
         run: sudo apt-get install -y ffmpeg
 
       - name: Install Python dependencies
-        run: pip install yt-dlp requests youtube-transcript-api
+        run: pip install "yt-dlp>=2024.11.18" requests
 
       - name: Clone claude-video
         run: git clone https://github.com/bradautomates/claude-video.git
@@ -33,69 +33,60 @@ jobs:
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Process video and ask Claude
+      - name: Download video
         run: |
-          mkdir -p workspace
+          mkdir -p workspace/download
 
           VIDEO_URL="${{ github.event.inputs.video_url }}"
 
-          # Extract video ID from URL
-          VIDEO_ID=$(python3 -c "
-import re, sys
-url = sys.argv[1]
-m = re.search(r'(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})', url)
-print(m.group(1) if m else '')
-" "$VIDEO_URL")
-          echo "Video ID: $VIDEO_ID"
+          echo "=== Attempting download with iOS client (no auth needed) ==="
+          yt-dlp \
+            --extractor-args "youtube:player_client=ios" \
+            --format "bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best[ext=mp4][height<=720]/best" \
+            -o "workspace/download/video.%(ext)s" \
+            "$VIDEO_URL" 2>&1 | tee workspace/download_output.txt || true
 
-          # Try youtube-transcript-api first (no auth required)
-          TRANSCRIPT=""
-          if [ -n "$VIDEO_ID" ]; then
-            echo "=== Fetching transcript via youtube-transcript-api ==="
-            python3 -c "
-from youtube_transcript_api import YouTubeTranscriptApi
-import sys
-try:
-    t = YouTubeTranscriptApi.get_transcript(sys.argv[1])
-    print('\n'.join(e['text'] for e in t))
-except Exception as e:
-    print(f'Transcript fetch failed: {e}', file=sys.stderr)
-    sys.exit(1)
-" "$VIDEO_ID" > workspace/transcript.txt 2>workspace/transcript_err.txt && \
-              TRANSCRIPT=$(cat workspace/transcript.txt) || \
-              echo "Transcript API failed: $(cat workspace/transcript_err.txt)"
-          fi
+          echo "=== Download directory ==="
+          ls -la workspace/download/
 
-          # Fallback: try yt-dlp subtitle extraction (no video download)
-          if [ -z "$TRANSCRIPT" ] && [ -n "$VIDEO_ID" ]; then
-            echo "=== Trying yt-dlp subtitle extraction ==="
-            yt-dlp --write-auto-sub --skip-download --sub-format vtt \
-              -o "workspace/sub" "$VIDEO_URL" 2>&1 | tee workspace/ytdlp_sub.txt || true
-            for f in workspace/sub*.vtt workspace/sub*.srt workspace/sub*.ttml; do
-              [ -f "$f" ] && TRANSCRIPT=$(cat "$f") && echo "Got subtitles from $f" && break
-            done
+          # Confirm we got a video file
+          VIDEO_FILE=$(ls workspace/download/video.* 2>/dev/null | grep -v "\.txt" | head -1)
+          if [ -z "$VIDEO_FILE" ]; then
+            echo "ERROR: Video download failed. Output was:"
+            cat workspace/download_output.txt
+            exit 1
           fi
+          echo "Downloaded: $VIDEO_FILE"
 
-          # Last resort: run watch.py (may fail due to YouTube bot detection)
-          if [ -z "$TRANSCRIPT" ]; then
-            echo "=== Falling back to watch.py ==="
-            python claude-video/skills/watch/scripts/watch.py \
-              "$VIDEO_URL" \
-              --out-dir workspace \
-              --no-whisper 2>&1 | tee workspace/watch_output.txt || true
-            for f in workspace/*.txt workspace/*.vtt workspace/*.srt workspace/transcript*; do
-              [ -f "$f" ] && [ "$f" != "workspace/watch_output.txt" ] && \
-                [ "$f" != "workspace/ytdlp_sub.txt" ] && \
-                TRANSCRIPT=$(cat "$f") && break
-            done
-            [ -z "$TRANSCRIPT" ] && TRANSCRIPT=$(cat workspace/watch_output.txt)
-          fi
+      - name: Process video and ask Claude
+        run: |
+          VIDEO_URL="${{ github.event.inputs.video_url }}"
+          VIDEO_FILE=$(ls workspace/download/video.* 2>/dev/null | grep -v "\.txt" | head -1)
+
+          echo "=== Running watch.py on $VIDEO_FILE ==="
+          python claude-video/skills/watch/scripts/watch.py \
+            "$VIDEO_FILE" \
+            --out-dir workspace \
+            --no-whisper 2>&1 | tee workspace/watch_output.txt || true
 
           echo "=== workspace files ==="
           ls -la workspace/
 
+          echo "=== watch output ==="
+          cat workspace/watch_output.txt
+
+          # Find transcript/report output
+          TRANSCRIPT=""
+          for f in workspace/*.txt workspace/*.vtt workspace/*.srt workspace/transcript* workspace/report*; do
+            [ -f "$f" ] && [ "$f" != "workspace/watch_output.txt" ] && TRANSCRIPT=$(cat "$f") && break
+          done
+
+          if [ -z "$TRANSCRIPT" ]; then
+            TRANSCRIPT=$(cat workspace/watch_output.txt)
+          fi
+
           QUESTION="${{ github.event.inputs.question }}"
           echo "=== Sending to Claude ==="
-          claude -p "$(printf 'Video transcript:\n\n%s\n\n---\n\nQuestion: %s' "$TRANSCRIPT" "$QUESTION")"
+          claude -p "$(printf 'Video analysis report:\n\n%s\n\n---\n\nQuestion: %s' "$TRANSCRIPT" "$QUESTION")"
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
