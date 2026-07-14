@@ -20,7 +20,7 @@ jobs:
         run: sudo apt-get install -y ffmpeg
 
       - name: Install Python dependencies
-        run: pip install yt-dlp requests
+        run: pip install yt-dlp requests youtube-transcript-api
 
       - name: Clone claude-video
         run: git clone https://github.com/bradautomates/claude-video.git
@@ -37,31 +37,65 @@ jobs:
         run: |
           mkdir -p workspace
 
-          # Run watch.py — capture both stdout and stderr, show all output
-          python claude-video/skills/watch/scripts/watch.py \
-            "${{ github.event.inputs.video_url }}" \
-            --out-dir workspace \
-            --no-whisper 2>&1 | tee workspace/watch_output.txt || true
+          VIDEO_URL="${{ github.event.inputs.video_url }}"
+
+          # Extract video ID from URL
+          VIDEO_ID=$(python3 -c "
+import re, sys
+url = sys.argv[1]
+m = re.search(r'(?:v=|youtu\.be/)([A-Za-z0-9_-]{11})', url)
+print(m.group(1) if m else '')
+" "$VIDEO_URL")
+          echo "Video ID: $VIDEO_ID"
+
+          # Try youtube-transcript-api first (no auth required)
+          TRANSCRIPT=""
+          if [ -n "$VIDEO_ID" ]; then
+            echo "=== Fetching transcript via youtube-transcript-api ==="
+            python3 -c "
+from youtube_transcript_api import YouTubeTranscriptApi
+import sys
+try:
+    t = YouTubeTranscriptApi.get_transcript(sys.argv[1])
+    print('\n'.join(e['text'] for e in t))
+except Exception as e:
+    print(f'Transcript fetch failed: {e}', file=sys.stderr)
+    sys.exit(1)
+" "$VIDEO_ID" > workspace/transcript.txt 2>workspace/transcript_err.txt && \
+              TRANSCRIPT=$(cat workspace/transcript.txt) || \
+              echo "Transcript API failed: $(cat workspace/transcript_err.txt)"
+          fi
+
+          # Fallback: try yt-dlp subtitle extraction (no video download)
+          if [ -z "$TRANSCRIPT" ] && [ -n "$VIDEO_ID" ]; then
+            echo "=== Trying yt-dlp subtitle extraction ==="
+            yt-dlp --write-auto-sub --skip-download --sub-format vtt \
+              -o "workspace/sub" "$VIDEO_URL" 2>&1 | tee workspace/ytdlp_sub.txt || true
+            for f in workspace/sub*.vtt workspace/sub*.srt workspace/sub*.ttml; do
+              [ -f "$f" ] && TRANSCRIPT=$(cat "$f") && echo "Got subtitles from $f" && break
+            done
+          fi
+
+          # Last resort: run watch.py (may fail due to YouTube bot detection)
+          if [ -z "$TRANSCRIPT" ]; then
+            echo "=== Falling back to watch.py ==="
+            python claude-video/skills/watch/scripts/watch.py \
+              "$VIDEO_URL" \
+              --out-dir workspace \
+              --no-whisper 2>&1 | tee workspace/watch_output.txt || true
+            for f in workspace/*.txt workspace/*.vtt workspace/*.srt workspace/transcript*; do
+              [ -f "$f" ] && [ "$f" != "workspace/watch_output.txt" ] && \
+                [ "$f" != "workspace/ytdlp_sub.txt" ] && \
+                TRANSCRIPT=$(cat "$f") && break
+            done
+            [ -z "$TRANSCRIPT" ] && TRANSCRIPT=$(cat workspace/watch_output.txt)
+          fi
 
           echo "=== workspace files ==="
           ls -la workspace/
 
-          echo "=== watch output ==="
-          cat workspace/watch_output.txt
-
-          # Find transcript — could be .txt, .vtt, .srt, or inside watch_output
-          TRANSCRIPT=""
-          for f in workspace/*.txt workspace/*.vtt workspace/*.srt workspace/transcript*; do
-            [ -f "$f" ] && [ "$f" != "workspace/watch_output.txt" ] && TRANSCRIPT=$(cat "$f") && break
-          done
-
-          # Fallback: use the full watch output if no separate transcript
-          if [ -z "$TRANSCRIPT" ]; then
-            TRANSCRIPT=$(cat workspace/watch_output.txt)
-          fi
-
           QUESTION="${{ github.event.inputs.question }}"
           echo "=== Sending to Claude ==="
-          claude -p "$(printf 'Video transcript/report:\n\n%s\n\n---\n\nQuestion: %s' "$TRANSCRIPT" "$QUESTION")"
+          claude -p "$(printf 'Video transcript:\n\n%s\n\n---\n\nQuestion: %s' "$TRANSCRIPT" "$QUESTION")"
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
