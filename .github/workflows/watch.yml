@@ -36,20 +36,32 @@ jobs:
       - name: Process video and ask Claude
         run: |
           mkdir -p workspace
-          # Run watch.py — it outputs a markdown report to stdout
+
+          # Run watch.py — capture both stdout and stderr, show all output
           python claude-video/skills/watch/scripts/watch.py \
             "${{ github.event.inputs.video_url }}" \
             --out-dir workspace \
-            --no-whisper \
-            > workspace/report.md 2>workspace/errors.log || true
+            --no-whisper 2>&1 | tee workspace/watch_output.txt || true
 
-          echo "=== watch.py output ==="
-          cat workspace/report.md
+          echo "=== workspace files ==="
+          ls -la workspace/
 
-          echo "=== Sending to Claude ==="
-          REPORT=$(cat workspace/report.md)
+          echo "=== watch output ==="
+          cat workspace/watch_output.txt
+
+          # Find transcript — could be .txt, .vtt, .srt, or inside watch_output
+          TRANSCRIPT=""
+          for f in workspace/*.txt workspace/*.vtt workspace/*.srt workspace/transcript*; do
+            [ -f "$f" ] && [ "$f" != "workspace/watch_output.txt" ] && TRANSCRIPT=$(cat "$f") && break
+          done
+
+          # Fallback: use the full watch output if no separate transcript
+          if [ -z "$TRANSCRIPT" ]; then
+            TRANSCRIPT=$(cat workspace/watch_output.txt)
+          fi
+
           QUESTION="${{ github.event.inputs.question }}"
-
-          claude -p "$(printf 'Here is a video report (frames + transcript):\n\n%s\n\n---\n\nQuestion: %s' "$REPORT" "$QUESTION")"
+          echo "=== Sending to Claude ==="
+          claude -p "$(printf 'Video transcript/report:\n\n%s\n\n---\n\nQuestion: %s' "$TRANSCRIPT" "$QUESTION")"
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
