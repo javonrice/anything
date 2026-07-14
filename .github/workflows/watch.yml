@@ -12,15 +12,11 @@ jobs:
   watch:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
       - name: Install Claude Code
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Install skill
-        run: claude skills add ./watch.skill
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - name: Install watch skill
+        run: npx skills add bradautomates/claude-video -g
 
       - name: Run watch skill
         run: claude -p "/watch ${{ github.event.inputs.video_url }}"
