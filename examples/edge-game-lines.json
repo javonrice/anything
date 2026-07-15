@@ -1,0 +1,44 @@
+{
+  "betType": "parlay",
+  "sportKey": "baseball_mlb",
+  "legs": [
+    {
+      "sportKey": "baseball_mlb",
+      "team": "CHC",
+      "opponent": "CIN",
+      "marketKey": "h2h",
+      "side": "Chicago Cubs",
+      "price": 102,
+      "rawText": "Chicago Cubs Moneyline"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "team": "ATH",
+      "opponent": "CWS",
+      "marketKey": "totals_1st_1_innings",
+      "side": "Under",
+      "point": 0.5,
+      "price": 118,
+      "rawText": "Under 1st Inning 0.5 Runs"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "team": "HOU",
+      "opponent": "TEX",
+      "marketKey": "h2h",
+      "side": "Houston Astros",
+      "price": -121,
+      "rawText": "Houston Astros Moneyline"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "team": "LAA",
+      "opponent": "MIN",
+      "marketKey": "totals_1st_1_innings",
+      "side": "Over",
+      "point": 0.5,
+      "price": 100,
+      "rawText": "Over 1st Inning 0.5 Runs"
+    }
+  ]
+}

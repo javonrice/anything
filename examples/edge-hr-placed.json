@@ -1,0 +1,46 @@
+{
+  "betType": "parlay",
+  "sportKey": "baseball_mlb",
+  "legs": [
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Keibert Ruiz",
+      "team": "WSH",
+      "opponent": "NYY",
+      "marketKey": "batter_home_runs",
+      "side": "Over",
+      "point": 0.5,
+      "rawText": "Keibert Ruiz Home Runs 1+"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Michael Massey",
+      "team": "KC",
+      "opponent": "BAL",
+      "marketKey": "batter_home_runs",
+      "side": "Over",
+      "point": 0.5,
+      "rawText": "Michael Massey Home Runs 1+"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Sal Stewart",
+      "team": "CIN",
+      "opponent": "CHC",
+      "marketKey": "batter_home_runs",
+      "side": "Over",
+      "point": 0.5,
+      "rawText": "Sal Stewart Home Runs 1+"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Josh Lowe",
+      "team": "MIN",
+      "opponent": "LAA",
+      "marketKey": "batter_home_runs",
+      "side": "Over",
+      "point": 0.5,
+      "rawText": "Josh Lowe Home Runs 1+"
+    }
+  ]
+}

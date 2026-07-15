@@ -1,0 +1,39 @@
+{
+  "betType": "parlay",
+  "sportKey": "baseball_mlb",
+  "legs": [
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Ryan Weathers",
+      "team": "NYY",
+      "opponent": "WSH",
+      "marketKey": "pitcher_strikeouts_alternate",
+      "side": "Over",
+      "point": 7.5,
+      "price": 520,
+      "rawText": "Ryan Weathers 8+ Strikeouts"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Chris Sale",
+      "team": "ATL",
+      "opponent": "STL",
+      "marketKey": "pitcher_strikeouts_alternate",
+      "side": "Over",
+      "point": 8.5,
+      "price": 520,
+      "rawText": "Chris Sale 9+ Strikeouts"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Shohei Ohtani",
+      "team": "LAD",
+      "opponent": "ARI",
+      "marketKey": "pitcher_strikeouts_alternate",
+      "side": "Over",
+      "point": 8.5,
+      "price": 440,
+      "rawText": "Shohei Ohtani 9+ Strikeouts"
+    }
+  ]
+}

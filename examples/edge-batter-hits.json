@@ -1,0 +1,72 @@
+{
+  "betType": "parlay",
+  "sportKey": "baseball_mlb",
+  "legs": [
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Nick Gonzales",
+      "team": "PIT",
+      "opponent": "MIL",
+      "marketKey": "batter_hits",
+      "side": "Over",
+      "point": 0.5,
+      "price": -199,
+      "rawText": "Nick Gonzales To Record A Hit"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "C.J. Abrams",
+      "team": "WSH",
+      "opponent": "NYY",
+      "marketKey": "batter_hits",
+      "side": "Over",
+      "point": 0.5,
+      "price": -191,
+      "rawText": "C.J. Abrams To Record A Hit"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Randy Arozarena",
+      "team": "SEA",
+      "opponent": "TB",
+      "marketKey": "batter_hits",
+      "side": "Over",
+      "point": 0.5,
+      "price": -232,
+      "rawText": "Randy Arozarena To Record A Hit"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Pete Crow-Armstrong",
+      "team": "CHC",
+      "opponent": "CIN",
+      "marketKey": "batter_hits",
+      "side": "Over",
+      "point": 0.5,
+      "price": -199,
+      "rawText": "Pete Crow-Armstrong To Record A Hit"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Nolan Schanuel",
+      "team": "LAA",
+      "opponent": "MIN",
+      "marketKey": "batter_hits",
+      "side": "Over",
+      "point": 0.5,
+      "price": -241,
+      "rawText": "Nolan Schanuel To Record A Hit"
+    },
+    {
+      "sportKey": "baseball_mlb",
+      "player": "Ozzie Albies",
+      "team": "ATL",
+      "opponent": "STL",
+      "marketKey": "batter_hits",
+      "side": "Over",
+      "point": 0.5,
+      "price": -224,
+      "rawText": "Ozzie Albies To Record A Hit"
+    }
+  ]
+}
