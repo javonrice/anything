@@ -1,3 +1,4 @@
 node_modules/
 */.hyperframes/
 renders/work-*/
+renders/.*hf-transaction*/
