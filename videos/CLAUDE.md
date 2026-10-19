@@ -1,11 +1,12 @@
 # Video playbook
 
-Short vertical videos (1080×1920, ~60s) selling automation systems to **med spa owners**.
+Short vertical videos (1080×1920, ~60s) selling automation systems to **business owners**.
 The person talks in the bottom "camera zone"; the top shows what the system does.
 
 ## Locked decisions
 
-- **Niche:** med spas only (owner-operators, often injectors).
+- **Audience:** any business owner. Scripts stay general (no industry words like "patients" or "Botox");
+  say "customers", "your business", "while you're working". `medspa-01*` were the early med-spa versions.
 - **Format: animated flowchart.** Every new video copies `medspa-01-flowchart/` as its template.
   Other styles (`medspa-01`, `-revenue`, `-split`, `-kinetic`, `-notify`) were tested and are archived.
 - **Only pitch systems GoHighLevel can build natively**: workflows, calendars with deposits, Conversation AI,
@@ -14,7 +15,7 @@ The person talks in the bottom "camera zone"; the top shows what the system does
   clients to Google); ask everyone for a review and alert the owner on low ratings.
 - **Plain language on screen.** Show outcomes ("Booked on calendar"), never plumbing ("webhook → CRM").
 - **Illustrative numbers** (names, prices, counts) are fine but must not be claimed as real client results.
-- **CTA:** comment "SPA".
+- **CTA:** comment "SYSTEM".
 
 ## Layout (do not change)
 
