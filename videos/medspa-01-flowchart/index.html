@@ -22,17 +22,16 @@
         --rose-deep: #e0718f;
         --green: #3ddc97;
         --red: #ff5468;
+        --amber: #ffb84d;
         --violet: #9b7bff;
       }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
       body { font-family: "Inter", sans-serif; color: var(--text); }
 
-      #root { position: relative; width: 100%; height: 100%; overflow: hidden;
-        background: radial-gradient(1200px 900px at 50% 20%, #2a1630 0%, var(--bg) 60%); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
 
-      /* ---------- layout ---------- */
-      .scene { position: absolute; left: 0; top: 0; width: 1080px; height: 1200px; }
+      /* ---------- presenter zone (shared across variants) ---------- */
       #presenter { position: absolute; left: 0; top: 1200px; width: 1080px; height: 720px;
         background: linear-gradient(180deg, #17111d 0%, #0d0a12 100%);
         border-top: 2px solid rgba(242, 167, 189, 0.25); }
@@ -48,59 +47,39 @@
         font-size: 70px; line-height: 1.15; font-weight: 900; letter-spacing: -1px; }
       .cap .w { color: rgba(246, 241, 248, 0.45); margin: 0 10px; }
 
-      /* ---------- shared UI ---------- */
-      .chip { position: absolute; left: 0; top: 70px; width: 1080px; display: flex; justify-content: center; }
-      .chip span { display: block; padding: 16px 30px; border-radius: 999px; background: rgba(242, 167, 189, 0.14);
-        border: 2px solid rgba(242, 167, 189, 0.5); color: var(--rose); font-size: 30px; font-weight: 800; letter-spacing: 3px; }
+      /* ---------- flowchart stage ---------- */
+      #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1200px; overflow: hidden;
+        background: radial-gradient(900px 700px at 50% 45%, #22142a 0%, var(--bg) 70%); }
+      #world { position: absolute; left: 0; top: 0; width: 2400px; height: 1500px; }
+      #grid { position: absolute; left: -3000px; top: -3000px; width: 8400px; height: 7500px;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.13) 2px, transparent 2.5px);
+        background-size: 48px 48px; }
+      #wires { position: absolute; left: 0; top: 0; overflow: visible; }
+      #wires path { fill: none; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; }
+
+      .node { position: absolute; width: 440px; height: 150px; border-radius: 28px; background: var(--panel);
+        border: 3px solid rgba(255, 255, 255, 0.16); opacity: 0;
+        box-shadow: 0 0 0px 0px rgba(242, 167, 189, 0); }
+      .node .ic { position: absolute; left: 22px; top: 39px; width: 72px; height: 72px; border-radius: 20px;
+        background: rgba(255, 255, 255, 0.07); display: flex; align-items: center; justify-content: center; }
+      .node .tx { position: absolute; left: 112px; top: 0; width: 300px; height: 150px; display: flex; flex-direction: column;
+        justify-content: center; }
+      .node .t { font-size: 29px; font-weight: 800; line-height: 1.15; letter-spacing: -0.3px; }
+      .node .s { margin-top: 6px; font-size: 22px; font-weight: 600; color: var(--muted); line-height: 1.2; }
+      .node .ck { position: absolute; right: -18px; top: -18px; width: 50px; height: 50px; border-radius: 50%;
+        background: var(--green); display: flex; align-items: center; justify-content: center; opacity: 0; }
+      .lane { position: absolute; width: 440px; height: 64px; border-radius: 999px; display: flex; align-items: center;
+        justify-content: center; font-size: 22px; font-weight: 800; letter-spacing: 3px; color: var(--rose);
+        background: rgba(242, 167, 189, 0.1); border: 2px solid rgba(242, 167, 189, 0.45); opacity: 0; }
+      .tag { position: absolute; padding: 12px 22px; border-radius: 999px; font-size: 24px; font-weight: 800; opacity: 0; }
+
+      /* ---------- overlays ---------- */
+      .ov { position: absolute; left: 0; top: 0; width: 1080px; height: 1200px; }
+      .chip { position: absolute; left: 0; top: 46px; width: 1080px; display: flex; justify-content: center; }
+      .chip span { display: block; padding: 16px 30px; border-radius: 999px; background: rgba(13, 10, 18, 0.85);
+        border: 2px solid rgba(242, 167, 189, 0.6); color: var(--rose); font-size: 30px; font-weight: 800; letter-spacing: 3px; }
       .chip b { color: var(--text); }
-      .phone { position: absolute; width: 400px; height: 800px; border-radius: 60px; background: #050407;
-        border: 10px solid #2b2533; box-shadow: 0 40px 100px rgba(0, 0, 0, 0.6), 0 0 0 2px #3a3245; overflow: hidden; }
-      .notch { position: absolute; left: 130px; top: 14px; width: 120px; height: 32px; border-radius: 20px; background: #000; }
-      .screen { position: absolute; inset: 0; }
-      .bubble { position: absolute; padding: 22px 28px; border-radius: 30px; font-size: 32px; font-weight: 600; line-height: 1.3; }
-      .b-in { background: var(--panel-2); color: var(--text); border-bottom-left-radius: 8px; }
-      .b-out { background: linear-gradient(135deg, var(--violet), #6d4dff); color: #fff; border-bottom-right-radius: 8px; }
-      .b-sms { background: #178a4c; color: #fff; border-bottom-right-radius: 8px; }
-      .card { position: absolute; background: var(--panel); border: 2px solid var(--line); border-radius: 32px;
-        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45); }
-      .pill { position: absolute; padding: 14px 24px; border-radius: 999px; font-size: 28px; font-weight: 800; }
-      .pill-red { background: rgba(255, 84, 104, 0.16); border: 2px solid var(--red); color: var(--red); }
-      .pill-green { background: rgba(61, 220, 151, 0.16); border: 2px solid var(--green); color: var(--green); }
-      .icon { display: inline-block; vertical-align: middle; }
-      .avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; }
-
-      /* ---------- S1 ---------- */
-      #s1-counter { position: absolute; left: 0; top: 60px; width: 1080px; text-align: center; }
-      #s1-counter .lbl { font-size: 30px; font-weight: 800; letter-spacing: 4px; color: var(--red); }
-      #s1-counter .num { font-size: 120px; font-weight: 900; color: var(--red); letter-spacing: -3px; }
-      .call-name { position: absolute; left: 0; width: 380px; text-align: center; }
-
-      /* ---------- S2 ---------- */
-      .result { position: absolute; left: 30px; width: 760px; height: 150px; border-radius: 24px; background: var(--panel-2);
-        border: 2px solid var(--line); }
-      .result .t { position: absolute; left: 150px; top: 30px; font-size: 36px; font-weight: 800; }
-      .result .s { position: absolute; left: 150px; top: 84px; font-size: 26px; font-weight: 600; color: var(--muted); }
-      .result .pin { position: absolute; left: 30px; top: 30px; width: 90px; height: 90px; border-radius: 22px; }
-      .stars { color: #ffc94d; }
-
-      /* ---------- S5 ---------- */
-      .row { position: absolute; left: 40px; width: 800px; height: 112px; border-radius: 22px; background: var(--panel-2); }
-      .row .avatar { position: absolute; left: 22px; top: 18px; width: 76px; height: 76px; font-size: 30px; }
-      .row .n { position: absolute; left: 122px; top: 20px; font-size: 32px; font-weight: 800; }
-      .row .d { position: absolute; left: 122px; top: 64px; font-size: 24px; font-weight: 600; color: var(--muted); }
-      .row .st { position: absolute; right: 24px; top: 30px; padding: 10px 20px; border-radius: 999px; font-size: 24px; font-weight: 800; }
-      .st-sent { background: rgba(155, 123, 255, 0.18); color: #c4b2ff; }
-      .st-booked { background: rgba(61, 220, 151, 0.2); color: var(--green); }
-
-      /* ---------- S6 ---------- */
-      .res-row { position: absolute; left: 90px; width: 900px; height: 170px; border-radius: 30px; background: var(--panel);
-        border: 2px solid var(--line); }
-      .res-row .ic { position: absolute; left: 30px; top: 35px; width: 100px; height: 100px; border-radius: 26px;
-        display: flex; align-items: center; justify-content: center; }
-      .res-row .a { position: absolute; left: 160px; top: 36px; font-size: 30px; font-weight: 700; color: var(--muted); text-decoration: line-through; text-decoration-color: var(--red); }
-      .res-row .b { position: absolute; left: 160px; top: 82px; font-size: 44px; font-weight: 900; }
-      .res-row .ok { position: absolute; right: 34px; top: 50px; width: 70px; height: 70px; border-radius: 50%; background: var(--green);
-        display: flex; align-items: center; justify-content: center; }
+      .chip.red span { border-color: var(--red); color: var(--red); }
     </style>
   </head>
   <body>
@@ -108,179 +87,39 @@
 
       <audio id="vo" src="assets/voiceover.mp3" data-start="0" data-duration="60.92" data-track-index="9" data-volume="1"></audio>
 
-      <!-- ================= S1: phone ringing while with patient ================= -->
-      <div id="s1" class="scene clip" data-start="0" data-duration="6.5" data-track-index="1">
-        <div id="s1-counter">
-          <div class="lbl">CLIENTS LOST WHILE YOU INJECT</div>
-          <div class="num" id="s1-num">0</div>
-        </div>
-        <div id="s1-phone" class="phone" style="left: 340px; top: 300px;">
-          <div class="notch"></div>
-          <div class="screen" style="background: linear-gradient(180deg, #2b1d35 0%, #0b0810 100%);">
-            <div class="call-name" style="top: 110px; font-size: 26px; font-weight: 600; color: var(--muted);">Incoming call</div>
-            <div class="avatar" style="position:absolute; left: 120px; top: 170px; width: 140px; height: 140px; font-size: 54px; background: linear-gradient(135deg,#c2577a,#6d4dff);">SK</div>
-            <div class="call-name" style="top: 340px; font-size: 40px; font-weight: 800;">Sarah K.</div>
-            <div class="call-name" style="top: 396px; font-size: 26px; font-weight: 600; color: var(--muted);">New client · Botox?</div>
-            <div id="s1-ring" style="position:absolute; left: 140px; top: 600px; width: 100px; height: 100px; border-radius: 50%; background: #2fbf71; display:flex; align-items:center; justify-content:center;">
-              <svg class="icon" width="48" height="48" viewBox="0 0 24 24" fill="#fff"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>
-            </div>
-          </div>
-        </div>
-        <div id="s1-busy" class="pill" style="left: 60px; top: 330px; background: rgba(242,167,189,0.14); border: 2px solid var(--rose); color: var(--rose);">YOU: WITH A PATIENT</div>
-        <div id="s1-m1" class="pill pill-red" style="left: 770px; top: 560px;">Missed call</div>
-        <div id="s1-m2" class="pill pill-red" style="left: 770px; top: 650px;">Missed call</div>
-        <div id="s1-m3" class="pill pill-red" style="left: 770px; top: 740px;">Missed call</div>
-      </div>
-
-      <!-- ================= S2: no voicemail, they call the next spa ================= -->
-      <div id="s2" class="scene clip" data-start="6.5" data-duration="4.95" data-track-index="1">
-        <div id="s2-vm" style="position:absolute; left:0; top: 90px; width:1080px; text-align:center; font-size: 64px; font-weight: 900; letter-spacing:-1px;">
-          No voicemail. <span style="color: var(--red);">Just gone.</span>
-        </div>
-        <div id="s2-card" class="card" style="left: 120px; top: 260px; width: 840px; height: 780px;">
-          <div style="position:absolute; left: 30px; top: 30px; width: 780px; height: 90px; border-radius: 45px; background: #fff; display:flex; align-items:center; padding-left: 40px; font-size: 34px; font-weight: 600; color: #333;">
-            <svg class="icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#4285f4" stroke-width="2.6" style="margin-right: 22px;"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
-            med spa near me
-          </div>
-          <div class="result" style="top: 160px; opacity: 0.55;">
-            <div class="pin" style="background: var(--muted);"></div>
-            <div class="t">Your Med Spa</div><div class="s"><span class="stars">★★★★★</span> 4.8 · Closed now? </div>
-          </div>
-          <div id="s2-comp" class="result" style="top: 340px;">
-            <div class="pin" style="background: linear-gradient(135deg,#ffc94d,#ff8a4d);"></div>
-            <div class="t">Glow Aesthetics</div><div class="s"><span class="stars">★★★★★</span> 4.9 · Open · Call now</div>
-          </div>
-          <div class="result" style="top: 520px; opacity: 0.55;">
-            <div class="pin" style="background: var(--muted);"></div>
-            <div class="t">Luxe Skin Studio</div><div class="s"><span class="stars">★★★★</span> 4.6 · 2.1 mi</div>
-          </div>
-          <div id="s2-tap" style="position:absolute; left: 560px; top: 380px; width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.35); border: 4px solid #fff;"></div>
-        </div>
-        <div id="s2-lost" class="pill pill-red" style="left: 330px; top: 1070px; font-size: 40px; padding: 18px 40px;">They booked somewhere else</div>
-      </div>
-
-      <!-- ================= S3: AI receptionist + missed-call text back ================= -->
-      <div id="s3" class="scene clip" data-start="11.45" data-duration="16.75" data-track-index="1">
-        <div class="chip" id="s3-chip"><span>SYSTEM 1 · <b>AI RECEPTIONIST</b></span></div>
-        <div id="s3-phone" class="phone" style="left: 60px; top: 220px;">
-          <div class="notch"></div>
-          <!-- call screen -->
-          <div id="s3-call" class="screen" style="background: linear-gradient(180deg, #1f1830 0%, #0b0810 100%);">
-            <div class="call-name" style="top: 100px; font-size: 26px; font-weight: 700; color: var(--green);" id="s3-status">Answered by AI</div>
-            <div class="avatar" style="position:absolute; left: 120px; top: 170px; width: 140px; height: 140px; background: linear-gradient(135deg,#9b7bff,#f2a7bd);">
-              <svg width="70" height="70" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/><path d="M19 14l.9 2.6L22 17.5l-2.1.9L19 21l-.9-2.6L16 17.5l2.1-.9z"/></svg>
-            </div>
-            <div class="call-name" style="top: 340px; font-size: 36px; font-weight: 800;">AI Receptionist</div>
-            <div class="call-name" style="top: 392px; font-size: 26px; font-weight: 600; color: var(--muted);">On call · 0:14</div>
-            <div id="s3-bars" style="position:absolute; left: 70px; top: 480px; width: 240px; height: 120px; display:flex; align-items:center; justify-content:space-between;">
-              <div class="bar" style="width:18px; height:100px; border-radius:9px; background: var(--rose);"></div>
-              <div class="bar" style="width:18px; height:100px; border-radius:9px; background: var(--rose);"></div>
-              <div class="bar" style="width:18px; height:100px; border-radius:9px; background: var(--rose);"></div>
-              <div class="bar" style="width:18px; height:100px; border-radius:9px; background: var(--rose);"></div>
-              <div class="bar" style="width:18px; height:100px; border-radius:9px; background: var(--rose);"></div>
-              <div class="bar" style="width:18px; height:100px; border-radius:9px; background: var(--rose);"></div>
-              <div class="bar" style="width:18px; height:100px; border-radius:9px; background: var(--rose);"></div>
-            </div>
-          </div>
-          <!-- text-back screen -->
-          <div id="s3-sms" class="screen" style="background: #0b0810; opacity: 0;">
-            <div style="position:absolute; left:0; top: 70px; width: 380px; text-align:center; font-size: 26px; font-weight:700; color: var(--muted);">Messages</div>
-            <div id="s3-ended" class="bubble" style="left: 30px; top: 150px; width: 320px; background: rgba(255,84,104,0.15); color: var(--red); font-size: 26px; text-align:center; border-radius: 20px;">Caller hung up · 0:03</div>
-            <div id="s3-txt" class="bubble b-sms" style="left: 40px; top: 260px; width: 310px; font-size: 28px;">Hi Sarah! Sorry we missed you. Want to grab a spot this week? Book here: glowspa.com/book</div>
-            <div id="s3-reply" class="bubble b-in" style="left: 30px; top: 560px; width: 250px; font-size: 28px;">Yes! Thursday?</div>
-          </div>
-        </div>
-        <!-- conversation captions on the right -->
-        <div id="s3-q" data-layout-allow-overlap class="bubble b-in" style="left: 500px; top: 260px; width: 520px;">"How much is Botox?"</div>
-        <div id="s3-a" data-layout-allow-overlap class="bubble b-out" style="left: 500px; top: 410px; width: 520px;">"It's $12 a unit. I have Friday at 2pm. Want it?"</div>
-        <div id="s3-y" data-layout-allow-overlap class="bubble b-in" style="left: 500px; top: 610px; width: 300px;">"Yes please!"</div>
-        <div id="s3-cal" class="card" style="left: 500px; top: 740px; width: 520px; height: 300px;">
-          <div style="position:absolute; left: 30px; top: 26px; font-size: 26px; font-weight: 800; color: var(--muted); letter-spacing: 2px;">FRIDAY</div>
-          <div style="position:absolute; left: 30px; top: 76px; width: 460px; height: 54px; border-radius: 14px; background: var(--panel-2); font-size: 24px; font-weight:700; color: var(--muted); padding: 13px 20px;">1:00 PM · Lip filler · Ana</div>
-          <div id="s3-slot" data-layout-allow-overlap style="position:absolute; left: 30px; top: 144px; width: 460px; height: 54px; border-radius: 14px; border: 3px dashed rgba(255,255,255,0.25); font-size: 24px; font-weight:700; color: var(--muted); padding: 11px 20px;">2:00 PM · open</div>
-          <div id="s3-slotfill" data-layout-allow-overlap style="position:absolute; left: 30px; top: 144px; width: 460px; height: 54px; border-radius: 14px; background: linear-gradient(90deg, var(--violet), var(--rose-deep)); font-size: 24px; font-weight:800; color: #fff; padding: 13px 20px; opacity: 0;">2:00 PM · Botox · Sarah K.</div>
-          <div style="position:absolute; left: 30px; top: 212px; width: 460px; height: 54px; border-radius: 14px; background: var(--panel-2); font-size: 24px; font-weight:700; color: var(--muted); padding: 13px 20px;">3:30 PM · Facial · Mia</div>
-        </div>
-        <div id="s3-booked" class="pill pill-green" style="left: 820px; top: 690px;">Booked</div>
-        <!-- text-back callouts -->
-        <div id="s3-hang" data-layout-allow-overlap style="position:absolute; left: 500px; top: 300px; width: 540px; font-size: 54px; font-weight: 900; line-height: 1.1; letter-spacing: -1px;">They hung up?</div>
-        <div id="s3-sec" data-layout-allow-overlap style="position:absolute; left: 500px; top: 440px; width: 540px; font-size: 54px; font-weight: 900; line-height: 1.1; color: var(--green); letter-spacing: -1px;">Text sent in 3 seconds.</div>
-        <div id="s3-saved" data-layout-allow-overlap class="pill pill-green" style="left: 500px; top: 640px; font-size: 34px; padding: 16px 32px;">Client saved</div>
-      </div>
-
-      <!-- ================= S4: Instagram DMs at 11pm ================= -->
-      <div id="s4" class="scene clip" data-start="28.2" data-duration="11.15" data-track-index="1">
-        <div class="chip"><span>SYSTEM 2 · <b>INSTANT DM REPLIES</b></span></div>
-        <div id="s4-phone" class="phone" style="left: 340px; top: 210px; width: 400px;">
-          <div class="notch"></div>
-          <div class="screen" style="background:#000;">
-            <div style="position:absolute; left: 0; top: 64px; width: 380px; height: 90px; border-bottom: 1px solid #222;">
-              <div class="avatar" style="position:absolute; left: 24px; top: 14px; width: 60px; height: 60px; font-size: 24px; background: linear-gradient(135deg,#feda75,#d62976,#4f5bd5);">JM</div>
-              <div style="position:absolute; left: 100px; top: 16px; font-size: 26px; font-weight: 800;">jess.m</div>
-              <div style="position:absolute; left: 100px; top: 50px; font-size: 20px; font-weight: 600; color: var(--muted);">Instagram</div>
-            </div>
-            <div id="s4-time" style="position:absolute; left: 0; top: 190px; width: 380px; text-align: center; font-size: 22px; font-weight: 700; color: var(--muted);">11:04 PM</div>
-            <div id="s4-msg" class="bubble" style="left: 20px; top: 240px; width: 270px; background: #262626; font-size: 28px;">How much for lips?</div>
-            <div id="s4-dots" class="bubble" style="left: 200px; top: 360px; width: 120px; height: 64px; background: #1f66c9; padding: 0;">
-              <div style="position:absolute; left: 22px; top: 24px; width: 16px; height: 16px; border-radius:50%; background:#fff;"></div>
-              <div style="position:absolute; left: 52px; top: 24px; width: 16px; height: 16px; border-radius:50%; background:#fff;"></div>
-              <div style="position:absolute; left: 82px; top: 24px; width: 16px; height: 16px; border-radius:50%; background:#fff;"></div>
-            </div>
-            <div id="s4-rep" class="bubble" style="left: 70px; top: 360px; width: 290px; background: #1f66c9; font-size: 26px;">Lip filler starts at $650! Grab a time here:</div>
-            <div id="s4-btn" style="position:absolute; left: 70px; top: 540px; width: 290px; height: 80px; border-radius: 20px; background: #fff; color: #000; font-size: 28px; font-weight: 900; display:flex; align-items:center; justify-content:center;">Book now</div>
-            <div id="s4-tap" style="position:absolute; left: 175px; top: 540px; width: 80px; height: 80px; border-radius: 50%; background: rgba(55,151,240,0.35); border: 4px solid #3797f0;"></div>
-          </div>
-        </div>
-        <div id="s4-moon" class="pill" style="left: 60px; top: 420px; background: rgba(155,123,255,0.16); border: 2px solid var(--violet); color: #c4b2ff;">You're asleep</div>
-        <div id="s4-inst" class="pill pill-green" style="left: 780px; top: 560px;">Replied instantly</div>
-        <div id="s4-booked" class="pill pill-green" style="left: 780px; top: 760px;">Booked</div>
-        <div id="s4-tmr" style="position:absolute; left: 0; top: 1060px; width: 1080px; text-align:center; font-size: 46px; font-weight: 900; color: var(--muted);">
-          <span id="s4-tmr-txt" style="position: relative; display: inline-block;">Replying tomorrow at 9am<span id="s4-strike" style="position:absolute; left: -10px; top: 26px; width: 0; height: 6px; border-radius: 3px; background: var(--red);"></span></span>
+      <!-- ================= flowchart world (camera pans/zooms #world) ================= -->
+      <div id="stage">
+        <div id="world" data-layout-allow-overlap>
+          <div id="grid"></div>
+          <svg id="wires" width="2400" height="1500" viewBox="0 0 2400 1500">
+            <defs>
+              <marker id="ah-red" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ff5468" style="stroke:none; opacity:1; stroke-dasharray:none;"/></marker>
+              <marker id="ah-rose" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#f2a7bd" style="stroke:none; opacity:1; stroke-dasharray:none;"/></marker>
+              <marker id="ah-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ffb84d" style="stroke:none; opacity:1; stroke-dasharray:none;"/></marker>
+            </defs>
+          </svg>
+          <div id="nodes"></div>
         </div>
       </div>
 
-      <!-- ================= S5: win-back old clients ================= -->
-      <div id="s5" class="scene clip" data-start="39.35" data-duration="10.15" data-track-index="1">
-        <div class="chip"><span>SYSTEM 3 · <b>WIN BACK OLD CLIENTS</b></span></div>
-        <div class="card" style="left: 100px; top: 190px; width: 880px; height: 860px;">
-          <div style="position:absolute; left: 40px; top: 32px; font-size: 30px; font-weight: 800; color: var(--muted); letter-spacing: 2px;">HAVEN'T BOOKED IN 6+ MONTHS</div>
-          <div id="r1" class="row" data-layout-allow-overlap style="top: 100px;"><div class="avatar" style="background:#9c4560;">AL</div><div class="n">Ashley L.</div><div class="d">Last visit: 7 months ago</div><div class="st st-sent">Text sent</div><div class="st st-booked">Booked</div></div>
-          <div id="r2" class="row" data-layout-allow-overlap style="top: 226px;"><div class="avatar" style="background:#6c5b7b;">MR</div><div class="n">Maria R.</div><div class="d">Last visit: 9 months ago</div><div class="st st-sent">Text sent</div><div class="st st-booked">Booked</div></div>
-          <div id="r3" class="row" data-layout-allow-overlap style="top: 352px;"><div class="avatar" style="background:#355c7d;">TJ</div><div class="n">Tasha J.</div><div class="d">Last visit: 6 months ago</div><div class="st st-sent">Text sent</div><div class="st st-booked">Booked</div></div>
-          <div id="r4" class="row" data-layout-allow-overlap style="top: 478px;"><div class="avatar" style="background:#c23f52;">KB</div><div class="n">Kim B.</div><div class="d">Last visit: 1 year ago</div><div class="st st-sent">Text sent</div><div class="st st-booked">Booked</div></div>
-          <div id="r5" class="row" data-layout-allow-overlap style="top: 604px;"><div class="avatar" style="background:#4f7a4e;">DP</div><div class="n">Dana P.</div><div class="d">Last visit: 8 months ago</div><div class="st st-sent">Text sent</div><div class="st st-booked">Booked</div></div>
-          <div id="r6" class="row" data-layout-allow-overlap style="top: 730px;"><div class="avatar" style="background:#6b6a6a;">EC</div><div class="n">Emily C.</div><div class="d">Last visit: 11 months ago</div><div class="st st-sent">Text sent</div><div class="st st-booked">Booked</div></div>
-        </div>
-        <div id="s5-offer" data-layout-allow-occlusion class="bubble b-sms" style="left: 560px; top: 120px; width: 470px; font-size: 28px;">Hey Ashley! We miss you. Here's $50 off your next visit this month</div>
-        <div id="s5-reply" class="bubble b-in" style="left: 60px; top: 1050px; width: 560px; font-size: 32px; border: 2px solid var(--line);">"Omg yes!! Do you have Friday?"</div>
+      <!-- ================= overlays ================= -->
+      <div id="hook" class="ov clip" data-start="0" data-duration="2.4" data-track-index="1">
+        <div id="hook-t" style="position:absolute; left:0; top: 430px; width:1080px; text-align:center; font-size: 110px; font-weight: 900; letter-spacing: -3px;">Med spa owners</div>
+        <div id="hook-s" style="position:absolute; left:0; top: 580px; width:1080px; text-align:center; font-size: 40px; font-weight: 700; color: var(--rose);">here's where clients slip away</div>
+      </div>
+      <div id="chip0" class="ov clip" data-start="2.3" data-duration="9.15" data-track-index="2"><div class="chip red"><span>THE PROBLEM</span></div></div>
+      <div id="chip1" class="ov clip" data-start="11.45" data-duration="16.75" data-track-index="2"><div class="chip"><span>SYSTEM 1 · <b>AI RECEPTIONIST</b></span></div></div>
+      <div id="chip2" class="ov clip" data-start="28.2" data-duration="11.2" data-track-index="2"><div class="chip"><span>SYSTEM 2 · <b>INSTANT DM REPLIES</b></span></div></div>
+      <div id="chip3" class="ov clip" data-start="39.4" data-duration="10.1" data-track-index="2"><div class="chip"><span>SYSTEM 3 · <b>WIN BACK OLD CLIENTS</b></span></div></div>
+
+      <div id="pay" class="ov clip" data-start="49.5" data-duration="6.1" data-track-index="1">
+        <div id="pay-t" style="position:absolute; left:0; top: 60px; width:1080px; text-align:center; font-size: 60px; font-weight: 900; letter-spacing: -1.5px;">Med Spa Front Desk System</div>
+        <div id="pay-s" style="position:absolute; left:0; top: 140px; width:1080px; text-align:center; font-size: 30px; font-weight: 800; letter-spacing: 4px; color: var(--rose);">RUNS 24/7 WHILE YOU INJECT</div>
+        <div id="pay-b" style="position:absolute; left: 190px; top: 1040px; width: 700px; height: 110px; border-radius: 30px; background: rgba(13,10,18,0.9); border: 3px solid var(--green); display:flex; align-items:center; justify-content:center; font-size: 46px; font-weight: 900; color: var(--green);">Money coming back in</div>
       </div>
 
-      <!-- ================= S6: result ================= -->
-      <div id="s6" class="scene clip" data-start="49.5" data-duration="6.1" data-track-index="1">
-        <div id="s6-title" style="position:absolute; left:0; top: 90px; width:1080px; text-align:center; font-size: 34px; font-weight: 800; letter-spacing: 6px; color: var(--rose);">ALL RUNNING ON ITS OWN</div>
-        <div id="x1" class="res-row" style="top: 200px;">
-          <div class="ic" style="background: rgba(61,220,151,0.15);"><svg width="54" height="54" viewBox="0 0 24 24" fill="#3ddc97"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg></div>
-          <div class="a">Missed calls</div><div class="b">Every call answered</div>
-          <div class="ok"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0d0a12" stroke-width="3.5"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-        </div>
-        <div id="x2" class="res-row" style="top: 400px;">
-          <div class="ic" style="background: rgba(55,151,240,0.15);"><svg width="54" height="54" viewBox="0 0 24 24" fill="#3797f0"><path d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 2-2z"/></svg></div>
-          <div class="a">Ignored DMs</div><div class="b">Answered instantly</div>
-          <div class="ok"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0d0a12" stroke-width="3.5"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-        </div>
-        <div id="x3" class="res-row" style="top: 600px;">
-          <div class="ic" style="background: rgba(242,167,189,0.15);"><svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#f2a7bd" stroke-width="2.6"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></div>
-          <div class="a">Old clients</div><div class="b">Back in your chair</div>
-          <div class="ok"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#0d0a12" stroke-width="3.5"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-        </div>
-        <div id="s6-money" style="position:absolute; left: 90px; top: 840px; width: 900px; height: 180px; border-radius: 30px; overflow: hidden;">
-          <div id="s6-red" style="position:absolute; inset:0; background: rgba(255,84,104,0.15); border: 3px solid var(--red); border-radius: 30px; display:flex; align-items:center; justify-content:center; font-size: 52px; font-weight: 900; color: var(--red);">Money leaking out</div>
-          <div id="s6-green" style="position:absolute; inset:0; background: rgba(61,220,151,0.15); border: 3px solid var(--green); border-radius: 30px; display:flex; align-items:center; justify-content:center; font-size: 52px; font-weight: 900; color: var(--green); opacity: 0;">Money coming back in</div>
-        </div>
-      </div>
-
-      <!-- ================= S7: CTA ================= -->
-      <div id="s7" class="scene clip" data-start="55.6" data-duration="5.6" data-track-index="1">
+      <div id="s7" class="ov clip" data-start="55.6" data-duration="5.6" data-track-index="1">
+        <div id="s7-dim" style="position:absolute; inset:0; background: rgba(13,10,18,0.88);"></div>
         <div id="s7-q" style="position:absolute; left:0; top: 170px; width:1080px; text-align:center; font-size: 80px; font-weight: 900; letter-spacing: -2px;">Own a med spa?</div>
         <div id="s7-box" style="position:absolute; left: 140px; top: 400px; width: 800px; height: 150px; border-radius: 75px; background: #fff; display:flex; align-items:center; padding-left: 60px;">
           <div style="font-size: 40px; font-weight: 600; color: #6b6b6b;">Comment</div>
@@ -339,97 +178,256 @@
       });
       tl.fromTo("#orb-ring", { scale: 0.9, opacity: 0.6 }, { scale: 1.15, opacity: 0, duration: 1.6, ease: "sine.out", repeat: 37 }, 0);
 
-      // ---------- S1 (0 - 6.5) ----------
-      tl.fromTo("#s1-phone", { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: E }, 0.1);
-      tl.fromTo("#s1-phone", { rotation: -2 }, { rotation: 2, duration: 0.07, repeat: 23, yoyo: true, ease: "none" }, 2.3);
-      tl.fromTo("#s1-ring", { scale: 1 }, { scale: 1.15, duration: 0.3, repeat: 9, yoyo: true, ease: "sine.inOut" }, 2.3);
-      tl.fromTo("#s1-busy", { x: -40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: E }, 3.3);
-      ["#s1-m1", "#s1-m2", "#s1-m3"].forEach((s, i) => tl.fromTo(s, { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.35, ease: "back.out(2)" }, 3.9 + i * 0.55));
-      tl.fromTo("#s1-counter", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 4.9);
-      const lost = { v: 0 };
-      tl.to(lost, { v: 3, duration: 1.2, ease: "none", onUpdate: () => { document.getElementById("s1-num").textContent = Math.round(lost.v); } }, 5.0);
-      tl.to("#s1-phone", { opacity: 0.3, duration: 0.3 }, 6.0);
+      // ================= flowchart model =================
+      const SVG_NS = "http://www.w3.org/2000/svg";
+      const ICON = {
+        phone: '<path fill="C" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/>',
+        x: '<path fill="none" stroke="C" stroke-width="3" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/>',
+        vm: '<g fill="none" stroke="C" stroke-width="2.6"><circle cx="6.5" cy="12" r="3.5"/><circle cx="17.5" cy="12" r="3.5"/><path d="M6.5 15.5h11"/></g>',
+        search: '<g fill="none" stroke="C" stroke-width="2.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></g>',
+        spark: '<path fill="C" d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/><path fill="C" d="M19 14l.9 2.6L22 17.5l-2.1.9L19 21l-.9-2.6L16 17.5l2.1-.9z"/>',
+        chat: '<path fill="C" d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 2-2z"/>',
+        cal: '<g fill="none" stroke="C" stroke-width="2.4"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g>',
+        sms: '<path fill="C" d="M3 5h18v12H8l-5 4z"/>',
+        hang: '<path fill="C" transform="rotate(135 12 12)" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/>',
+        users: '<g fill="C"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.9 3.1-7 7-7s7 3.1 7 7z"/><circle cx="17" cy="9" r="2.8"/><path d="M15.5 13.2A6 6 0 0 1 22 19v1h-4.5"/></g>',
+        heart: '<path fill="C" d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>',
+        check: '<path fill="none" stroke="C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/>',
+        ig: '<g fill="none" stroke="C" stroke-width="2.4"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/></g>',
+      };
+      const svgIcon = (k, c, s = 40) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24">${ICON[k].replace(/C/g, c)}</svg>`;
 
-      // ---------- S2 (6.5 - 11.45) ----------
-      tl.fromTo("#s2-vm", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 6.6);
-      tl.fromTo("#s2-card", { opacity: 0, y: 80 }, { opacity: 1, y: 0, duration: 0.6, ease: E }, 8.6);
-      tl.fromTo("#s2-tap", { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.25, ease: E }, 9.7);
-      tl.to("#s2-tap", { scale: 2.2, opacity: 0, duration: 0.5, ease: "power2.out" }, 9.95);
-      tl.fromTo("#s2-comp", { scale: 1 }, { scale: 1.04, duration: 0.2, yoyo: true, repeat: 1 }, 9.75);
-      tl.to("#s2-comp", { borderColor: "#ffc94d", duration: 0.2 }, 9.75);
-      tl.fromTo("#s2-lost", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 10.4);
+      // node centers in world coords
+      const N = {
+        p1: [350, 220, "phone", "Phone rings", "You're with a patient"],
+        p2: [850, 220, "x", "No answer", "Can't step away"],
+        p3: [1350, 220, "vm", "No voicemail", "Most people won't leave one"],
+        p4: [1850, 220, "search", "Calls a competitor", "Next med spa on Google"],
+        a1: [450, 720, "phone", "Call comes in", "Anytime, day or night"],
+        a2: [450, 920, "spark", "AI answers", "Your AI receptionist"],
+        a3: [450, 1120, "chat", "Answers + pricing", "\"How much is Botox?\""],
+        a4: [450, 1320, "cal", "Booked on calendar", "Fri 2:00 PM · Botox"],
+        b1: [960, 920, "hang", "Caller hangs up", "Before AI picks up"],
+        b2: [960, 1120, "sms", "Text in 3 seconds", "\"Sorry we missed you!\""],
+        b3: [960, 1320, "heart", "Client saved", "Books from the text"],
+        c1: [1460, 720, "ig", "DM at 11:04 PM", "\"How much for lips?\""],
+        c2: [1460, 920, "chat", "Instant reply", "Price + booking link"],
+        c3: [1460, 1120, "cal", "Booked", "While you sleep"],
+        d1: [1960, 720, "users", "Past clients", "No visit in 6+ months"],
+        d2: [1960, 920, "sms", "Personal offer text", "\"We miss you! $50 off\""],
+        d3: [1960, 1120, "chat", "They reply", "\"Omg yes, Friday?\""],
+        d4: [1960, 1320, "cal", "Rebooked", "Back in your chair"],
+      };
+      const LANES = { l1: [700, 560, "SYSTEM 1 · AI RECEPTIONIST", 960], l2: [1460, 560, "SYSTEM 2 · DM REPLIES", 440], l3: [1960, 560, "SYSTEM 3 · WIN-BACK", 440] };
 
-      // ---------- S3 (11.45 - 28.2) ----------
-      tl.fromTo("#s3-chip", { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 11.7);
-      tl.fromTo("#s3-phone", { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 0.6, ease: E }, 12.3);
-      tl.fromTo("#s3-status", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 15.0);
-      document.querySelectorAll("#s3-bars .bar").forEach((b, i) => {
-        tl.fromTo(b, { scaleY: 0.15 }, { scaleY: 0.3 + ((i * 37) % 70) / 100, duration: 0.18 + (i % 3) * 0.05, repeat: 30, yoyo: true, ease: "sine.inOut" }, 15.0 + i * 0.03);
+      const nodesEl = document.getElementById("nodes");
+      Object.entries(N).forEach(([id, [cx, cy, ic, t, s]]) => {
+        const d = document.createElement("div");
+        d.className = "node";
+        d.id = "n-" + id;
+        d.style.left = cx - 220 + "px";
+        d.style.top = cy - 75 + "px";
+        d.innerHTML = `<div class="ic">${svgIcon(ic, "#f6f1f8")}</div><div class="tx"><div class="t">${t}</div><div class="s">${s}</div></div><div class="ck">${svgIcon("check", "#0d0a12", 30)}</div>`;
+        nodesEl.appendChild(d);
       });
-      tl.fromTo("#s3-q", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.4, ease: E }, 17.1);
-      tl.fromTo("#s3-a", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.4, ease: E }, 18.7);
-      tl.fromTo("#s3-y", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.4, ease: E }, 20.2);
-      tl.fromTo("#s3-cal", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 20.4);
-      tl.fromTo("#s3-slotfill", { opacity: 0, scaleX: 0.2 }, { opacity: 1, scaleX: 1, duration: 0.45, ease: E, transformOrigin: "left center" }, 21.5);
-      tl.fromTo("#s3-booked", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.5)" }, 21.8);
-      // switch to hang-up / text-back
-      tl.to(["#s3-q", "#s3-a", "#s3-y", "#s3-cal", "#s3-booked"], { opacity: 0, x: 40, duration: 0.35, ease: "power2.in" }, 22.5);
-      tl.to("#s3-call", { opacity: 0, duration: 0.3 }, 23.0);
-      tl.fromTo("#s3-sms", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 23.1);
-      tl.fromTo("#s3-ended", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3 }, 23.3);
-      tl.fromTo("#s3-hang", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.4, ease: E }, 23.1);
-      tl.fromTo("#s3-txt", { opacity: 0, y: 40, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(1.6)" }, 25.0);
-      tl.fromTo("#s3-sec", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.4, ease: E }, 25.4);
-      tl.fromTo("#s3-reply", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 26.6);
-      tl.fromTo("#s3-saved", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.5)" }, 27.2);
-
-      // ---------- S4 (28.2 - 39.35) ----------
-      tl.fromTo("#s4 .chip", { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 28.3);
-      tl.fromTo("#s4-phone", { opacity: 0, y: 80 }, { opacity: 1, y: 0, duration: 0.6, ease: E }, 28.5);
-      tl.fromTo("#s4-msg", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: E }, 30.9);
-      tl.fromTo("#s4-time", { color: "#a79fb2", scale: 1 }, { color: "#c4b2ff", scale: 1.3, duration: 0.3, yoyo: true, repeat: 1 }, 32.25);
-      tl.fromTo("#s4-moon", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.4, ease: E }, 32.3);
-      tl.fromTo("#s4-dots", { opacity: 0 }, { opacity: 1, duration: 0.15 }, 33.2);
-      tl.to("#s4-dots", { opacity: 0, duration: 0.1 }, 33.65);
-      tl.fromTo("#s4-rep", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: E }, 33.65);
-      tl.fromTo("#s4-inst", { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.4, ease: E }, 34.0);
-      tl.fromTo("#s4-btn", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2)" }, 34.8);
-      tl.fromTo("#s4-tap", { opacity: 0, scale: 1.6 }, { opacity: 1, scale: 1, duration: 0.25, ease: E }, 35.5);
-      tl.to("#s4-tap", { opacity: 0, scale: 2.2, duration: 0.5 }, 35.75);
-      tl.fromTo("#s4-booked", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2.5)" }, 35.9);
-      tl.fromTo("#s4-tmr", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: E }, 36.6);
-      tl.to("#s4-strike", { width: 600, duration: 0.5, ease: "power2.inOut" }, 37.3);
-
-      // ---------- S5 (39.35 - 49.5) ----------
-      tl.fromTo("#s5 .chip", { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 39.45);
-      tl.fromTo("#s5 .card", { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 39.9);
-      ["#r1", "#r2", "#r3", "#r4", "#r5", "#r6"].forEach((r, i) => {
-        tl.fromTo(r, { opacity: 0, x: -30 }, { opacity: 0.45, x: 0, duration: 0.35, ease: E }, 40.4 + i * 0.12);
-        tl.fromTo(`${r} .st-sent`, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, 44.3 + i * 0.18);
-        tl.to(r, { opacity: 0.8, duration: 0.2 }, 44.3 + i * 0.18);
+      Object.entries(LANES).forEach(([id, [cx, cy, label, w]]) => {
+        const d = document.createElement("div");
+        d.className = "lane";
+        d.id = "n-" + id;
+        d.style.width = w + "px";
+        d.style.left = cx - w / 2 + "px";
+        d.style.top = cy - 32 + "px";
+        d.textContent = label;
+        nodesEl.appendChild(d);
       });
-      tl.set("#s5 .st-booked", { opacity: 0 }, 0);
-      tl.fromTo("#s5-offer", { opacity: 0, y: 30, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: "back.out(1.6)" }, 43.7);
-      tl.to("#s5-offer", { opacity: 0, duration: 0.3 }, 46.6);
-      tl.fromTo("#s5-reply", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.6)" }, 46.9);
-      ["#r1", "#r3", "#r4", "#r6"].forEach((r, i) => {
-        const t = 47.5 + i * 0.4;
-        tl.to(`${r} .st-sent`, { opacity: 0, duration: 0.15 }, t);
-        tl.fromTo(`${r} .st-booked`, { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2.5)" }, t);
-        tl.to(r, { opacity: 1, backgroundColor: "rgba(61,220,151,0.12)", duration: 0.3 }, t);
-      });
+      // extra tags
+      const tag = (id, x, y, txt, color) => {
+        const d = document.createElement("div");
+        d.className = "tag";
+        d.id = id;
+        d.style.left = x + "px";
+        d.style.top = y + "px";
+        d.style.color = color;
+        d.style.border = `2px solid ${color}`;
+        d.style.background = "rgba(13,10,18,0.9)";
+        d.textContent = txt;
+        nodesEl.appendChild(d);
+      };
+      tag("tag-lost", 1690, 330, "CLIENT LOST", "#ff5468");
+      tag("tag-tmr", 1280, 1225, "Not \"tomorrow at 9am\"", "#ff5468");
 
-      // ---------- S6 (49.5 - 55.6) ----------
-      tl.fromTo("#s6-title", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 49.55);
-      [["#x1", 49.7], ["#x2", 51.0], ["#x3", 52.8]].forEach(([s, t]) => {
-        tl.fromTo(s, { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.45, ease: E }, t);
-        tl.fromTo(`${s} .ok`, { scale: 0 }, { scale: 1, duration: 0.4, ease: "back.out(3)" }, t + 0.35);
-      });
-      tl.fromTo("#s6-money", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 50.2);
-      tl.to("#s6-red", { opacity: 0, duration: 0.4 }, 53.2);
-      tl.fromTo("#s6-green", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 53.2);
+      // wires
+      const wires = document.getElementById("wires");
+      const W = {};
+      const wire = (id, from, to, color, kind) => {
+        const [x1, y1] = N[from], [x2, y2] = N[to];
+        let d;
+        if (kind === "h") d = `M${x1 + 222} ${y1} L${x2 - 232} ${y2}`;
+        else if (kind === "v") d = `M${x1} ${y1 + 77} L${x2} ${y2 - 87}`;
+        else if (kind === "hv") d = `M${x1 + 222} ${y1} C${x1 + 300} ${y1} ${x2 - 300} ${y2} ${x2 - 232} ${y2}`;
+        else d = `M${x1} ${y1 + 77} C${x1} ${y1 + 260} ${x2} ${y2 - 300} ${x2} ${y2 - 87}`;
+        const p = document.createElementNS(SVG_NS, "path");
+        p.setAttribute("d", d);
+        p.setAttribute("pathLength", "1");
+        p.setAttribute("stroke", color);
+        p.setAttribute("marker-end", `url(#ah-${color === "#ff5468" ? "red" : color === "#ffb84d" ? "amber" : "rose"})`);
+        p.id = "w-" + id;
+        wires.appendChild(p);
+        W[id] = p;
+      };
+      const RED = "#ff5468", ROSE = "#f2a7bd", AMB = "#ffb84d";
+      wire("p12", "p1", "p2", RED, "h");
+      wire("p23", "p2", "p3", RED, "h");
+      wire("p34", "p3", "p4", RED, "h");
+      wire("pa", "p2", "a1", ROSE, "c");
+      wire("a12", "a1", "a2", ROSE, "v");
+      wire("a23", "a2", "a3", ROSE, "v");
+      wire("a34", "a3", "a4", ROSE, "v");
+      wire("ab", "a2", "b1", AMB, "h");
+      wire("b12", "b1", "b2", ROSE, "v");
+      wire("b23", "b2", "b3", ROSE, "v");
+      wire("c12", "c1", "c2", ROSE, "v");
+      wire("c23", "c2", "c3", ROSE, "v");
+      wire("d12", "d1", "d2", ROSE, "v");
+      wire("d23", "d2", "d3", ROSE, "v");
+      wire("d34", "d3", "d4", ROSE, "v");
 
-      // ---------- S7 (55.6 - 61.2) ----------
+      // ---------- helpers ----------
+      const GLOW_ROSE = "0 0 46px 6px rgba(242,167,189,0.55)";
+      const GLOW_RED = "0 0 46px 6px rgba(255,84,104,0.5)";
+      const GLOW_NONE = "0 0 0px 0px rgba(242,167,189,0)";
+      const draw = (id, t, d = 0.5) => {
+        tl.set(W[id], { opacity: 1 }, t);
+        tl.fromTo(W[id], { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t);
+      };
+      const show = (id, t, mode = "active") => {
+        const el = "#n-" + id;
+        tl.fromTo(el, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.8)" }, t);
+        if (mode === "active") tl.to(el, { borderColor: "#f2a7bd", boxShadow: GLOW_ROSE, duration: 0.3 }, t);
+        if (mode === "pain") tl.to(el, { borderColor: "#ff5468", backgroundColor: "#2a1520", boxShadow: GLOW_RED, duration: 0.3 }, t);
+        if (mode === "warn") tl.to(el, { borderColor: "#ffb84d", boxShadow: "0 0 46px 6px rgba(255,184,77,0.45)", duration: 0.3 }, t);
+      };
+      const settle = (id, t) => tl.to("#n-" + id, { boxShadow: GLOW_NONE.replace("242,167,189", "255,84,104"), duration: 0.4 }, t);
+      const done = (id, t) => {
+        tl.to("#n-" + id, { borderColor: "#3ddc97", backgroundColor: "#16241f", boxShadow: GLOW_NONE, duration: 0.35 }, t);
+        tl.fromTo(`#n-${id} .ck`, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(3)" }, t);
+      };
+      const lane = (id, t) => tl.fromTo("#n-" + id, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, t);
+      // camera: center world point (cx,cy) at screen (sx,sy) with scale s
+      const cam = (cx, cy, s, t, d = 0.9, sy = 600) =>
+        tl.to("#world", { x: 540 - cx * s, y: sy - cy * s, scale: s, duration: d, ease: "power3.inOut" }, t);
+
+      // ================= timeline =================
+      tl.fromTo("#world", { x: 540 - 350 * 1.2, y: 620 - 220 * 1.2, scale: 1.2, transformOrigin: "0px 0px" }, { x: 540 - 350 * 1.2, y: 620 - 220 * 1.2, scale: 1.2, duration: 0.01 }, 0);
+      tl.fromTo("#grid", { opacity: 0 }, { opacity: 1, duration: 1.2 }, 0);
+
+      // hook
+      tl.fromTo("#hook-t", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 0.05);
+      tl.fromTo("#hook-s", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 0.6);
+      tl.to(["#hook-t", "#hook-s"], { opacity: 0, y: -30, duration: 0.3, ease: "power2.in" }, 2.05);
+      ["#chip0", "#chip1", "#chip2", "#chip3"].forEach((c, i) =>
+        tl.fromTo(`${c} .chip`, { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, [2.35, 11.6, 28.3, 39.5][i]));
+
+      // ---- the problem (pain path) ----
+      show("p1", 2.3, "pain");
+      tl.fromTo("#n-p1 .ic", { rotation: -10 }, { rotation: 10, duration: 0.07, repeat: 17, yoyo: true, ease: "none" }, 2.4);
+      cam(850, 220, 1.2, 4.2, 0.8, 620);
+      draw("p12", 4.3);
+      show("p2", 4.6, "pain");
+      settle("p1", 4.6);
+            cam(1350, 220, 1.2, 7.2, 0.8, 620);
+      draw("p23", 7.4);
+      show("p3", 7.8, "pain");
+      settle("p2", 7.8);
+            cam(1850, 220, 1.2, 8.8, 0.8, 620);
+      draw("p34", 9.0);
+      show("p4", 9.6, "pain");
+      settle("p3", 9.6);
+      tl.fromTo("#n-p4", { x: 0 }, { x: 10, duration: 0.05, repeat: 7, yoyo: true, ease: "none" }, 10.3);
+      tl.fromTo("#tag-lost", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2.5)" }, 10.4);
+
+      // ---- "So here's what I build": pull back, reveal the three system lanes ----
+      cam(1150, 470, 0.55, 11.4, 1.1, 600);
+      lane("l1", 11.8); lane("l2", 12.0); lane("l3", 12.2);
+
+      // ---- system 1: AI receptionist ----
+      cam(450, 800, 1.15, 12.9, 1.0, 660);
+      tl.to(["#n-p1", "#n-p3", "#n-p4", "#tag-lost", "#w-p12", "#w-p23", "#w-p34"], { opacity: 0.2, duration: 0.5 }, 12.9);
+      tl.to("#n-p2", { opacity: 0.45, duration: 0.5 }, 12.9);
+      tl.to(["#n-l1", "#n-l2", "#n-l3"], { opacity: 0, duration: 0.4 }, 12.9);
+      draw("pa", 13.2, 0.6);
+      show("a1", 13.6);
+      draw("a12", 14.4);
+      show("a2", 14.7);
+      done("a1", 14.7);
+      tl.fromTo("#n-a2 .ic", { scale: 1 }, { scale: 1.2, duration: 0.25, yoyo: true, repeat: 5, ease: "sine.inOut" }, 15.0);
+      draw("a23", 16.9);
+      show("a3", 17.2);
+      done("a2", 17.2);
+      cam(450, 1060, 1.15, 19.6, 0.8, 660);
+      draw("a34", 20.1);
+      show("a4", 20.4);
+      done("a3", 20.4);
+      done("a4", 21.6);
+      // hang-up branch
+      cam(705, 1120, 1.0, 22.3, 0.9, 640);
+      draw("ab", 22.9);
+      show("b1", 23.2, "warn");
+      draw("b12", 24.6);
+      show("b2", 25.0);
+      tl.to("#n-b1", { boxShadow: "0 0 0px 0px rgba(255,184,77,0)", duration: 0.4 }, 25.0);
+      draw("b23", 26.8);
+      show("b3", 27.1);
+      done("b2", 27.1);
+      done("b3", 27.6);
+
+      // ---- system 2: DMs ----
+      cam(1460, 930, 1.15, 28.2, 1.0, 640);
+      show("c1", 30.3);
+      tl.fromTo("#n-c1 .ic", { rotation: -8 }, { rotation: 8, duration: 0.08, repeat: 7, yoyo: true, ease: "none" }, 30.4);
+      draw("c12", 33.2);
+      show("c2", 33.5);
+      done("c1", 33.5);
+      draw("c23", 35.0);
+      show("c3", 35.4);
+      done("c2", 35.4);
+      done("c3", 36.0);
+      tl.fromTo("#tag-tmr", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: E }, 36.65);
+      tl.set("#tag-tmr", { textDecoration: "line-through" }, 37.3);
+      tl.to("#tag-tmr", { opacity: 0.45, duration: 0.4 }, 38.4);
+
+      // ---- system 3: win-back ----
+      cam(1960, 900, 1.15, 39.3, 1.0, 660);
+      show("d1", 40.5);
+      tl.to("#n-d1", { borderColor: "rgba(167,159,178,0.6)", boxShadow: GLOW_NONE, duration: 0.3 }, 42.4);
+      draw("d12", 43.4);
+      show("d2", 43.8);
+      draw("d23", 46.6);
+      show("d3", 46.9);
+      done("d1", 46.9);
+      done("d2", 46.9);
+      cam(1960, 1100, 1.15, 47.6, 0.8, 660);
+      draw("d34", 48.3);
+      show("d4", 48.6);
+      done("d3", 48.6);
+      done("d4", 49.0);
+
+      // ---- payoff: whole map ----
+      cam(1150, 790, 0.5, 49.45, 1.2, 620);
+      tl.to(["#n-l1", "#n-l2", "#n-l3"], { opacity: 1, duration: 0.5 }, 49.8);
+      tl.fromTo("#pay-t", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 49.9);
+      tl.fromTo("#pay-s", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 50.3);
+      // "No more missed calls" / "No more ignored DMs": kill the pain row, pulse the lanes
+      tl.to(["#n-p1", "#n-p2", "#n-p3", "#n-p4", "#tag-lost", "#w-p12", "#w-p23", "#w-p34"], { opacity: 0.25, duration: 0.5 }, 49.9);
+      [["#n-a1", "#n-a2", "#n-a3", "#n-a4", "#n-b1", "#n-b2", "#n-b3"], ["#n-c1", "#n-c2", "#n-c3"], ["#n-d1", "#n-d2", "#n-d3", "#n-d4"]].forEach((g, i) => {
+        const t = [50.0, 51.1, 52.9][i];
+        tl.fromTo(g, { boxShadow: "0 0 50px 10px rgba(61,220,151,0.6)" }, { boxShadow: "0 0 0px 0px rgba(61,220,151,0)", duration: 0.9, ease: "power2.out" }, t);
+      });
+      done("b1", 50.0);
+      tl.fromTo("#pay-b", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(2)" }, 53.1);
+
+      // ---- CTA ----
+      tl.fromTo("#s7-dim", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 55.6);
       tl.fromTo("#s7-q", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 55.75);
       tl.fromTo("#s7-box", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.8)" }, 56.9);
       tl.fromTo("#s7-spa", { opacity: 0, scale: 1.8 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 57.65);

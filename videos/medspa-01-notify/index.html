@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Inter"; font-weight: 500; src: url("assets/fonts/inter-latin-500-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 600; src: url("assets/fonts/inter-latin-600-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 700; src: url("assets/fonts/inter-latin-700-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 800; src: url("assets/fonts/inter-latin-800-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 900; src: url("assets/fonts/inter-latin-900-normal.woff2") format("woff2"); }
+
+      :root {
+        --bg: #0d0a12;
+        --text: #f6f1f8;
+        --muted: #a79fb2;
+        --rose: #f2a7bd;
+        --rose-deep: #e0718f;
+        --green: #3ddc97;
+        --red: #ff5468;
+        --violet: #9b7bff;
+        --ink: #1c1620;
+        --ink-muted: #5f5566;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+      body { font-family: "Inter", sans-serif; color: var(--text); }
+
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden;
+        background: radial-gradient(1200px 900px at 50% 20%, #2a1630 0%, var(--bg) 60%); }
+
+      /* ---------- presenter zone (same as medspa-01) ---------- */
+      #presenter { position: absolute; left: 0; top: 1200px; width: 1080px; height: 720px;
+        background: linear-gradient(180deg, #17111d 0%, #0d0a12 100%);
+        border-top: 2px solid rgba(242, 167, 189, 0.25); }
+      .cam-tag { position: absolute; left: 40px; top: 32px; font-size: 22px; font-weight: 700; letter-spacing: 3px;
+        color: rgba(246, 241, 248, 0.35); text-transform: uppercase; }
+      .orb { position: absolute; left: 440px; top: 70px; width: 200px; height: 200px; border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #ffd3df 0%, var(--rose) 35%, var(--rose-deep) 70%, #7d2c4a 100%);
+        box-shadow: 0 0 80px rgba(242, 167, 189, 0.45); }
+      .orb-ring { position: absolute; left: 400px; top: 30px; width: 280px; height: 280px; border-radius: 50%;
+        border: 3px solid rgba(242, 167, 189, 0.35); }
+      .cap { position: absolute; left: 60px; top: 340px; width: 960px; height: 300px; display: flex;
+        align-items: center; justify-content: center; text-align: center; opacity: 0;
+        font-size: 70px; line-height: 1.15; font-weight: 900; letter-spacing: -1px; }
+      .cap .w { color: rgba(246, 241, 248, 0.45); margin: 0 10px; }
+
+      /* ---------- stage + phone ---------- */
+      #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1200px; overflow: hidden; }
+      #phone { position: absolute; left: 230px; top: -40px; width: 620px; height: 1320px; border-radius: 84px;
+        background: #050407; border: 12px solid #2b2533; box-shadow: 0 40px 120px rgba(0, 0, 0, 0.7), 0 0 0 2px #3a3245; overflow: hidden; }
+      .wall { position: absolute; inset: 0;
+        background: radial-gradient(500px 500px at 80% 85%, #e79bb3 0%, rgba(231, 155, 179, 0) 70%),
+                    linear-gradient(180deg, #4a1a36 0%, #8a3a5e 45%, #c2577a 100%); }
+      #night { position: absolute; inset: 0; background: linear-gradient(180deg, #05030a 0%, #140a24 60%, #2a1240 100%); opacity: 0; }
+      .island { position: absolute; left: 228px; top: 58px; width: 140px; height: 40px; border-radius: 22px; background: #000; }
+      .date { position: absolute; left: 0; top: 140px; width: 596px; text-align: center; font-size: 30px; font-weight: 700; color: #fff; }
+      .clock { position: absolute; left: 0; top: 176px; width: 596px; text-align: center; font-size: 150px; font-weight: 800;
+        letter-spacing: -4px; color: #fff; line-height: 1; }
+      .focus { position: absolute; left: 0; top: 362px; width: 596px; display: flex; justify-content: center; opacity: 0; }
+      .focus span { display: flex; align-items: center; padding: 12px 26px; border-radius: 999px; background: rgba(15, 8, 18, 0.62);
+        color: #fff; font-size: 26px; font-weight: 800; letter-spacing: 1px; }
+      .focus svg { margin-right: 12px; }
+
+      /* ---------- notification cards ---------- */
+      .group { position: absolute; left: 18px; top: 440px; width: 560px; height: 860px; }
+      .note { position: absolute; left: 0; top: 0; width: 560px; border-radius: 34px; background: rgba(250, 245, 248, 0.93);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); overflow: hidden; }
+      .note .ic { position: absolute; left: 22px; top: 22px; width: 64px; height: 64px; border-radius: 16px;
+        display: flex; align-items: center; justify-content: center; }
+      .note .hd { position: absolute; left: 106px; top: 16px; width: 432px; font-size: 22px; font-weight: 700; color: var(--ink-muted);
+        letter-spacing: 1px; text-transform: uppercase; }
+      .note .tm { position: absolute; right: 22px; top: 16px; font-size: 22px; font-weight: 600; color: var(--ink-muted); }
+      .note .ti { position: absolute; left: 106px; top: 46px; width: 432px; font-size: 30px; font-weight: 800; color: var(--ink); line-height: 1.2; }
+      .note .bd { position: absolute; left: 106px; top: 86px; width: 432px; font-size: 28px; font-weight: 600; color: #3a3140; line-height: 1.25; }
+      .note.miss { border-left: 10px solid #d23047; }
+      .note.miss .ti { color: #b8233a; }
+      .note.good { border-left: 10px solid #23a866; }
+      .note .ln { position: absolute; left: 106px; width: 432px; padding: 10px 16px; border-radius: 16px; font-size: 28px; font-weight: 700; line-height: 1.25; }
+
+      #banner { position: absolute; left: 110px; top: 830px; width: 860px; height: 130px; border-radius: 30px; background: #c42a3f;
+        display: flex; align-items: center; justify-content: center; font-size: 50px; font-weight: 900; color: #fff; letter-spacing: -1px;
+        box-shadow: 0 20px 60px rgba(196, 42, 63, 0.5); opacity: 0; }
+
+      /* ---------- summary widget ---------- */
+      #summary { position: absolute; left: 18px; top: 440px; width: 560px; height: 640px; border-radius: 40px;
+        background: rgba(250, 245, 248, 0.95); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35); opacity: 0; }
+      #summary .h { position: absolute; left: 40px; top: 34px; font-size: 26px; font-weight: 800; color: var(--ink-muted); letter-spacing: 3px; }
+      .srow { position: absolute; left: 30px; width: 500px; height: 140px; border-radius: 26px; background: #efe6ee; opacity: 0; }
+      .srow .n { position: absolute; left: 30px; top: 18px; font-size: 64px; font-weight: 900; color: #178a4c; line-height: 1.1; }
+      .srow .l { position: absolute; left: 120px; top: 34px; width: 280px; font-size: 32px; font-weight: 800; color: var(--ink); line-height: 1.15; }
+      .srow .ok { position: absolute; right: 26px; top: 40px; width: 60px; height: 60px; border-radius: 50%; background: #23a866;
+        display: flex; align-items: center; justify-content: center; }
+      #summary .ft { position: absolute; left: 0; top: 572px; width: 560px; text-align: center; font-size: 28px; font-weight: 800; color: #178a4c; opacity: 0; }
+
+      /* ---------- CTA ---------- */
+      #cta-dim { position: absolute; inset: 0; background: rgba(13, 10, 18, 0.88); opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="61.2" data-width="1080" data-height="1920">
+
+      <audio id="vo" src="assets/voiceover.mp3" data-start="0" data-duration="60.92" data-track-index="9" data-volume="1"></audio>
+
+      <!-- ================= stage: the owner's phone lock screen ================= -->
+      <div id="stage" class="clip" data-start="0" data-duration="61.2" data-track-index="1">
+        <div id="phone">
+          <div class="wall"></div>
+          <div id="night"></div>
+          <div class="island"></div>
+
+          <div id="date1" class="date">Thursday, October 16</div>
+          <div id="date2" class="date" data-layout-allow-overlap style="opacity: 0;">Friday, October 17</div>
+          <div id="clk1" class="clock">2:14</div>
+          <div id="clk2" class="clock" data-layout-allow-overlap style="opacity: 0;">11:04</div>
+          <div id="clk3" class="clock" data-layout-allow-overlap style="opacity: 0;">10:15</div>
+
+          <div id="f0" class="focus" data-layout-allow-overlap><span>
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#f2a7bd" stroke-width="2.4"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>
+            IN TREATMENT · DO NOT DISTURB</span></div>
+          <div id="f1" class="focus" data-layout-allow-overlap><span>
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="#c4b2ff"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/></svg>
+            SYSTEM 1 · AI RECEPTIONIST</span></div>
+          <div id="f2" class="focus" data-layout-allow-overlap><span>
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="#c4b2ff"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>
+            SYSTEM 2 · INSTANT DM REPLIES</span></div>
+          <div id="f3" class="focus" data-layout-allow-overlap><span>
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#c4b2ff" stroke-width="2.6"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>
+            SYSTEM 3 · WIN BACK OLD CLIENTS</span></div>
+          <div id="f4" class="focus" data-layout-allow-overlap><span>
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#3ddc97" stroke-width="3"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+            ALL RUNNING ON ITS OWN</span></div>
+
+          <div id="g1" class="group" data-layout-allow-overlap></div>
+          <div id="g2" class="group" data-layout-allow-overlap></div>
+          <div id="g3" class="group" data-layout-allow-overlap></div>
+          <div id="g4" class="group" data-layout-allow-overlap></div>
+
+          <div id="summary" data-layout-allow-overlap>
+            <div class="h">TODAY</div>
+            <div id="sr1" class="srow" style="top: 96px;"><div class="n">0</div><div class="l">missed calls</div>
+              <div class="ok"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div></div>
+            <div id="sr2" class="srow" style="top: 254px;"><div class="n">0</div><div class="l">unanswered DMs</div>
+              <div class="ok"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div></div>
+            <div id="sr3" class="srow" style="top: 412px;"><div class="n">4</div><div class="l">old clients back</div>
+              <div class="ok"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div></div>
+            <div class="ft" id="sft">Handled while you worked</div>
+          </div>
+        </div>
+
+        <div id="banner" data-layout-allow-overlap>She booked somewhere else</div>
+
+        <!-- CTA overlay -->
+        <div id="cta-dim" data-layout-allow-occlusion></div>
+        <div id="s7-q" style="position:absolute; left:0; top: 170px; width:1080px; text-align:center; font-size: 80px; font-weight: 900; letter-spacing: -2px; opacity: 0;">Own a med spa?</div>
+        <div id="s7-box" style="position:absolute; left: 140px; top: 400px; width: 800px; height: 150px; border-radius: 75px; background: #fff; display:flex; align-items:center; padding-left: 60px; opacity: 0;">
+          <div style="font-size: 40px; font-weight: 600; color: #6b6b6b;">Comment</div>
+          <div id="s7-spa" style="margin-left: 24px; font-size: 64px; font-weight: 900; color: #c2577a; letter-spacing: 4px;">"SPA"</div>
+        </div>
+        <div id="s7-sub" style="position:absolute; left: 0; top: 620px; width:1080px; text-align:center; font-size: 46px; font-weight: 800; color: var(--rose); line-height: 1.25; opacity: 0;"><span style="display:block; width: 760px; margin: 0 auto;">I'll show you how this would work for yours</span></div>
+        <div id="s7-arrow" style="position:absolute; left: 490px; top: 880px; width: 100px; height: 160px; opacity: 0;">
+          <svg width="100" height="160" viewBox="0 0 100 160" fill="none" stroke="#f2a7bd" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"><path d="M50 10v130"/><path d="M14 104l36 36 36-36"/></svg>
+        </div>
+      </div>
+
+      <!-- ================= presenter zone (camera goes here later) ================= -->
+      <div id="presenter" class="clip" data-start="0" data-duration="61.2" data-track-index="0">
+        <div class="cam-tag">Your camera here</div>
+        <div id="orb-ring" class="orb-ring"></div>
+        <div id="orb" class="orb"></div>
+        <div id="caps"></div>
+      </div>
+    </div>
+
+    <script>
+      const WORDS = [["Med",0,0.4],["spa",0.48,0.72],["owners,",0.88,1.44],["every",1.6,1.84],["time",1.92,2.08],["your",2.16,2.24],["phone",2.32,2.56],["rings",2.64,2.88],["while",2.96,3.04],["you're",3.12,3.2],["with",3.28,3.36],["a",3.44,3.48],["patient,",3.52,4.2],["you",4.4,4.48],["might",4.56,4.8],["be",4.88,4.96],["losing",5.04,5.36],["a",5.44,5.52],["client.",5.8,6.36],["Most",6.64,6.88],["people",6.96,7.2],["won't",7.28,7.44],["leave",7.52,7.68],["a",7.72,7.76],["voicemail.",7.84,8.52],["They",8.64,8.72],["just",8.8,8.96],["call",9.04,9.2],["the",9.28,9.36],["next",9.48,9.6],["med",9.68,9.84],["spa",9.92,10.16],["on",10.24,10.4],["Google.",10.48,11.16],["So",11.44,11.6],["here's",11.68,11.92],["what",12,12.08],["I",12.16,12.24],["build.",12.32,12.84],["When",13.04,13.12],["you",13.2,13.28],["can't",13.36,13.6],["pick",13.68,13.84],["up,",13.92,14.2],["an",14.32,14.48],["AI",14.64,14.88],["receptionist",14.96,15.68],["answers",15.76,16.16],["for",16.24,16.4],["you.",16.48,16.84],["It",17.04,17.12],["answers",17.2,17.52],["their",17.6,17.68],["questions,",17.76,18.56],["tells",18.72,18.96],["them",19.04,19.12],["your",19.2,19.28],["pricing,",19.36,20],["and",20.16,20.32],["books",20.4,20.64],["them",20.76,20.88],["right",20.96,21.12],["into",21.2,21.36],["your",21.44,21.52],["calendar.",21.6,22.32],["And",22.56,22.64],["if",22.72,22.8],["they",22.88,22.96],["hang",23.04,23.2],["up",23.28,23.36],["before",23.52,23.68],["it",23.72,23.76],["answers,",23.84,24.48],["they",24.64,24.72],["get",24.8,24.88],["a",24.92,24.96],["text",25.04,25.36],["within",25.44,25.68],["seconds,",25.84,26.44],["so",26.56,26.64],["you",26.72,26.8],["don't",26.88,27.12],["lose",27.2,27.44],["them.",27.56,27.96],["Same",28.24,28.4],["thing",28.48,28.64],["with",28.72,28.8],["your",28.84,28.88],["Instagram.",28.96,29.76],["Someone",29.92,30.24],["DMs",30.32,30.72],["\"How",30.96,31.12],["much",31.2,31.36],["for",31.44,31.52],["lips?\"",31.6,32],["at",32.08,32.16],["11",32.24,32.48],["p.m.?",32.64,33.28],["They",33.52,33.6],["get",33.68,33.76],["an",33.84,34],["answer",34.08,34.48],["and",34.52,34.56],["a",34.64,34.72],["booking",34.8,35.04],["link",35.12,35.44],["instantly.",35.6,36.4],["Not",36.64,36.8],["tomorrow,",36.88,37.44],["when",37.52,37.6],["they've",37.64,37.76],["already",37.84,38.08],["moved",38.16,38.4],["on.",38.48,39.12],["And",39.44,39.52],["then",39.6,39.76],["there",39.84,39.92],["are",40.04,40.16],["all",40.24,40.32],["the",40.4,40.48],["clients",40.56,40.88],["who",40.96,41.04],["came",41.12,41.28],["in",41.36,41.44],["once",41.52,41.92],["and",42,42.08],["never",42.16,42.4],["came",42.48,42.64],["back.",42.72,43.36],["We",43.6,43.68],["send",43.76,43.92],["them",44,44.08],["a",44.12,44.16],["personal",44.24,44.72],["text",44.8,45.04],["with",45.12,45.2],["an",45.28,45.36],["offer",45.52,45.76],["to",45.8,45.84],["come",45.92,46.08],["back",46.2,46.32],["in,",46.48,46.88],["and",47.04,47.2],["you'd",47.24,47.36],["be",47.44,47.52],["surprised",47.6,48.16],["how",48.24,48.32],["many",48.44,48.56],["book.",48.64,49.24],["No",49.52,49.6],["more",49.68,49.84],["missed",49.92,50.08],["calls.",50.16,50.84],["No",51.04,51.12],["more",51.2,51.36],["ignored",51.56,51.76],["DMs.",51.84,52.6],["And",52.8,52.96],["money",53.12,53.36],["from",53.44,53.6],["clients",53.68,54.08],["you",54.16,54.32],["already",54.4,54.8],["had.",54.88,55.52],["If",55.76,55.84],["you",55.92,56],["own",56.08,56.16],["a",56.24,56.28],["med",56.32,56.48],["spa,",56.56,57.04],["comment",57.2,57.6],["\"SPA\"",57.68,58.28],["and",58.48,58.56],["I'll",58.64,58.8],["show",58.88,58.96],["you",59.04,59.12],["how",59.2,59.36],["this",59.44,59.52],["would",59.6,59.76],["work",59.88,60],["for",60.08,60.16],["yours.",60.24,60.88]];
+      const tl = gsap.timeline({ paused: true });
+      const E = "power3.out";
+
+      // ---------- captions (bottom zone) ----------
+      const caps = document.getElementById("caps");
+      const groups = [];
+      let cur = [];
+      WORDS.forEach((w, i) => {
+        cur.push(w);
+        const endsSentence = /[.,?!"]$/.test(w[0]);
+        const next = WORDS[i + 1];
+        const gap = next ? next[1] - w[2] : 1;
+        if (cur.length >= 4 || endsSentence || gap > 0.3 || !next) { groups.push(cur); cur = []; }
+      });
+      groups.forEach((g, gi) => {
+        const el = document.createElement("div");
+        el.className = "cap";
+        el.id = "cap" + gi;
+        el.innerHTML = g.map((w, wi) => `<span class="w" id="cap${gi}w${wi}">${w[0].replace(/"/g, "")}</span>`).join(" ");
+        caps.appendChild(el);
+        const start = g[0][1];
+        const nextG = groups[gi + 1];
+        const end = nextG ? nextG[0][1] : g[g.length - 1][2] + 0.3;
+        tl.fromTo(el, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.15, ease: E }, start);
+        tl.set(el, { opacity: 0 }, end);
+        g.forEach((w, wi) => {
+          tl.set(`#cap${gi}w${wi}`, { color: /SPA|AI|Google|Instagram|instantly|calendar|lips|seconds|money|book/i.test(w[0]) ? "#f2a7bd" : "#ffffff" }, w[1]);
+        });
+      });
+
+      // orb "speaking" pulse, keyed to word starts
+      WORDS.forEach((w) => {
+        tl.fromTo("#orb", { scale: 1.08 }, { scale: 1, duration: Math.max(0.12, w[2] - w[1]), ease: "power2.out" }, w[1]);
+      });
+      tl.fromTo("#orb-ring", { scale: 0.9, opacity: 0.6 }, { scale: 1.15, opacity: 0, duration: 1.6, ease: "sine.out", repeat: 37 }, 0);
+
+      // ---------- icons ----------
+      const SVG = {
+        phone: '<svg width="36" height="36" viewBox="0 0 24 24" fill="#fff"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>',
+        vm: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><circle cx="6.5" cy="12" r="3.5"/><circle cx="17.5" cy="12" r="3.5"/><path d="M6.5 15.5h11"/></svg>',
+        ai: '<svg width="40" height="40" viewBox="0 0 24 24" fill="#fff"><path d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/><path d="M19 14l.9 2.6L22 17.5l-2.1.9L19 21l-.9-2.6L16 17.5l2.1-.9z"/></svg>',
+        msg: '<svg width="38" height="38" viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.6 1.4 4.9 3.6 6.5L5 22l4.3-2.3c.9.2 1.8.3 2.7.3 5.5 0 10-3.8 10-8.5S17.5 3 12 3z"/></svg>',
+        cal: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d23047" stroke-width="2.4"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+        ig: '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff"/></svg>',
+        send: '<svg width="38" height="38" viewBox="0 0 24 24" fill="#fff"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>',
+      };
+      const ICBG = {
+        phone: "#23a866", miss: "#d23047", vm: "#6b6170", ai: "linear-gradient(135deg,#9b7bff,#e0718f)",
+        msg: "#23a866", cal: "#ffffff", ig: "linear-gradient(135deg,#f7b733,#d62976 50%,#4f5bd5)", send: "#6d4dff",
+      };
+
+      // ---------- notification data: [group, time, kind, icon, app, ago, title, body, height, extra] ----------
+      const NOTES = [
+        // pain
+        ["g1", 3.9, "miss", "miss", "Phone", "3m ago", "Missed call", "Sarah K.", 140],
+        ["g1", 4.6, "miss", "miss", "Phone", "1m ago", "Missed call", "Sarah K.", 140],
+        ["g1", 5.3, "miss", "miss", "Phone", "now", "Missed call", "Sarah K.", 140],
+        ["g1", 7.85, "", "vm", "Voicemail", "now", "Sarah K.", "No voicemail left", 140],
+        // system 1
+        ["g2", 15.8, "good", "ai", "AI Receptionist", "now", "Answered call", "From Sarah K.", 140],
+        ["g2", 17.2, "", "ai", "AI Receptionist", "now", "Live call · Sarah K.", "", 262, "chat"],
+        ["g2", 21.6, "good", "cal", "Calendar", "now", "New booking", "Botox · Fri 2:00 PM", 140],
+        ["g2", 23.2, "miss", "miss", "Phone", "now", "Missed call", "(555) 214-8890 hung up", 140],
+        ["g2", 25.0, "good", "msg", "Messages", "now", "Auto-text sent · 3 sec", "Sorry we missed you!", 140],
+        ["g2", 26.6, "", "msg", "Messages", "now", "(555) 214-8890", "Yes! Thursday?", 140],
+        // system 2
+        ["g3", 30.9, "", "ig", "Instagram", "now", "jess.m", "How much for lips?", 140],
+        ["g3", 33.6, "good", "ai", "AI Assistant", "now", "Replied instantly", "Lip filler from $650 + booking link", 176],
+        ["g3", 35.6, "good", "cal", "Calendar", "now", "New booking", "Lip filler · Sat 11:00 AM", 140],
+        // system 3
+        ["g4", 43.8, "", "send", "Win-back", "now", "Campaign sent", "Personal offer to 6 past clients", 140],
+        ["g4", 46.95, "", "msg", "Messages", "now", "Ashley L.", "Omg yes!!", 140],
+        ["g4", 47.35, "", "msg", "Messages", "now", "Tasha J.", "Friday works", 140],
+        ["g4", 47.75, "good", "cal", "Calendar", "now", "New booking", "Ashley L. · Botox", 140],
+        ["g4", 48.1, "good", "cal", "Calendar", "now", "New booking", "Tasha J. · Facial", 140],
+        ["g4", 48.45, "good", "cal", "Calendar", "now", "New booking", "Kim B. · Lip filler", 140],
+        ["g4", 48.8, "good", "cal", "Calendar", "now", "New booking", "Emily C. · Botox", 140],
+      ];
+
+      const stacks = {};
+      NOTES.forEach((n, i) => {
+        const [g, t, kind, icon, app, ago, title, body, h, extra] = n;
+        const el = document.createElement("div");
+        el.className = "note " + kind;
+        el.id = "n" + i;
+        el.style.height = h + "px";
+        el.setAttribute("data-layout-allow-overlap", "");
+        let inner = `<div class="ic" style="background:${ICBG[icon]};">${SVG[icon === "miss" ? "phone" : icon]}</div>` +
+          `<div class="hd">${app}</div><div class="tm">${ago}</div><div class="ti">${title}</div>`;
+        if (extra === "chat") {
+          inner += `<div class="ln" id="n${i}a" style="top: 92px; background:#e9e1ea; color:#1c1620;">"How much is Botox?"</div>` +
+                   `<div class="ln" id="n${i}b" style="top: 160px; background:#6d4dff; color:#fff;">"$12 a unit. Friday at 2pm work for you?"</div>`;
+        } else {
+          inner += `<div class="bd">${body}</div>`;
+        }
+        el.innerHTML = inner;
+        document.getElementById(g).appendChild(el);
+
+        // push existing cards down, newest on top; older cards compress
+        const st = (stacks[g] = stacks[g] || []);
+        st.forEach((o) => {
+          o.y += h + 14;
+          o.idx += 1;
+          tl.to("#" + o.id, { y: o.y, scale: o.idx >= 3 ? 0.94 : 1, opacity: o.idx >= 3 ? 0.6 : 1, duration: 0.35, ease: E }, t);
+        });
+        st.push({ id: el.id, y: 0, idx: 0 });
+        tl.fromTo(el, { y: -40, opacity: 0, scale: 0.92 }, { y: 0, opacity: 1, scale: 1, duration: 0.4, ease: "back.out(1.6)" }, t);
+        if (extra === "chat") {
+          tl.fromTo(`#n${i}a`, { opacity: 0 }, { opacity: 1, duration: 0.25 }, t + 0.15);
+          tl.fromTo(`#n${i}b`, { opacity: 0, x: 20 }, { opacity: 1, x: 0, duration: 0.35, ease: E }, 19.3);
+        }
+      });
+
+      // ---------- phone + lock screen states ----------
+      tl.fromTo("#phone", { y: 120, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: E }, 0.05);
+      // phone buzz when it rings
+      tl.fromTo("#phone", { rotation: -1 }, { rotation: 1, duration: 0.06, repeat: 19, yoyo: true, ease: "none" }, 2.3);
+      tl.set("#phone", { rotation: 0 }, 3.55);
+
+      const focus = (id, a, b) => {
+        tl.fromTo(id, { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: 0.35, ease: E }, a);
+        tl.to(id, { opacity: 0, duration: 0.25 }, b);
+      };
+      focus("#f0", 3.2, 11.3);
+      focus("#f1", 11.7, 28.0);
+      focus("#f2", 28.4, 39.2);
+      focus("#f3", 39.5, 49.3);
+      focus("#f4", 49.5, 55.5);
+
+      // pain: banner, then swipe the screen clean
+      tl.fromTo("#banner", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 9.7);
+      tl.to("#banner", { opacity: 0, x: -900, duration: 0.4, ease: "power2.in" }, 11.3);
+      tl.to("#g1", { x: -700, opacity: 0, duration: 0.4, ease: "power2.in" }, 11.3);
+      tl.to("#g2", { x: -700, opacity: 0, duration: 0.4, ease: "power2.in" }, 27.9);
+      tl.to("#g3", { x: -700, opacity: 0, duration: 0.4, ease: "power2.in" }, 39.1);
+      // system 3 collapses into the summary widget
+      tl.to("#g4", { scale: 0.6, y: -80, opacity: 0, duration: 0.45, ease: "power2.in", transformOrigin: "50% 0%" }, 49.3);
+
+      // clock: 2:14 PM -> 11:04 PM (night) -> 10:15 AM next day
+      tl.to("#clk1", { opacity: 0, y: -40, duration: 0.3 }, 28.2);
+      tl.fromTo("#clk2", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.35, ease: E }, 28.25);
+      tl.to("#night", { opacity: 1, duration: 0.6 }, 28.2);
+      tl.to("#clk2", { opacity: 0, y: -40, duration: 0.3 }, 39.35);
+      tl.fromTo("#clk3", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.35, ease: E }, 39.4);
+      tl.to("#night", { opacity: 0, duration: 0.6 }, 39.35);
+      tl.to("#date1", { opacity: 0, duration: 0.3 }, 39.35);
+      tl.fromTo("#date2", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 39.45);
+      // the time itself pulses on "11 p.m."
+      tl.fromTo("#clk2", { scale: 1 }, { scale: 1.08, duration: 0.25, yoyo: true, repeat: 1, ease: "sine.inOut" }, 32.25);
+
+      // payoff: summary widget
+      tl.fromTo("#summary", { opacity: 0, y: 40, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: E }, 49.55);
+      [["#sr1", 50.0], ["#sr2", 51.6], ["#sr3", 53.2]].forEach(([s, t]) => {
+        tl.fromTo(s, { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.4, ease: E }, t);
+        tl.fromTo(`${s} .ok`, { scale: 0 }, { scale: 1, duration: 0.35, ease: "back.out(3)" }, t + 0.3);
+      });
+      tl.fromTo("#sft", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 54.2);
+
+      // ---------- CTA (55.6 - 61.2) ----------
+      tl.to("#cta-dim", { opacity: 1, duration: 0.4 }, 55.6);
+      tl.to("#phone", { opacity: 0.12, duration: 0.4 }, 55.6);
+      tl.fromTo("#s7-q", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 55.75);
+      tl.fromTo("#s7-box", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.8)" }, 56.9);
+      tl.fromTo("#s7-spa", { opacity: 0, scale: 1.8 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 57.65);
+      tl.fromTo("#s7-sub", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 58.6);
+      tl.fromTo("#s7-arrow", { opacity: 0, y: -20 }, { opacity: 1, y: 20, duration: 0.5, repeat: 7, yoyo: true, ease: "sine.inOut" }, 57.9);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
