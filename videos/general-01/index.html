@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Inter"; font-weight: 500; src: url("assets/fonts/inter-latin-500-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 600; src: url("assets/fonts/inter-latin-600-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 700; src: url("assets/fonts/inter-latin-700-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 800; src: url("assets/fonts/inter-latin-800-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 900; src: url("assets/fonts/inter-latin-900-normal.woff2") format("woff2"); }
+
+      :root {
+        --bg: #0d0a12;
+        --panel: #1a1522;
+        --panel-2: #241d2f;
+        --line: rgba(255, 255, 255, 0.1);
+        --text: #f6f1f8;
+        --muted: #a79fb2;
+        --rose: #f2a7bd;
+        --rose-deep: #e0718f;
+        --green: #3ddc97;
+        --red: #ff5468;
+        --amber: #ffb84d;
+        --violet: #9b7bff;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { margin: 0; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); }
+      body { font-family: "Inter", sans-serif; color: var(--text); }
+
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+
+      /* ---------- presenter zone (shared across variants) ---------- */
+      #presenter { position: absolute; left: 0; top: 1200px; width: 1080px; height: 720px;
+        border-top: 3px solid rgba(242, 167, 189, 0.5); }
+      .cam-tag { position: absolute; left: 40px; top: 32px; font-size: 22px; font-weight: 700; letter-spacing: 3px;
+        color: rgba(246, 241, 248, 0.35); text-transform: uppercase; }
+      .orb { position: absolute; left: 440px; top: 70px; width: 200px; height: 200px; border-radius: 50%;
+        background: radial-gradient(circle at 35% 30%, #ffd3df 0%, var(--rose) 35%, var(--rose-deep) 70%, #7d2c4a 100%);
+        box-shadow: 0 0 80px rgba(242, 167, 189, 0.45); }
+      .orb-ring { position: absolute; left: 400px; top: 30px; width: 280px; height: 280px; border-radius: 50%;
+        border: 3px solid rgba(242, 167, 189, 0.35); }
+      .cap { position: absolute; left: 40px; top: 560px; width: 1000px; height: 130px; display: flex;
+        align-items: center; justify-content: center; text-align: center; opacity: 0;
+        font-size: 58px; line-height: 1.1; font-weight: 900; letter-spacing: -1px;
+        text-shadow: 0 4px 18px rgba(0, 0, 0, 0.85), 0 0 4px rgba(0, 0, 0, 0.9); }
+      #camwrap { position: absolute; left: 0; top: 1200px; width: 1080px; height: 720px; overflow: hidden; background: #000; }
+      #cam { position: absolute; left: 0; top: -790px; width: 1080px; height: 1920px; object-fit: cover; }
+      #camshade { position: absolute; left: 0; top: 1200px; width: 1080px; height: 720px;
+        background: linear-gradient(180deg, rgba(13,10,18,0.55) 0%, rgba(13,10,18,0) 18%, rgba(13,10,18,0) 62%, rgba(13,10,18,0.75) 100%); }
+      .cap .w { color: rgba(246, 241, 248, 0.6); margin: 0 9px; }
+
+      /* ---------- flowchart stage ---------- */
+      #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1200px; overflow: hidden;
+        background: radial-gradient(900px 700px at 50% 45%, #22142a 0%, var(--bg) 70%); }
+      #world { position: absolute; left: 0; top: 0; width: 2400px; height: 1500px; }
+      #grid { position: absolute; left: -3000px; top: -3000px; width: 8400px; height: 7500px;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.13) 2px, transparent 2.5px);
+        background-size: 48px 48px; }
+      #wires { position: absolute; left: 0; top: 0; overflow: visible; }
+      #wires path { fill: none; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; }
+
+      .node { position: absolute; width: 440px; height: 150px; border-radius: 28px; background: var(--panel);
+        border: 3px solid rgba(255, 255, 255, 0.16); opacity: 0;
+        box-shadow: 0 0 0px 0px rgba(242, 167, 189, 0); }
+      .node .ic { position: absolute; left: 22px; top: 39px; width: 72px; height: 72px; border-radius: 20px;
+        background: rgba(255, 255, 255, 0.07); display: flex; align-items: center; justify-content: center; }
+      .node .tx { position: absolute; left: 112px; top: 0; width: 300px; height: 150px; display: flex; flex-direction: column;
+        justify-content: center; }
+      .node .t { font-size: 29px; font-weight: 800; line-height: 1.15; letter-spacing: -0.3px; }
+      .node .s { margin-top: 6px; font-size: 22px; font-weight: 600; color: var(--muted); line-height: 1.2; }
+      .node .ck { position: absolute; right: -18px; top: -18px; width: 50px; height: 50px; border-radius: 50%;
+        background: var(--green); display: flex; align-items: center; justify-content: center; opacity: 0; }
+      .lane { position: absolute; width: 440px; height: 64px; border-radius: 999px; display: flex; align-items: center;
+        justify-content: center; font-size: 22px; font-weight: 800; letter-spacing: 3px; color: var(--rose);
+        background: rgba(242, 167, 189, 0.1); border: 2px solid rgba(242, 167, 189, 0.45); opacity: 0; }
+      .tag { position: absolute; padding: 12px 22px; border-radius: 999px; font-size: 24px; font-weight: 800; opacity: 0; }
+
+      /* ---------- overlays ---------- */
+      .ov { position: absolute; left: 0; top: 0; width: 1080px; height: 1200px; }
+      .chip { position: absolute; left: 0; top: 46px; width: 1080px; display: flex; justify-content: center; }
+      .chip span { display: block; padding: 16px 30px; border-radius: 999px; background: rgba(13, 10, 18, 0.85);
+        border: 2px solid rgba(242, 167, 189, 0.6); color: var(--rose); font-size: 30px; font-weight: 800; letter-spacing: 3px; }
+      .chip b { color: var(--text); }
+      .chip.red span { border-color: var(--red); color: var(--red); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="64.95" data-width="1080" data-height="1920">
+
+
+      <!-- ================= flowchart world (camera pans/zooms #world) ================= -->
+      <div id="stage">
+        <div id="world" data-layout-allow-overlap>
+          <div id="grid"></div>
+          <svg id="wires" width="2400" height="1500" viewBox="0 0 2400 1500">
+            <defs>
+              <marker id="ah-red" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ff5468" style="stroke:none; opacity:1; stroke-dasharray:none;"/></marker>
+              <marker id="ah-rose" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#f2a7bd" style="stroke:none; opacity:1; stroke-dasharray:none;"/></marker>
+              <marker id="ah-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#ffb84d" style="stroke:none; opacity:1; stroke-dasharray:none;"/></marker>
+            </defs>
+          </svg>
+          <div id="nodes"></div>
+        </div>
+      </div>
+
+      <!-- ================= overlays ================= -->
+      <div id="hook" class="ov clip" data-start="0" data-duration="1.5" data-track-index="1">
+        <div id="hook-t" style="position:absolute; left:0; top: 430px; width:1080px; text-align:center; font-size: 110px; font-weight: 900; letter-spacing: -3px;">Business owners</div>
+        <div id="hook-s" style="position:absolute; left:0; top: 580px; width:1080px; text-align:center; font-size: 40px; font-weight: 700; color: var(--rose);">here's where customers slip away</div>
+      </div>
+      <div id="chip0" class="ov clip" data-start="1.4" data-duration="8.2" data-track-index="2"><div class="chip red"><span>THE PROBLEM</span></div></div>
+      <div id="chip1" class="ov clip" data-start="9.6" data-duration="17.8" data-track-index="2"><div class="chip"><span>SYSTEM 1 · <b>AI RECEPTIONIST</b></span></div></div>
+      <div id="chip2" class="ov clip" data-start="27.4" data-duration="18.4" data-track-index="2"><div class="chip"><span>SYSTEM 2 · <b>INSTANT DM REPLIES</b></span></div></div>
+      <div id="chip3" class="ov clip" data-start="45.8" data-duration="8.1" data-track-index="2"><div class="chip"><span>SYSTEM 3 · <b>WIN BACK PAST CUSTOMERS</b></span></div></div>
+
+      <div id="pay" class="ov clip" data-start="53.9" data-duration="5.9" data-track-index="1">
+        <div id="pay-t" style="position:absolute; left:0; top: 60px; width:1080px; text-align:center; font-size: 60px; font-weight: 900; letter-spacing: -1.5px;">Your 24/7 Front Desk System</div>
+        <div id="pay-s" style="position:absolute; left:0; top: 140px; width:1080px; text-align:center; font-size: 30px; font-weight: 800; letter-spacing: 4px; color: var(--rose);">RUNS WHILE YOU WORK</div>
+        <div id="pay-b" style="position:absolute; left: 190px; top: 1040px; width: 700px; height: 110px; border-radius: 30px; background: rgba(13,10,18,0.9); border: 3px solid var(--green); display:flex; align-items:center; justify-content:center; font-size: 46px; font-weight: 900; color: var(--green);">Money coming back in</div>
+      </div>
+
+      <div id="s7" class="ov clip" data-start="59.8" data-duration="5.15" data-track-index="1">
+        <div id="s7-dim" style="position:absolute; inset:0; background: rgba(13,10,18,0.88);"></div>
+        <div id="s7-q" style="position:absolute; left:0; top: 170px; width:1080px; text-align:center; font-size: 80px; font-weight: 900; letter-spacing: -2px;">Own a business?</div>
+        <div id="s7-box" style="position:absolute; left: 140px; top: 400px; width: 800px; height: 150px; border-radius: 75px; background: #fff; display:flex; align-items:center; padding-left: 60px;">
+          <div style="font-size: 40px; font-weight: 600; color: #6b6b6b;">Comment</div>
+          <div id="s7-spa" style="margin-left: 24px; font-size: 64px; font-weight: 900; color: #e0718f; letter-spacing: 4px;">"SYSTEM"</div>
+        </div>
+        <div id="s7-sub" style="position:absolute; left: 0; top: 620px; width:1080px; text-align:center; font-size: 46px; font-weight: 800; color: var(--rose); line-height: 1.25;"><span style="display:block; width: 760px; margin: 0 auto;">I'll show you exactly how this works for yours</span></div>
+        <div id="s7-arrow" style="position:absolute; left: 490px; top: 880px; width: 100px; height: 160px;">
+          <svg width="100" height="160" viewBox="0 0 100 160" fill="none" stroke="#f2a7bd" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"><path d="M50 10v130"/><path d="M14 104l36 36 36-36"/></svg>
+        </div>
+      </div>
+
+      <!-- ================= presenter zone (camera goes here later) ================= -->
+      <div id="camwrap">
+        <video id="cam" src="assets/presenter.mp4" data-start="0" data-duration="64.95" data-track-index="8" data-has-audio="true" data-volume="1"></video>
+      </div>
+      <div id="camshade"></div>
+      <div id="presenter" class="clip" data-start="0" data-duration="64.95" data-track-index="0">
+        <div id="caps"></div>
+      </div>
+    </div>
+
+    <script>
+      const WORDS = [["If", 0.12, 0.2], ["you're", 0.24, 0.32], ["a", 0.34, 0.4], ["business", 0.42, 0.7], ["owner,", 0.78, 0.98], ["every", 1.36, 1.5], ["time", 1.54, 1.64], ["somebody", 1.7, 1.92], ["calls", 2.0, 2.24], ["and", 2.28, 2.36], ["you", 2.42, 2.52], ["can't", 2.56, 2.699], ["answer", 2.74, 2.92], ["the", 2.94, 3.02], ["phone,", 3.04, 3.3], ["you", 3.56, 3.64], ["might", 3.74, 3.88], ["be", 3.92, 4.0], ["losing", 4.02, 4.26], ["a", 4.28, 4.32], ["customer.", 4.36, 4.72], ["And", 5.02, 5.08], ["the", 5.1, 5.16], ["thing", 5.22, 5.42], ["is,", 5.5, 5.64], ["most", 5.8, 5.94], ["people", 5.98, 6.14], ["won't", 6.18, 6.32], ["leave", 6.36, 6.48], ["voicemails.", 6.54, 7.04], ["They'll", 7.12, 7.26], ["just", 7.3, 7.4], ["call", 7.44, 7.58], ["the", 7.6, 7.66], ["next", 7.7, 7.88], ["person", 7.92, 8.16], ["on", 8.2, 8.28], ["Google.", 8.32, 8.58], ["So", 8.88, 9.0], ["pretty", 9.04, 9.2], ["much,", 9.24, 9.46], ["this", 9.74, 9.86], ["is", 9.9, 10.0], ["what", 10.04, 10.14], ["I", 10.2, 10.26], ["can", 10.3, 10.42], ["build", 10.48, 10.66], ["to", 10.7, 10.76], ["help", 10.78, 10.94], ["you", 10.98, 11.04], ["out.", 11.1, 11.26], ["When", 11.56, 11.66], ["you", 11.76, 11.86], ["can't", 11.94, 12.16], ["answer,", 12.24, 12.58], ["we'll", 12.8, 12.92], ["have", 12.96, 13.06], ["an", 13.1, 13.18], ["AI", 13.26, 13.44], ["receptionist", 13.48, 14.12], ["answer", 14.22, 14.48], ["for", 14.56, 14.7], ["you.", 14.78, 14.9], ["It'll", 15.2, 15.34], ["answer", 15.42, 15.64], ["their", 15.68, 15.78], ["questions,", 15.82, 16.46], ["it'll", 16.6, 16.74], ["give", 16.78, 16.9], ["prices,", 16.98, 17.54], ["and", 17.64, 17.72], ["it'll", 17.76, 18.12], ["do", 18.16, 18.32], ["everything", 18.38, 18.74], ["that", 18.78, 18.94], ["you", 19.0, 19.12], ["can't", 19.2, 19.48], ["do,", 19.52, 19.68], ["but", 19.86, 20.06], ["you", 20.12, 20.2], ["would", 20.24, 20.38], ["normally", 20.44, 20.86], ["do", 20.9, 21.06], ["if", 21.16, 21.24], ["you", 21.28, 21.4], ["could", 21.46, 21.68], ["answer", 21.74, 21.96], ["the", 22.0, 22.06], ["phone.", 22.1, 22.36], ["And", 22.66, 22.74], ["if", 22.78, 22.86], ["they", 22.9, 23.04], ["hang", 23.1, 23.32], ["up", 23.42, 23.52], ["before", 23.56, 23.84], ["it", 23.88, 23.94], ["answers,", 24.0, 24.38], ["they", 24.74, 24.84], ["get", 24.88, 24.94], ["a", 25.0, 25.04], ["text", 25.12, 25.32], ["within", 25.36, 25.62], ["seconds,", 25.68, 26.04], ["and", 26.08, 26.26], ["you", 26.66, 26.72], ["don't", 26.76, 26.9], ["lose", 26.94, 27.08], ["them.", 27.1, 27.22], ["And", 27.52, 27.6], ["this", 27.64, 27.74], ["isn't", 27.8, 28.02], ["just", 28.12, 28.52], ["with", 28.56, 28.74], ["phone", 28.78, 29.0], ["calls.", 29.08, 29.36], ["This", 29.38, 29.48], ["is", 29.52, 29.62], ["actually", 29.7, 30.04], ["inside", 30.1, 30.4], ["of", 30.42, 30.48], ["your", 30.5, 30.6], ["DMs", 30.64, 30.96], ["as", 31.02, 31.12], ["well.", 31.18, 31.42], ["So", 32.14, 32.2], ["if", 32.24, 32.3], ["somebody", 32.34, 32.64], ["hits", 32.68, 32.82], ["you", 32.86, 32.94], ["up", 33.02, 33.1], ["at", 33.14, 33.2], ["11", 33.24, 33.54], ["PM", 33.58, 33.82], ["at", 33.86, 33.94], ["night", 34.04, 34.24], ["when", 34.26, 34.34], ["you're", 34.38, 34.48], ["asleep,", 34.48, 34.9], ["or", 35.0, 35.18], ["10", 35.48, 35.6], ["AM", 35.66, 35.92], ["when", 35.96, 36.1], ["you're", 36.14, 36.24], ["in", 36.26, 36.32], ["the", 36.34, 36.4], ["middle", 36.46, 36.66], ["of", 36.74, 36.84], ["doing", 37.26, 37.42], ["some", 37.46, 37.58], ["actual", 37.66, 38.0], ["work", 38.08, 38.3], ["for", 38.38, 38.56], ["another", 38.6, 38.84], ["customer,", 38.9, 39.34], ["it'll", 39.78, 39.96], ["do", 40.0, 40.08], ["the", 40.12, 40.2], ["work", 40.24, 40.42], ["for", 40.48, 40.62], ["you.", 40.7, 40.82], ["So", 41.28, 41.36], ["they'll", 41.4, 41.56], ["get", 41.6, 41.7], ["an", 41.74, 41.82], ["answer,", 41.9, 42.24], ["a", 42.44, 42.54], ["booking", 42.58, 42.82], ["link,", 42.94, 43.16], ["and", 43.32, 43.4], ["then", 43.42, 43.54], ["they'll", 43.56, 43.72], ["be", 43.76, 43.82], ["able", 43.86, 43.96], ["to", 44.0, 44.14], ["book", 44.18, 44.36], ["right", 44.48, 44.68], ["there", 44.72, 44.92], ["through", 44.96, 45.12], ["the", 45.16, 45.22], ["DM.", 45.26, 45.58], ["And", 45.88, 45.94], ["then", 45.98, 46.06], ["we", 46.08, 46.16], ["can't", 46.2, 46.34], ["forget", 46.38, 46.56], ["about", 46.62, 46.78], ["the", 46.8, 46.88], ["customers.", 46.92, 47.26], ["We", 47.41, 47.49], ["send", 47.55, 47.69], ["them", 47.71, 47.79], ["a", 47.83, 47.89], ["personal", 47.93, 48.25], ["text", 48.39, 48.71], ["or", 48.75, 48.83], ["email,", 49.01, 49.37], ["offer", 49.53, 49.73], ["them", 49.77, 49.89], ["something", 49.93, 50.19], ["special.", 50.27, 50.59], ["That", 50.71, 50.85], ["way", 50.87, 50.99], ["you", 51.01, 51.07], ["can", 51.11, 51.21], ["get", 51.25, 51.35], ["those", 51.39, 51.55], ["customers", 51.59, 51.95], ["back", 52.05, 52.21], ["and", 52.23, 52.31], ["keep", 52.35, 52.49], ["more", 52.55, 52.73], ["business", 52.75, 53.09], ["in", 53.13, 53.19], ["the", 53.23, 53.29], ["back", 53.33, 53.509], ["end.", 53.55, 53.69], ["So", 53.99, 54.11], ["now", 54.17, 54.39], ["it's", 54.57, 54.71], ["no", 54.75, 54.87], ["more", 54.89, 55.03], ["missed", 55.09, 55.27], ["calls,", 55.31, 55.67], ["no", 55.77, 55.83], ["more", 55.91, 56.01], ["ignored", 56.03, 56.35], ["messages,", 56.41, 56.89], ["and", 57.35, 57.47], ["you", 57.51, 57.59], ["get", 57.63, 57.75], ["money", 57.79, 57.95], ["from", 57.97, 58.11], ["customers", 58.13, 58.53], ["you", 58.57, 58.67], ["already", 58.73, 58.99], ["have.", 59.03, 59.21], ["If", 59.87, 60.01], ["you", 60.07, 60.17], ["are", 60.23, 60.31], ["a", 60.37, 60.43], ["business", 60.47, 60.73], ["owner,", 60.79, 61.01], ["comment", 61.21, 61.51], ["system,", 61.67, 62.05], ["and", 62.19, 62.27], ["I'll", 62.33, 62.45], ["show", 62.49, 62.63], ["you", 62.67, 62.75], ["exactly", 62.81, 63.21], ["how", 63.25, 63.37], ["I", 63.41, 63.45], ["can", 63.47, 63.57], ["do", 63.61, 63.71], ["this", 63.75, 63.89], ["for", 63.91, 63.99], ["your", 64.05, 64.13], ["business.", 64.17, 64.51]];
+      const tl = gsap.timeline({ paused: true });
+      const E = "power3.out";
+
+      // ---------- captions (bottom zone) ----------
+      const caps = document.getElementById("caps");
+      const groups = [];
+      let cur = [];
+      WORDS.forEach((w, i) => {
+        cur.push(w);
+        const endsSentence = /[.,?!"]$/.test(w[0]);
+        const next = WORDS[i + 1];
+        const gap = next ? next[1] - w[2] : 1;
+        if (cur.length >= 4 || endsSentence || gap > 0.3 || !next) { groups.push(cur); cur = []; }
+      });
+      groups.forEach((g, gi) => {
+        const el = document.createElement("div");
+        el.className = "cap";
+        el.id = "cap" + gi;
+        el.innerHTML = g.map((w, wi) => `<span class="w" id="cap${gi}w${wi}">${w[0].replace(/"/g, "")}</span>`).join(" ");
+        caps.appendChild(el);
+        const start = g[0][1];
+        const nextG = groups[gi + 1];
+        const end = nextG ? nextG[0][1] : g[g.length - 1][2] + 0.3;
+        tl.fromTo(el, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.15, ease: E }, start);
+        tl.set(el, { opacity: 0 }, end);
+        g.forEach((w, wi) => {
+          tl.set(`#cap${gi}w${wi}`, { color: /system|AI|Google|DMs?\b|seconds|money|book|customer|11|asleep|special/i.test(w[0]) ? "#f2a7bd" : "#ffffff" }, w[1]);
+        });
+      });
+
+
+
+      // ================= flowchart model =================
+      const SVG_NS = "http://www.w3.org/2000/svg";
+      const ICON = {
+        phone: '<path fill="C" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/>',
+        x: '<path fill="none" stroke="C" stroke-width="3" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/>',
+        vm: '<g fill="none" stroke="C" stroke-width="2.6"><circle cx="6.5" cy="12" r="3.5"/><circle cx="17.5" cy="12" r="3.5"/><path d="M6.5 15.5h11"/></g>',
+        search: '<g fill="none" stroke="C" stroke-width="2.8"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></g>',
+        spark: '<path fill="C" d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/><path fill="C" d="M19 14l.9 2.6L22 17.5l-2.1.9L19 21l-.9-2.6L16 17.5l2.1-.9z"/>',
+        chat: '<path fill="C" d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 2-2z"/>',
+        cal: '<g fill="none" stroke="C" stroke-width="2.4"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g>',
+        sms: '<path fill="C" d="M3 5h18v12H8l-5 4z"/>',
+        hang: '<path fill="C" transform="rotate(135 12 12)" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/>',
+        users: '<g fill="C"><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.9 3.1-7 7-7s7 3.1 7 7z"/><circle cx="17" cy="9" r="2.8"/><path d="M15.5 13.2A6 6 0 0 1 22 19v1h-4.5"/></g>',
+        heart: '<path fill="C" d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/>',
+        check: '<path fill="none" stroke="C" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/>',
+        ig: '<g fill="none" stroke="C" stroke-width="2.4"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/></g>',
+      };
+      const svgIcon = (k, c, s = 40) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24">${ICON[k].replace(/C/g, c)}</svg>`;
+
+      // node centers in world coords
+      const N = {
+        p1: [350, 220, "phone", "Phone rings", "Someone wants to buy"],
+        p2: [850, 220, "x", "No answer", "You're busy working"],
+        p3: [1350, 220, "vm", "No voicemail", "Most people won't leave one"],
+        p4: [1850, 220, "search", "Calls a competitor", "Next business on Google"],
+        a1: [450, 720, "phone", "Call comes in", "Anytime, day or night"],
+        a2: [450, 920, "spark", "AI answers", "Your AI receptionist"],
+        a3: [450, 1120, "chat", "Answers + pricing", "\"How much does it cost?\""],
+        a4: [450, 1320, "cal", "Booked on calendar", "Like you picked up"],
+        b1: [960, 920, "hang", "Caller hangs up", "Before AI picks up"],
+        b2: [960, 1120, "sms", "Text in 3 seconds", "\"Sorry we missed you!\""],
+        b3: [960, 1320, "heart", "Customer saved", "Books from the text"],
+        c1: [1460, 720, "ig", "DM at 11 PM", "While you're asleep"],
+        c2: [1460, 920, "chat", "Instant answer", "Price + booking link"],
+        c3: [1460, 1120, "cal", "Books in the DM", "Right there, no waiting"],
+        d1: [1960, 720, "users", "Past customers", "Haven't been back"],
+        d2: [1960, 920, "sms", "Text or email offer", "Something special"],
+        d3: [1960, 1120, "chat", "They come back", "\"Perfect timing!\""],
+        d4: [1960, 1320, "cal", "More repeat business", "Money you already earned"],
+      };
+      const LANES = { l1: [700, 560, "SYSTEM 1 · AI RECEPTIONIST", 960], l2: [1460, 560, "SYSTEM 2 · DM REPLIES", 440], l3: [1960, 560, "SYSTEM 3 · WIN-BACK", 440] };
+
+      const nodesEl = document.getElementById("nodes");
+      Object.entries(N).forEach(([id, [cx, cy, ic, t, s]]) => {
+        const d = document.createElement("div");
+        d.className = "node";
+        d.id = "n-" + id;
+        d.style.left = cx - 220 + "px";
+        d.style.top = cy - 75 + "px";
+        d.innerHTML = `<div class="ic">${svgIcon(ic, "#f6f1f8")}</div><div class="tx"><div class="t">${t}</div><div class="s">${s}</div></div><div class="ck">${svgIcon("check", "#0d0a12", 30)}</div>`;
+        nodesEl.appendChild(d);
+      });
+      Object.entries(LANES).forEach(([id, [cx, cy, label, w]]) => {
+        const d = document.createElement("div");
+        d.className = "lane";
+        d.id = "n-" + id;
+        d.style.width = w + "px";
+        d.style.left = cx - w / 2 + "px";
+        d.style.top = cy - 32 + "px";
+        d.textContent = label;
+        nodesEl.appendChild(d);
+      });
+      // extra tags
+      const tag = (id, x, y, txt, color) => {
+        const d = document.createElement("div");
+        d.className = "tag";
+        d.id = id;
+        d.style.left = x + "px";
+        d.style.top = y + "px";
+        d.style.color = color;
+        d.style.border = `2px solid ${color}`;
+        d.style.background = "rgba(13,10,18,0.9)";
+        d.textContent = txt;
+        nodesEl.appendChild(d);
+      };
+      tag("tag-lost", 1660, 330, "CUSTOMER LOST", "#ff5468");
+      tag("tag-tmr", 1275, 1225, "Same at 10 AM, mid-job", "#f2a7bd");
+
+      // wires
+      const wires = document.getElementById("wires");
+      const W = {};
+      const wire = (id, from, to, color, kind) => {
+        const [x1, y1] = N[from], [x2, y2] = N[to];
+        let d;
+        if (kind === "h") d = `M${x1 + 222} ${y1} L${x2 - 232} ${y2}`;
+        else if (kind === "v") d = `M${x1} ${y1 + 77} L${x2} ${y2 - 87}`;
+        else if (kind === "hv") d = `M${x1 + 222} ${y1} C${x1 + 300} ${y1} ${x2 - 300} ${y2} ${x2 - 232} ${y2}`;
+        else d = `M${x1} ${y1 + 77} C${x1} ${y1 + 260} ${x2} ${y2 - 300} ${x2} ${y2 - 87}`;
+        const p = document.createElementNS(SVG_NS, "path");
+        p.setAttribute("d", d);
+        p.setAttribute("pathLength", "1");
+        p.setAttribute("stroke", color);
+        p.setAttribute("marker-end", `url(#ah-${color === "#ff5468" ? "red" : color === "#ffb84d" ? "amber" : "rose"})`);
+        p.id = "w-" + id;
+        wires.appendChild(p);
+        W[id] = p;
+      };
+      const RED = "#ff5468", ROSE = "#f2a7bd", AMB = "#ffb84d";
+      wire("p12", "p1", "p2", RED, "h");
+      wire("p23", "p2", "p3", RED, "h");
+      wire("p34", "p3", "p4", RED, "h");
+      wire("pa", "p2", "a1", ROSE, "c");
+      wire("a12", "a1", "a2", ROSE, "v");
+      wire("a23", "a2", "a3", ROSE, "v");
+      wire("a34", "a3", "a4", ROSE, "v");
+      wire("ab", "a2", "b1", AMB, "h");
+      wire("b12", "b1", "b2", ROSE, "v");
+      wire("b23", "b2", "b3", ROSE, "v");
+      wire("c12", "c1", "c2", ROSE, "v");
+      wire("c23", "c2", "c3", ROSE, "v");
+      wire("d12", "d1", "d2", ROSE, "v");
+      wire("d23", "d2", "d3", ROSE, "v");
+      wire("d34", "d3", "d4", ROSE, "v");
+
+      // ---------- helpers ----------
+      const GLOW_ROSE = "0 0 46px 6px rgba(242,167,189,0.55)";
+      const GLOW_RED = "0 0 46px 6px rgba(255,84,104,0.5)";
+      const GLOW_NONE = "0 0 0px 0px rgba(242,167,189,0)";
+      const draw = (id, t, d = 0.5) => {
+        tl.set(W[id], { opacity: 1 }, t);
+        tl.fromTo(W[id], { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: d, ease: "power2.inOut" }, t);
+      };
+      const show = (id, t, mode = "active") => {
+        const el = "#n-" + id;
+        tl.fromTo(el, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.8)" }, t);
+        if (mode === "active") tl.to(el, { borderColor: "#f2a7bd", boxShadow: GLOW_ROSE, duration: 0.3 }, t);
+        if (mode === "pain") tl.to(el, { borderColor: "#ff5468", backgroundColor: "#2a1520", boxShadow: GLOW_RED, duration: 0.3 }, t);
+        if (mode === "warn") tl.to(el, { borderColor: "#ffb84d", boxShadow: "0 0 46px 6px rgba(255,184,77,0.45)", duration: 0.3 }, t);
+      };
+      const settle = (id, t) => tl.to("#n-" + id, { boxShadow: GLOW_NONE.replace("242,167,189", "255,84,104"), duration: 0.4 }, t);
+      const done = (id, t) => {
+        tl.to("#n-" + id, { borderColor: "#3ddc97", backgroundColor: "#16241f", boxShadow: GLOW_NONE, duration: 0.35 }, t);
+        tl.fromTo(`#n-${id} .ck`, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(3)" }, t);
+      };
+      const lane = (id, t) => tl.fromTo("#n-" + id, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, t);
+      // camera: center world point (cx,cy) at screen (sx,sy) with scale s
+      const cam = (cx, cy, s, t, d = 0.9, sy = 600) =>
+        tl.to("#world", { x: 540 - cx * s, y: sy - cy * s, scale: s, duration: d, ease: "power3.inOut" }, t);
+
+      // ================= timeline (keyed to the user's recording, after pause cuts) =================
+      tl.fromTo("#world", { x: 540 - 350 * 1.2, y: 620 - 220 * 1.2, scale: 1.2, transformOrigin: "0px 0px" }, { x: 540 - 350 * 1.2, y: 620 - 220 * 1.2, scale: 1.2, duration: 0.01 }, 0);
+      tl.fromTo("#grid", { opacity: 0 }, { opacity: 1, duration: 1.2 }, 0);
+
+      // hook
+      tl.fromTo("#hook-t", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, 0.05);
+      tl.fromTo("#hook-s", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: E }, 0.35);
+      tl.to(["#hook-t", "#hook-s"], { opacity: 0, y: -30, duration: 0.25, ease: "power2.in" }, 1.2);
+      ["#chip0", "#chip1", "#chip2", "#chip3"].forEach((c, i) =>
+        tl.fromTo(`${c} .chip`, { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.4, ease: E }, [1.45, 9.7, 27.5, 45.9][i]));
+
+      // ---- the problem (pain path) ----
+      show("p1", 1.4, "pain");
+      tl.fromTo("#n-p1 .ic", { rotation: -10 }, { rotation: 10, duration: 0.07, repeat: 13, yoyo: true, ease: "none" }, 1.6);
+      cam(850, 220, 1.2, 2.3, 0.7, 620);
+      draw("p12", 2.4);
+      show("p2", 2.65, "pain");
+      settle("p1", 2.65);
+      cam(1350, 220, 1.2, 5.6, 0.7, 620);
+      draw("p23", 5.8);
+      show("p3", 6.3, "pain");
+      settle("p2", 6.3);
+      cam(1850, 220, 1.2, 6.9, 0.7, 620);
+      draw("p34", 7.1);
+      show("p4", 7.45, "pain");
+      settle("p3", 7.45);
+      tl.fromTo("#n-p4", { x: 0 }, { x: 10, duration: 0.05, repeat: 7, yoyo: true, ease: "none" }, 8.2);
+      tl.fromTo("#tag-lost", { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(2.5)" }, 8.35);
+
+      // ---- "this is what I can build": pull back, reveal the three system lanes ----
+      cam(1150, 470, 0.55, 9.6, 1.1, 600);
+      lane("l1", 10.0); lane("l2", 10.2); lane("l3", 10.4);
+
+      // ---- system 1: AI receptionist ----
+      cam(450, 800, 1.15, 11.3, 1.0, 660);
+      tl.to(["#n-p1", "#n-p3", "#n-p4", "#tag-lost", "#w-p12", "#w-p23", "#w-p34"], { opacity: 0.2, duration: 0.5 }, 11.3);
+      tl.to("#n-p2", { opacity: 0.45, duration: 0.5 }, 11.3);
+      tl.to(["#n-l1", "#n-l2", "#n-l3"], { opacity: 0, duration: 0.4 }, 11.3);
+      draw("pa", 11.5, 0.6);
+      show("a1", 11.9);
+      draw("a12", 12.9);
+      show("a2", 13.2);
+      done("a1", 13.2);
+      tl.fromTo("#n-a2 .ic", { scale: 1 }, { scale: 1.2, duration: 0.25, yoyo: true, repeat: 5, ease: "sine.inOut" }, 13.5);
+      draw("a23", 15.1);
+      show("a3", 15.4);
+      done("a2", 15.4);
+      cam(450, 1060, 1.15, 17.9, 0.8, 660);
+      draw("a34", 18.2);
+      show("a4", 18.5);
+      done("a3", 18.5);
+      done("a4", 21.8);
+      // hang-up branch
+      cam(705, 1120, 1.0, 22.3, 0.9, 640);
+      draw("ab", 22.8);
+      show("b1", 23.1, "warn");
+      draw("b12", 24.8);
+      show("b2", 25.1);
+      tl.to("#n-b1", { boxShadow: "0 0 0px 0px rgba(255,184,77,0)", duration: 0.4 }, 25.1);
+      draw("b23", 26.4);
+      show("b3", 26.7);
+      done("b2", 26.7);
+      done("b3", 27.2);
+
+      // ---- system 2: DMs ----
+      cam(1460, 930, 1.15, 27.5, 1.0, 640);
+      show("c1", 30.55);
+      tl.fromTo("#n-c1 .ic", { rotation: -8 }, { rotation: 8, duration: 0.08, repeat: 7, yoyo: true, ease: "none" }, 33.2);
+      tl.fromTo("#tag-tmr", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.35, ease: E }, 35.45);
+      draw("c12", 39.5);
+      show("c2", 39.8);
+      done("c1", 39.8);
+      tl.to("#tag-tmr", { opacity: 0.45, duration: 0.4 }, 40.4);
+      draw("c23", 43.7);
+      show("c3", 44.0);
+      done("c2", 44.0);
+      done("c3", 45.3);
+
+      // ---- system 3: win-back ----
+      cam(1960, 900, 1.15, 45.85, 1.0, 660);
+      show("d1", 46.5);
+      tl.to("#n-d1", { borderColor: "rgba(167,159,178,0.6)", boxShadow: GLOW_NONE, duration: 0.3 }, 47.3);
+      draw("d12", 47.6);
+      show("d2", 47.9);
+      draw("d23", 51.0);
+      show("d3", 51.3);
+      done("d1", 51.3);
+      done("d2", 51.3);
+      cam(1960, 1100, 1.15, 51.6, 0.7, 660);
+      draw("d34", 52.0);
+      show("d4", 52.35);
+      done("d3", 52.35);
+      done("d4", 53.3);
+
+      // ---- payoff: whole map ----
+      cam(1150, 790, 0.5, 53.9, 1.2, 620);
+      tl.to(["#n-l1", "#n-l2", "#n-l3"], { opacity: 1, duration: 0.5 }, 54.2);
+      tl.fromTo("#pay-t", { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 54.3);
+      tl.fromTo("#pay-s", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 54.6);
+      tl.to(["#n-p1", "#n-p2", "#n-p3", "#n-p4", "#tag-lost", "#w-p12", "#w-p23", "#w-p34"], { opacity: 0.25, duration: 0.5 }, 54.3);
+      [["#n-a1", "#n-a2", "#n-a3", "#n-a4", "#n-b1", "#n-b2", "#n-b3"], ["#n-c1", "#n-c2", "#n-c3"], ["#n-d1", "#n-d2", "#n-d3", "#n-d4"]].forEach((g, i) => {
+        const t = [54.8, 55.8, 57.8][i];
+        tl.fromTo(g, { boxShadow: "0 0 50px 10px rgba(61,220,151,0.6)" }, { boxShadow: "0 0 0px 0px rgba(61,220,151,0)", duration: 0.9, ease: "power2.out" }, t);
+      });
+      done("b1", 54.4);
+      tl.fromTo("#pay-b", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(2)" }, 57.75);
+
+      // ---- CTA ----
+      tl.fromTo("#s7-dim", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 59.8);
+      tl.fromTo("#s7-q", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.5, ease: E }, 59.9);
+      tl.fromTo("#s7-box", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.8)" }, 60.9);
+      tl.fromTo("#s7-spa", { opacity: 0, scale: 1.8 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(2)" }, 61.6);
+      tl.fromTo("#s7-sub", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45, ease: E }, 62.4);
+      tl.fromTo("#s7-arrow", { opacity: 0, y: -20 }, { opacity: 1, y: 20, duration: 0.5, repeat: 5, yoyo: true, ease: "sine.inOut" }, 61.9);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
