@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Inter"; font-weight: 500; src: url("assets/fonts/inter-latin-500-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 600; src: url("assets/fonts/inter-latin-600-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 700; src: url("assets/fonts/inter-latin-700-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 800; src: url("assets/fonts/inter-latin-800-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 900; src: url("assets/fonts/inter-latin-900-normal.woff2") format("woff2"); }
+      :root { --cream: #f6f0eb; --white: #fffdfc; --mauve: #a46d86; --blush: #e8c8d1; --ink: #24222a; --muted: #6b6670; --green: #2f9e6a; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: "Inter", sans-serif; color: var(--ink); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--ink); }
+
+      /* ---- narrator (real footage, full frame) ---- */
+      #camwrap { position: absolute; inset: 0; overflow: hidden; }
+      #camzoom { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+      #cam { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; }
+      #shade { position: absolute; inset: 0;
+        background: linear-gradient(180deg, rgba(36,34,42,0.55) 0%, rgba(36,34,42,0.15) 24%, rgba(36,34,42,0) 40%, rgba(36,34,42,0) 70%, rgba(36,34,42,0.7) 100%); }
+
+      /* ---- med spa photo: opening + cutaways ---- */
+      .photo { position: absolute; inset: 0; overflow: hidden; background: var(--cream); }
+      .photo .blur { position: absolute; left: -200px; top: -200px; width: 1480px; height: 2320px; object-fit: cover; filter: blur(40px); opacity: 0.85; }
+      .photo .wash { position: absolute; inset: 0; background: rgba(246, 240, 235, 0.3); }
+      .photo .card { position: absolute; left: 50px; top: 440px; width: 980px; height: 1220px; border-radius: 48px; overflow: hidden;
+        box-shadow: 0 40px 100px rgba(36, 34, 42, 0.28); }
+      .photo .card img { position: absolute; object-fit: cover; }
+      .cut { position: absolute; inset: 0; overflow: hidden; }
+      .cut img { position: absolute; object-fit: cover; }
+
+      /* ---- persistent title header ---- */
+      #hdr { position: absolute; left: 60px; top: 130px; width: 960px; padding: 26px 32px 30px; border-radius: 40px;
+        background: rgba(36, 34, 42, 0.94); text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.35); }
+      #hdr .h1 { font-size: 88px; font-weight: 900; line-height: 1.0; letter-spacing: -2.5px; color: var(--white); }
+      #hdr .h1 em { font-style: normal; color: var(--blush); }
+      #hdr .h2 { margin-top: 12px; font-size: 40px; font-weight: 800; line-height: 1.1; color: var(--blush); }
+
+      /* ---- cards ---- */
+      .card2 { position: absolute; left: 90px; width: 900px; border-radius: 40px; background: var(--white);
+        box-shadow: 0 30px 70px rgba(0,0,0,0.35); opacity: 0; }
+      .node { height: 168px; border: 5px solid transparent; }
+      .node .ic { position: absolute; left: 28px; top: 34px; width: 92px; height: 92px; border-radius: 26px; background: var(--cream);
+        display: flex; align-items: center; justify-content: center; }
+      .node .t { position: absolute; left: 146px; top: 30px; width: 700px; font-size: 48px; font-weight: 800; line-height: 1.1; letter-spacing: -0.5px; }
+      .node .s { position: absolute; left: 146px; top: 94px; width: 700px; font-size: 32px; font-weight: 600; color: var(--muted); }
+      .node .ck { position: absolute; right: -16px; top: -16px; width: 58px; height: 58px; border-radius: 50%; background: var(--green);
+        display: flex; align-items: center; justify-content: center; opacity: 0; }
+      .pill { position: absolute; padding: 16px 30px; border-radius: 999px; font-size: 36px; font-weight: 800; opacity: 0; white-space: nowrap; }
+      .p-mauve { background: var(--mauve); color: var(--white); }
+      .p-cream { background: var(--white); color: var(--ink); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
+      .p-green { background: var(--green); color: var(--white); }
+      .chip { position: absolute; left: 0; width: 1080px; top: 420px; display: flex; justify-content: center; opacity: 0; }
+      .chip span { padding: 16px 34px; border-radius: 999px; background: var(--blush); color: var(--ink); font-size: 34px; font-weight: 900; letter-spacing: 2px; }
+
+      /* notification banner */
+      .notif { height: 150px; }
+      .notif .app { position: absolute; left: 28px; top: 30px; width: 90px; height: 90px; border-radius: 24px; display: flex; align-items: center; justify-content: center; }
+      .notif .a { position: absolute; left: 146px; top: 26px; font-size: 26px; font-weight: 700; color: var(--muted); letter-spacing: 1px; }
+      .notif .t { position: absolute; left: 146px; top: 62px; font-size: 44px; font-weight: 800; }
+
+      /* search card */
+      .search { height: 380px; }
+      .sbar { position: absolute; left: 30px; top: 28px; width: 840px; height: 84px; border-radius: 42px; background: var(--cream);
+        font-size: 36px; font-weight: 600; color: var(--muted); padding: 20px 0 0 40px; }
+      .res { position: absolute; left: 30px; width: 840px; height: 104px; border-radius: 26px; border: 3px solid #eee2e7; }
+      .res .n { position: absolute; left: 30px; top: 16px; font-size: 36px; font-weight: 800; }
+      .res .m { position: absolute; left: 30px; top: 60px; font-size: 26px; font-weight: 600; color: var(--muted); }
+
+      /* DM thread card */
+      .thread { height: 430px; }
+      .th-head { position: absolute; left: 30px; top: 24px; height: 70px; width: 840px; border-bottom: 2px solid #f0e8ec; }
+      .th-av { position: absolute; left: 0; top: 0; width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, var(--blush), var(--mauve)); }
+      .th-name { position: absolute; left: 74px; top: 2px; font-size: 30px; font-weight: 800; }
+      .th-sub { position: absolute; left: 74px; top: 36px; font-size: 22px; font-weight: 600; color: var(--muted); }
+      .bub { position: absolute; padding: 20px 28px; border-radius: 32px; font-size: 38px; font-weight: 600; line-height: 1.15; opacity: 0; }
+      .b-in { left: 30px; background: #efefef; color: #111; border-bottom-left-radius: 10px; }
+      .b-out { right: 30px; background: var(--mauve); color: var(--white); border-bottom-right-radius: 10px; }
+      .btn { position: absolute; right: 30px; padding: 16px 30px; border-radius: 22px; border: 3px solid var(--mauve); color: var(--mauve);
+        font-size: 34px; font-weight: 800; background: var(--white); opacity: 0; }
+
+      /* past customers list */
+      .list { height: 420px; }
+      .list .hd { position: absolute; left: 34px; top: 26px; font-size: 26px; font-weight: 800; letter-spacing: 2px; color: var(--muted); }
+      .row { position: absolute; left: 30px; width: 840px; height: 100px; border-radius: 24px; background: var(--cream); opacity: 0.55; }
+      .row .n { position: absolute; left: 28px; top: 14px; font-size: 36px; font-weight: 800; }
+      .row .m { position: absolute; left: 28px; top: 58px; font-size: 24px; font-weight: 600; color: var(--muted); }
+      .row .st { position: absolute; right: 22px; top: 26px; padding: 10px 22px; border-radius: 999px; font-size: 26px; font-weight: 800; opacity: 0; }
+
+      /* captions */
+      .cap { position: absolute; left: 40px; top: 1600px; width: 1000px; height: 160px; display: flex; align-items: center; justify-content: center;
+        text-align: center; opacity: 0; font-size: 68px; line-height: 1.08; font-weight: 900; letter-spacing: -1px;
+        text-shadow: 0 4px 20px rgba(0,0,0,0.85), 0 0 4px rgba(0,0,0,0.9); }
+      .cap .w { color: var(--white); margin: 0 9px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="64.75" data-width="1080" data-height="1920">
+
+      <div id="camwrap">
+        <div id="camzoom">
+          <video id="cam" src="assets/presenter.mp4" data-start="0" data-duration="64.75" data-track-index="8" data-has-audio="true" data-volume="1"></video>
+        </div>
+      </div>
+      <div id="shade"></div>
+
+      <!-- opening: real med spa visual (reference 01 stand-in; swap for licensed photo before publishing) -->
+      <div id="open" class="photo clip" data-start="0" data-duration="1.5" data-track-index="1" data-layout-allow-overlap>
+        <img class="blur" src="assets/ref01-reception.png" alt="" />
+        <div class="wash"></div>
+        <div class="card"><img id="open-img" src="assets/ref01-reception.png" alt="" style="left:-330px; top:0; width:1226px; height:1220px;" /></div>
+      </div>
+      <!-- cutaways: tight crops of the same photo at section changes -->
+      <div id="cut1" class="cut clip" data-start="9.55" data-duration="0.6" data-track-index="2"><img src="assets/ref01-reception.png" alt="" style="left:-1300px; top:-300px; width:3900px; height:3880px;" /></div>
+      <div id="cut2" class="cut clip" data-start="27.45" data-duration="0.6" data-track-index="2"><img src="assets/ref01-reception.png" alt="" style="left:-700px; top:-1500px; width:3900px; height:3880px;" /></div>
+      <div id="cut3" class="cut clip" data-start="45.8" data-duration="0.6" data-track-index="2"><img src="assets/ref01-reception.png" alt="" style="left:-1700px; top:-900px; width:3900px; height:3880px;" /></div>
+
+      <div id="stage" data-layout-allow-overlap></div>
+
+      <div id="hdr"><div class="h1">Med spa <em>owner?</em></div><div class="h2">Stop losing clients to missed calls &amp; DMs</div></div>
+      <div id="caps"></div>
+    </div>
+
+    <script>
+      const WORDS = __WORDS__;
+      const tl = gsap.timeline({ paused: true });
+      const E = "power3.out";
+      const stage = document.getElementById("stage");
+      const ICON = {
+        phone: '<svg width="48" height="48" viewBox="0 0 24 24"><path fill="C" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>',
+        spark: '<svg width="48" height="48" viewBox="0 0 24 24"><path fill="C" d="M12 2l1.8 5.4L19 9l-5.2 1.6L12 16l-1.8-5.4L5 9l5.2-1.6z"/><path fill="C" d="M19 14l.9 2.6L22 17.5l-2.1.9L19 21l-.9-2.6L16 17.5l2.1-.9z"/></svg>',
+        chat: '<svg width="48" height="48" viewBox="0 0 24 24"><path fill="C" d="M4 4h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 2-2z"/></svg>',
+        cal: '<svg width="48" height="48" viewBox="0 0 24 24"><g fill="none" stroke="C" stroke-width="2.4"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></g></svg>',
+        hang: '<svg width="48" height="48" viewBox="0 0 24 24"><path fill="C" transform="rotate(135 12 12)" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1l-2.3 2.2z"/></svg>',
+        heart: '<svg width="48" height="48" viewBox="0 0 24 24"><path fill="C" d="M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z"/></svg>',
+        check: '<svg width="34" height="34" viewBox="0 0 24 24"><path fill="none" stroke="C" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+        vm: '<svg width="48" height="48" viewBox="0 0 24 24"><g fill="none" stroke="C" stroke-width="2.6"><circle cx="6.5" cy="12" r="3.5"/><circle cx="17.5" cy="12" r="3.5"/><path d="M6.5 15.5h11"/></g></svg>',
+        ig: '<svg width="48" height="48" viewBox="0 0 24 24"><g fill="none" stroke="C" stroke-width="2.4"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/></g></svg>',
+      };
+      const ic = (k, c) => ICON[k].replace(/C/g, c);
+      const el = (html) => { const d = document.createElement("div"); d.innerHTML = html.trim(); const n = d.firstChild; stage.appendChild(n); return n; };
+
+      // ---------- captions ----------
+      const caps = document.getElementById("caps");
+      const groups = []; let cur = [];
+      WORDS.forEach((w, i) => {
+        cur.push(w);
+        const next = WORDS[i + 1];
+        if (cur.length >= 4 || /[.,?!"]$/.test(w[0]) || !next || next[1] - w[2] > 0.3) { groups.push(cur); cur = []; }
+      });
+      const HOT = /system|AI|Google|DMs?\b|seconds|money|book|customer|11|asleep|special|phone|calls?\b|voicemails?/i;
+      groups.forEach((g, gi) => {
+        const c = document.createElement("div");
+        c.className = "cap"; c.id = "cap" + gi;
+        c.innerHTML = g.map((w, wi) => `<span class="w" id="cap${gi}w${wi}">${w[0].replace(/"/g, "")}</span>`).join(" ");
+        caps.appendChild(c);
+        const nextG = groups[gi + 1];
+        tl.fromTo(c, { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.12, ease: E }, g[0][1]);
+        tl.set(c, { opacity: 0 }, nextG ? nextG[0][1] : g[g.length - 1][2] + 0.3);
+        g.forEach((w, wi) => { if (HOT.test(w[0])) tl.set(`#cap${gi}w${wi}`, { color: "#e8c8d1" }, w[1]); });
+      });
+
+      // ---------- pattern interrupts: jump-cut reframes on new phrases (~every 1.5-2.5s) ----------
+      const FRAMES = [ { s: 1.0, x: 0, y: 0 }, { s: 1.14, x: -30, y: 70 }, { s: 1.06, x: 40, y: 30 }, { s: 1.2, x: 10, y: 110 } ];
+      let last = -10, fi = 0;
+      tl.set("#camzoom", { scale: 1, x: 0, y: 0, transformOrigin: "540px 1250px" }, 0);
+      WORDS.forEach((w, i) => {
+        const prev = WORDS[i - 1];
+        const phraseStart = !prev || /[.,?!]$/.test(prev[0]) || w[1] - prev[2] > 0.3;
+        if (phraseStart && w[1] - last >= 1.5) {
+          fi = (fi + 1) % FRAMES.length;
+          tl.set("#camzoom", { scale: FRAMES[fi].s, x: FRAMES[fi].x, y: FRAMES[fi].y }, w[1]);
+          last = w[1];
+        }
+      });
+
+      // ---------- helpers ----------
+      const SLOT_A = 430, SLOT_B = 630;
+      const node = (id, icon, t, s) => el(`<div id="${id}" class="card2 node"><div class="ic">${ic(icon, "#a46d86")}</div><div class="t">${t}</div><div class="s">${s}</div><div class="ck">${ic("check", "#fff")}</div></div>`);
+      const pop = (sel, t, from = { y: 30, scale: 0.94 }) => tl.fromTo(sel, { opacity: 0, ...from }, { opacity: 1, y: 0, x: 0, scale: 1, duration: 0.32, ease: "back.out(1.7)" }, t);
+      const out = (sel, t, d = 0.25) => tl.to(sel, { opacity: 0, duration: d, ease: "power2.in" }, t);
+      const active = (sel, t) => tl.to(sel, { borderColor: "#a46d86", duration: 0.2 }, t);
+      const done = (sel, t) => { tl.to(sel, { borderColor: "rgba(47,158,106,0)", duration: 0.2 }, t); tl.fromTo(`${sel} .ck`, { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.3, ease: "back.out(3)" }, t); };
+      // chain: each node enters in slot B; the previous moves up to slot A; the one before leaves
+      const chain = (items, endT) => {
+        items.forEach((n, i) => {
+          const sel = "#" + n.id;
+          tl.set(sel, { top: SLOT_B }, 0);
+          pop(sel, n.t); active(sel, n.t);
+          const nx = items[i + 1];
+          if (nx) { tl.to(sel, { y: SLOT_A - SLOT_B, duration: 0.35, ease: "power3.inOut" }, nx.t - 0.05); done(sel, nx.t); }
+          const nn = items[i + 2];
+          if (nn) out(sel, nn.t - 0.05);
+        });
+        items.slice(-2).forEach((n) => out("#" + n.id, endT));
+      };
+      const chip = (id, txt, t, endT) => { el(`<div id="${id}" class="chip"><span>${txt}</span></div>`); pop("#" + id, t, { y: -20, scale: 0.9 }); out("#" + id, endT); };
+
+      // ---------- 0.0-1.5 opening: med spa visual + incoming notifications ----------
+      tl.fromTo("#open-img", { scale: 1.08 }, { scale: 1.0, duration: 1.5, ease: "none" }, 0);
+      el(`<div id="n-call" class="card2 notif" style="top:560px;"><div class="app" style="background:#34c759;">${ic("phone", "#fff")}</div><div class="a">PHONE · NOW</div><div class="t">Missed call · (555) 214-0193</div></div>`);
+      el(`<div id="n-dm" class="card2 notif" style="top:730px;"><div class="app" style="background:linear-gradient(135deg,#f58529,#dd2a7b,#8134af);">${ic("ig", "#fff")}</div><div class="a">INSTAGRAM · NOW</div><div class="t">"Any openings Friday?"</div></div>`);
+      tl.set("#n-call", { opacity: 1 }, 0);
+      pop("#n-dm", 0.45, { y: 60, scale: 0.9 });
+      // narrator takes over at ~1.4s, notifications stack above his head
+      tl.to("#n-call", { y: SLOT_A - 560, duration: 0.4, ease: "power3.inOut" }, 1.3);
+      tl.to("#n-dm", { y: SLOT_A + 170 - 730, duration: 0.4, ease: "power3.inOut" }, 1.3);
+      el(`<div id="p-lost" class="pill p-mauve" style="left:90px; top:${SLOT_A + 345}px;">Both unanswered</div>`);
+      pop("#p-lost", 3.0, { y: 10, scale: 0.8 });
+      tl.to("#p-lost", { opacity: 0, duration: 0.2 }, 4.9);
+      el(`<div id="p-lost2" class="pill p-mauve" style="left:90px; top:${SLOT_A + 345}px;">= a lost customer</div>`);
+      pop("#p-lost2", 4.2, { y: 10, scale: 0.8 });
+      out(["#n-call", "#n-dm", "#p-lost2"], 5.5);
+
+      // ---------- 5.0-9.5 no voicemail, next business on Google ----------
+      node("n-vm", "vm", "No voicemail", "Most people won't leave one");
+      tl.set("#n-vm", { top: SLOT_A }, 0); pop("#n-vm", 5.75);
+      el(`<div id="n-g" class="card2 search" style="top:${SLOT_A + 190}px;"><div class="sbar">med spa near me</div><div class="res" style="top:130px;"><div class="n">Glow Aesthetics</div><div class="m">Open now · Book online</div></div></div>`);
+      tl.set("#n-g", { height: 256 }, 0);
+      pop("#n-g", 7.4);
+      tl.to("#n-g .res:first-of-type", { borderColor: "#a46d86", backgroundColor: "#f6f0eb", duration: 0.2 }, 8.2);
+      el(`<div id="p-else" class="pill p-mauve" style="left:540px; top:${SLOT_A + 190 + 138}px; font-size:32px;">Booked elsewhere</div>`);
+      pop("#p-else", 8.3, { y: 10, scale: 0.8 });
+      out(["#n-vm", "#n-g", "#p-else"], 9.45);
+
+      // ---------- 9.5-27.4 system 1: AI receptionist ----------
+      chip("ch1", "HERE'S WHAT I'D BUILD", 10.2, 11.4);
+      node("a1", "phone", "Call comes in", "You're with a client");
+      node("a2", "spark", "AI receptionist answers", "Day or night");
+      node("a3", "chat", "Answers questions + prices", "Like you would");
+      node("a4", "cal", "Books the appointment", "Right on your calendar");
+      chain([{ id: "a1", t: 11.6 }, { id: "a2", t: 13.2 }, { id: "a3", t: 15.4 }, { id: "a4", t: 18.1 }], 22.4);
+      done("#a4", 21.8);
+      node("b1", "hang", "Caller hangs up early?", "Before it picks up");
+      node("b2", "chat", "Text in seconds", "\"Sorry we missed you! Book here\"");
+      node("b3", "heart", "Customer saved", "They book from the text");
+      chain([{ id: "b1", t: 22.6 }, { id: "b2", t: 24.75 }, { id: "b3", t: 26.6 }], 27.4);
+      done("#b3", 26.95);
+
+      // ---------- 27.4-45.8 system 2: DMs ----------
+      chip("ch2", "SAME THING IN YOUR DMs", 28.1, 30.4);
+      el(`<div id="th" class="card2 thread" style="top:${SLOT_A}px;"><div class="th-head"><div class="th-av"></div><div class="th-name">jess.m</div><div class="th-sub">Instagram</div></div>
+          <div id="bi" class="bub b-in" style="top:116px;">Any openings on Friday?</div>
+          <div id="bo" class="bub b-out" style="top:216px;">Yes! Here are Friday's times</div>
+          <div id="bb" class="btn" style="top:330px;">See Friday times</div></div>`);
+      pop("#th", 30.5); pop("#bi", 30.65, { y: 14, scale: 0.9 });
+      el(`<div id="p-11" class="pill p-cream" style="left:90px; top:${SLOT_A + 490}px;">11 PM · you're asleep</div>`);
+      el(`<div id="p-10" class="pill p-cream" style="left:90px; top:${SLOT_A + 490}px;">10 AM · with a client</div>`);
+      pop("#p-11", 33.2, { y: 10, scale: 0.8 }); tl.to("#p-11", { opacity: 0, duration: 0.15 }, 35.3);
+      pop("#p-10", 35.4, { y: 10, scale: 0.8 }); out("#p-10", 39.6);
+      pop("#bo", 39.8, { y: 14, scale: 0.9 });
+      pop("#bb", 42.55, { y: 10, scale: 0.9 });
+      tl.to("#bb", { backgroundColor: "#2f9e6a", borderColor: "#2f9e6a", color: "#fffdfc", duration: 0.2 }, 44.2);
+      tl.set("#bb", { textContent: "Booked · Fri 2:00 PM" }, 44.2);
+      out("#th", 45.75);
+
+      // ---------- 45.8-53.9 system 3: past customers ----------
+      chip("ch3", "DON'T FORGET PAST CUSTOMERS", 46.4, 47.5);
+      el(`<div id="ls" class="card2 list" style="top:${SLOT_A}px;"><div class="hd">HAVEN'T BEEN BACK</div>
+          <div id="r1" class="row" style="top:74px;"><div class="n">Ana R.</div><div class="m">Last visit: 7 months ago</div><div class="st p-mauve">Text sent</div></div>
+          <div id="r2" class="row" style="top:184px;"><div class="n">Maya L.</div><div class="m">Last visit: 9 months ago</div><div class="st p-mauve">Text sent</div></div>
+          <div id="r3" class="row" style="top:294px;"><div class="n">Kim B.</div><div class="m">Last visit: 1 year ago</div><div class="st p-mauve">Text sent</div></div></div>`);
+      pop("#ls", 46.9);
+      ["#r1", "#r2", "#r3"].forEach((r, i) => { tl.fromTo(`${r} .st`, { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2)" }, 47.6 + i * 0.25); tl.to(r, { opacity: 0.85, duration: 0.2 }, 47.6 + i * 0.25); });
+      el(`<div id="p-off" class="pill p-mauve" style="left:560px; top:${SLOT_A + 14}px; font-size:26px; padding:10px 22px;">+ something special</div>`);
+      pop("#p-off", 49.6, { y: 10, scale: 0.8 });
+      ["#r1", "#r3"].forEach((r, i) => {
+        const t = 51.3 + i * 0.35;
+        tl.set(`${r} .st`, { textContent: "Booked", backgroundColor: "#2f9e6a" }, t);
+        tl.fromTo(`${r} .st`, { scale: 0.6 }, { scale: 1, duration: 0.25, ease: "back.out(3)" }, t);
+        tl.to(r, { opacity: 1, duration: 0.2 }, t);
+      });
+      out(["#ls", "#p-off"], 53.85);
+
+      // ---------- 53.9-59.8 payoff ----------
+      [["w1", "No more missed calls", 54.7], ["w2", "No more ignored messages", 55.7], ["w3", "Money from past customers", 57.75]].forEach(([id, txt, t], i) => {
+        el(`<div id="${id}" class="card2 node" style="top:${SLOT_A + i * 150}px; height:128px;"><div class="ic" style="top:18px; width:84px; height:84px;">${ic("check", "#2f9e6a")}</div><div class="t" style="top:36px;">${txt}</div></div>`);
+        pop("#" + id, t, { x: -40, y: 0, scale: 0.96 });
+      });
+      out(["#w1", "#w2", "#w3"], 59.7);
+
+      // ---------- 59.8-64.75 close (soft, matches his words) ----------
+      el(`<div id="cta" class="card2" style="top:${SLOT_A + 40}px; height:200px; text-align:center;"><div style="padding-top:34px; font-size:40px; font-weight:700; color:#6b6670;">Comment</div><div style="font-size:76px; font-weight:900; color:#a46d86; letter-spacing:4px;">"SYSTEM"</div></div>`);
+      pop("#cta", 61.2, { y: 20, scale: 0.9 });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
