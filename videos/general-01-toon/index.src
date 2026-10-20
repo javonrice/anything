@@ -14,46 +14,52 @@
       body { font-family: "Inter", sans-serif; }
       #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--ink); }
 
-      /* ---- cartoon stage (top) ---- */
       #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1000px; overflow: hidden; background: var(--wall); }
+      #night { position: absolute; inset: 0; background: #2b2f4a; opacity: 0; }
       #floor { position: absolute; left: 0; top: 700px; width: 1080px; height: 300px; background: var(--floor);
         background-image: repeating-linear-gradient(180deg, rgba(120,80,40,0.10) 0 2px, transparent 2px 60px); }
       #floor::before { content: ""; position: absolute; left: 0; top: 0; width: 1080px; height: 10px; background: #e8d2b4; }
+      #floorNight { position: absolute; left: 0; top: 700px; width: 1080px; height: 300px; background: #1d2036; opacity: 0; }
       .tag { position: absolute; left: 36px; top: 40px; padding: 10px 22px; border-radius: 999px; background: #3a3842; color: #fff;
         font-size: 24px; font-weight: 900; letter-spacing: 2px; }
-      .ttl { position: absolute; left: 0; top: 110px; width: 1080px; text-align: center; font-size: 96px; font-weight: 900; letter-spacing: -1px;
+      .ttl { position: absolute; left: 0; top: 110px; width: 1080px; text-align: center; font-size: 92px; font-weight: 900; letter-spacing: -1px;
         color: #fff; opacity: 0;
         text-shadow: -5px -5px 0 var(--ink), 5px -5px 0 var(--ink), -5px 5px 0 var(--ink), 5px 5px 0 var(--ink),
                      0 -6px 0 var(--ink), 0 6px 0 var(--ink), -6px 0 0 var(--ink), 6px 0 0 var(--ink), 0 10px 0 rgba(36,34,42,0.25); }
       .ttl em { font-style: normal; color: var(--yellow); }
-      .actor { position: absolute; opacity: 0; }
-      .prop { position: absolute; opacity: 0; }
-      .bubble { position: absolute; padding: 22px 30px; border-radius: 30px; background: #fff; border: 5px solid var(--ink);
-        font-size: 40px; font-weight: 800; color: var(--ink); line-height: 1.12; opacity: 0; white-space: nowrap; }
+      .actor, .prop { position: absolute; opacity: 0; }
+      .bubble { position: absolute; padding: 20px 28px; border-radius: 30px; background: #fff; border: 5px solid var(--ink);
+        font-size: 38px; font-weight: 800; color: var(--ink); line-height: 1.12; opacity: 0; white-space: nowrap; }
       .bubble::after { content: ""; position: absolute; bottom: -24px; width: 0; height: 0; border-left: 18px solid transparent;
         border-right: 18px solid transparent; border-top: 24px solid var(--ink); }
       .bubble.tl::after { left: 46px; } .bubble.tr::after { right: 46px; }
+      .bubble.dark { background: #a46d86; color: #fff; }
       .label { position: absolute; padding: 12px 24px; border-radius: 16px; font-size: 34px; font-weight: 900; color: #fff; opacity: 0; white-space: nowrap; }
+      .zz { position: absolute; font-size: 54px; font-weight: 900; color: #fff; opacity: 0; }
+      .chk { position: absolute; left: 140px; width: 800px; height: 92px; border-radius: 24px; background: #fff; border: 5px solid var(--ink);
+        font-size: 42px; font-weight: 900; color: var(--ink); padding: 18px 0 0 100px; opacity: 0; }
+      .chk::before { content: ""; position: absolute; left: 24px; top: 16px; width: 52px; height: 52px; border-radius: 50%; background: var(--green); }
+      .chk::after { content: ""; position: absolute; left: 41px; top: 26px; width: 14px; height: 26px; border-right: 7px solid #fff; border-bottom: 7px solid #fff; transform: rotate(40deg); }
 
-      /* ---- captions on the floor ---- */
       .cap { position: absolute; left: 60px; top: 800px; width: 960px; height: 150px; display: flex; flex-wrap: wrap; align-items: center;
         justify-content: center; align-content: center; text-align: center; opacity: 0; font-size: 62px; font-weight: 900; line-height: 1.05;
         color: #fff; text-shadow: -4px -4px 0 var(--ink), 4px -4px 0 var(--ink), -4px 4px 0 var(--ink), 4px 4px 0 var(--ink), 0 5px 0 var(--ink); }
       .cap .w { margin: 0 9px; }
 
-      /* ---- narrator (bottom) ---- */
       #camwrap { position: absolute; left: 0; top: 1000px; width: 1080px; height: 920px; overflow: hidden; background: #000; }
       #cam { position: absolute; left: 0; top: -700px; width: 1080px; height: 1920px; object-fit: cover; }
       #seam { position: absolute; left: 0; top: 994px; width: 1080px; height: 12px; background: var(--ink); }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-start="0" data-duration="11.4" data-width="1080" data-height="1920">
+    <div id="root" data-composition-id="main" data-start="0" data-duration="64.75" data-width="1080" data-height="1920">
       <div id="camwrap">
-        <video id="cam" src="assets/presenter.mp4" data-start="0" data-duration="11.4" data-track-index="8" data-has-audio="true" data-volume="1"></video>
+        <video id="cam" src="assets/presenter.mp4" data-start="0" data-duration="64.75" data-track-index="8" data-has-audio="true" data-volume="1"></video>
       </div>
       <div id="stage" data-layout-allow-overlap>
+        <div id="night"></div>
         <div id="floor"></div>
+        <div id="floorNight"></div>
         <div id="set"></div>
         <div class="tag">MED SPA OWNERS · #1</div>
       </div>
@@ -62,42 +68,44 @@
     </div>
 
     <script>
-      const WORDS = __WORDS__.filter((w) => w[1] < 11.3);
+      const WORDS = __WORDS__;
+      const END = 64.75;
       const tl = gsap.timeline({ paused: true });
-      const E = "power3.out";
       const set = document.getElementById("set");
       const add = (html) => { const d = document.createElement("div"); d.innerHTML = html.trim(); const n = d.firstChild; set.appendChild(n); return n; };
+      const INK = "#24222a";
 
-      // ---------- character rig (flat 2D, viewBox 200x420) ----------
-      // parts: #<id>-armL, #<id>-armR, #<id>-head, mouths #<id>-smile / -frown / -o
-      const person = (id, o) => {
-        const hair = o.hair === "bun"
-          ? `<circle cx="100" cy="44" r="22" fill="${o.hairC}"/><path d="M54 92 Q56 46 100 46 Q144 46 146 92 Q130 64 100 64 Q70 64 54 92z" fill="${o.hairC}"/>`
-          : o.hair === "long"
-          ? `<path d="M50 150 Q42 60 100 46 Q158 60 150 150 L136 150 Q140 80 100 70 Q60 80 64 150z" fill="${o.hairC}"/><path d="M56 88 Q60 48 100 48 Q140 48 144 88 Q124 66 100 66 Q76 66 56 88z" fill="${o.hairC}"/>`
-          : `<path d="M54 90 Q54 46 100 46 Q146 46 146 90 Q128 70 100 72 Q72 70 54 90z" fill="${o.hairC}"/>`;
-        return `<svg id="${id}" class="actor" width="${o.w || 200}" height="${(o.w || 200) * 2.1}" viewBox="0 0 200 420" style="left:${o.x}px; top:${o.y}px;">
+      // ================= character + prop library (flat 2D) =================
+      const OWNER = { skin: "#c98b63", hairC: "#3b2a24", hair: "bun", top: "#e893ad", pants: "#e893ad", collar: "#c96f8f" };
+      const CUST = { skin: "#f1c7a3", hairC: "#a8642e", hair: "long", top: "#3fa3a0", pants: "#2f3550" };
+      const hairSvg = (o) => o.hair === "bun"
+        ? { back: "", front: `<circle cx="100" cy="44" r="22" fill="${o.hairC}"/><path d="M54 92 Q56 46 100 46 Q144 46 146 92 Q130 64 100 64 Q70 64 54 92z" fill="${o.hairC}"/>` }
+        : o.hair === "long"
+        ? { back: `<path d="M50 150 Q42 60 100 46 Q158 60 150 150 L136 150 Q140 80 100 70 Q60 80 64 150z" fill="${o.hairC}"/>`, front: `<path d="M56 92 Q58 46 100 46 Q142 46 144 92 Q124 64 100 64 Q76 64 56 92z" fill="${o.hairC}"/>` }
+        : o.hair === "curly"
+        ? { back: "", front: `<g fill="${o.hairC}"><circle cx="70" cy="62" r="20"/><circle cx="100" cy="50" r="22"/><circle cx="130" cy="62" r="20"/><circle cx="58" cy="86" r="14"/><circle cx="142" cy="86" r="14"/></g>` }
+        : { back: "", front: `<path d="M54 90 Q54 46 100 46 Q146 46 146 90 Q128 70 100 72 Q72 70 54 90z" fill="${o.hairC}"/>` };
+      const person = (id, o, x, y, w = 200, extra = "") => {
+        const h = hairSvg(o);
+        return `<svg id="${id}" class="actor" width="${w}" height="${w * 2.1}" viewBox="0 0 200 420" style="left:${x}px; top:${y}px;">
           <ellipse cx="100" cy="410" rx="56" ry="9" fill="rgba(36,34,42,0.15)"/>
           <rect x="78" y="268" width="18" height="132" rx="8" fill="${o.pants}"/><rect x="104" y="268" width="18" height="132" rx="8" fill="${o.pants}"/>
-          <ellipse cx="84" cy="402" rx="16" ry="8" fill="#24222a"/><ellipse cx="116" cy="402" rx="16" ry="8" fill="#24222a"/>
+          <ellipse cx="84" cy="402" rx="16" ry="8" fill="${INK}"/><ellipse cx="116" cy="402" rx="16" ry="8" fill="${INK}"/>
           <g id="${id}-armL"><rect x="46" y="158" width="18" height="104" rx="9" fill="${o.top}"/><circle cx="55" cy="266" r="11" fill="${o.skin}"/></g>
           <g id="${id}-armR"><rect x="136" y="158" width="18" height="104" rx="9" fill="${o.top}"/><circle cx="145" cy="266" r="11" fill="${o.skin}"/>${o.prop || ""}</g>
           <rect x="60" y="150" width="80" height="132" rx="30" fill="${o.top}"/>
           ${o.collar ? `<path d="M86 152 L100 176 L114 152z" fill="${o.collar}"/>` : ""}
           <rect x="92" y="130" width="16" height="24" fill="${o.skin}"/>
-          <g id="${id}-head">
-            ${o.hair === "long" ? hair.split("</path>")[0] + "</path>" : ""}
-            <circle cx="100" cy="96" r="46" fill="${o.skin}"/>
-            ${o.hair === "long" ? hair.split("</path>")[1] + "</path>" : hair}
-            <circle cx="84" cy="98" r="5" fill="#24222a"/><circle cx="116" cy="98" r="5" fill="#24222a"/>
-            <path d="M76 86 L90 84" stroke="#24222a" stroke-width="3" stroke-linecap="round"/><path d="M110 84 L124 86" stroke="#24222a" stroke-width="3" stroke-linecap="round"/>
-            <path id="${id}-smile" d="M86 116 Q100 130 114 116" fill="none" stroke="#24222a" stroke-width="4" stroke-linecap="round"/>
-            <path id="${id}-frown" d="M86 126 Q100 114 114 126" fill="none" stroke="#24222a" stroke-width="4" stroke-linecap="round" opacity="0"/>
-            <ellipse id="${id}-o" cx="100" cy="121" rx="7" ry="9" fill="#24222a" opacity="0"/>
-          </g>
+          <g id="${id}-head">${h.back}<circle cx="100" cy="96" r="46" fill="${o.skin}"/>${h.front}
+            <circle cx="84" cy="98" r="5" fill="${INK}"/><circle cx="116" cy="98" r="5" fill="${INK}"/>
+            <path d="M76 86 L90 84" stroke="${INK}" stroke-width="3" stroke-linecap="round"/><path d="M110 84 L124 86" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+            <path id="${id}-smile" d="M86 116 Q100 130 114 116" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round"/>
+            <path id="${id}-frown" d="M86 126 Q100 114 114 126" fill="none" stroke="${INK}" stroke-width="4" stroke-linecap="round" opacity="0"/>
+            <ellipse id="${id}-o" cx="100" cy="121" rx="7" ry="9" fill="${INK}" opacity="0"/></g>${extra}
         </svg>`;
       };
-      const robot = (id, x, y) => `<svg id="${id}" class="actor" width="220" height="440" viewBox="0 0 200 400" style="left:${x}px; top:${y}px;">
+      const PHONE_IN_HAND = '<rect x="134" y="250" width="22" height="38" rx="5" fill="#24222a"/>';
+      const robot = (id, x, y, w = 220) => `<svg id="${id}" class="actor" width="${w}" height="${w * 2}" viewBox="0 0 200 400" style="left:${x}px; top:${y}px;">
           <ellipse cx="100" cy="392" rx="56" ry="9" fill="rgba(36,34,42,0.15)"/>
           <rect x="80" y="260" width="16" height="122" rx="8" fill="#8f86a8"/><rect x="104" y="260" width="16" height="122" rx="8" fill="#8f86a8"/>
           <g id="${id}-armL"><rect x="40" y="160" width="18" height="96" rx="9" fill="#c9bfe6"/><circle cx="49" cy="258" r="11" fill="#8f86a8"/></g>
@@ -105,80 +113,223 @@
           <rect x="56" y="150" width="88" height="120" rx="26" fill="#e3dcf5"/><circle cx="100" cy="206" r="16" fill="#a46d86"/>
           <g id="${id}-head"><line x1="100" y1="20" x2="100" y2="44" stroke="#8f86a8" stroke-width="5"/><circle cx="100" cy="18" r="9" fill="#f5c518"/>
             <rect x="46" y="44" width="108" height="94" rx="30" fill="#e3dcf5" stroke="#8f86a8" stroke-width="4"/>
-            <rect x="60" y="60" width="80" height="58" rx="18" fill="#24222a"/>
+            <rect x="60" y="60" width="80" height="58" rx="18" fill="${INK}"/>
             <circle cx="84" cy="88" r="7" fill="#7ef0c0"/><circle cx="116" cy="88" r="7" fill="#7ef0c0"/>
             <path d="M88 104 Q100 112 112 104" fill="none" stroke="#7ef0c0" stroke-width="4" stroke-linecap="round"/>
-            <path d="M42 80 Q30 92 42 104" fill="none" stroke="#24222a" stroke-width="5"/><rect x="34" y="96" width="12" height="20" rx="5" fill="#24222a"/></g>
+            <path d="M42 80 Q30 92 42 104" fill="none" stroke="${INK}" stroke-width="5"/><rect x="34" y="96" width="12" height="20" rx="5" fill="${INK}"/></g>
         </svg>`;
+      // treatment bed with a client lying on it (eyes closed, relaxed)
+      const bedClient = (id, x, y, o = { skin: "#8d5a3c", hairC: "#1f1a18", gown: "#cfe4f2" }) => `<svg id="${id}" class="prop" width="400" height="260" viewBox="0 0 400 260" style="left:${x}px; top:${y}px;">
+          <rect x="70" y="160" width="24" height="100" fill="#c9a46a"/><rect x="300" y="160" width="24" height="100" fill="#c9a46a"/>
+          <rect x="20" y="120" width="360" height="56" rx="26" fill="#fff" stroke="#e7dccf" stroke-width="3"/>
+          <rect x="300" y="70" width="90" height="80" rx="30" fill="#fff" stroke="#e7dccf" stroke-width="3"/>
+          <rect x="40" y="88" width="250" height="46" rx="22" fill="${o.gown}"/>
+          <rect x="20" y="98" width="40" height="28" rx="12" fill="${o.skin}"/>
+          <circle cx="318" cy="92" r="34" fill="${o.skin}"/>
+          <path d="M300 70 Q318 50 346 64 Q352 82 344 92 Q330 70 300 76z" fill="${o.hairC}"/>
+          <path d="M306 96 Q312 100 318 96" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+          <path d="M310 108 Q318 114 326 108" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+          <rect x="230" y="96" width="40" height="22" rx="10" fill="#fff" opacity="0.6"/>
+        </svg>`;
+      // owner asleep in her own bed (night)
+      const bedSleep = (id, x, y) => `<svg id="${id}" class="prop" width="420" height="260" viewBox="0 0 420 260" style="left:${x}px; top:${y}px;">
+          <rect x="10" y="60" width="40" height="200" rx="10" fill="#8a6a4d"/><rect x="40" y="150" width="370" height="70" rx="14" fill="#a9876a"/>
+          <rect x="40" y="110" width="360" height="60" rx="24" fill="#6c74b8"/>
+          <rect x="60" y="94" width="96" height="40" rx="16" fill="#fff"/>
+          <circle cx="104" cy="96" r="30" fill="${OWNER.skin}"/><circle cx="86" cy="70" r="14" fill="${OWNER.hairC}"/><path d="M76 96 Q78 64 104 64 Q130 64 134 92 Q118 78 104 78 Q90 78 76 96z" fill="${OWNER.hairC}"/>
+          <path d="M92 100 Q98 104 104 100" fill="none" stroke="${INK}" stroke-width="3"/><path d="M110 100 Q116 104 122 100" fill="none" stroke="${INK}" stroke-width="3"/>
+          <rect x="140" y="104" width="250" height="56" rx="24" fill="#8790d6"/>
+        </svg>`;
+      const deskPhone = (id, x, y) => `<svg id="${id}" class="prop" width="150" height="110" viewBox="0 0 150 110" style="left:${x}px; top:${y}px;"><rect x="28" y="56" width="94" height="50" rx="14" fill="#e05468"/><circle cx="75" cy="80" r="16" fill="#fff"/><circle cx="75" cy="80" r="6" fill="#e05468"/></svg>`;
+      const handset = (id, x, y) => `<svg id="${id}" class="prop" width="150" height="70" viewBox="0 0 150 70" style="left:${x}px; top:${y}px;"><path d="M10 50 Q75 0 140 50 L140 66 Q118 70 112 56 L38 56 Q32 70 10 66z" fill="#c43d52"/></svg>`;
+      const desk = (id, x, y, w = 300) => `<svg id="${id}" class="prop" width="${w}" height="230" viewBox="0 0 ${w} 230" style="left:${x}px; top:${y}px;"><rect x="0" y="60" width="${w}" height="170" rx="14" fill="#f7d4de"/><rect x="0" y="50" width="${w}" height="22" rx="8" fill="#fff"/><rect x="0" y="210" width="${w}" height="20" fill="#c9a46a"/></svg>`;
+      const waves = (id, x, y, c = INK) => `<svg id="${id}" class="prop" width="200" height="80" viewBox="0 0 200 80" style="left:${x}px; top:${y}px;"><path d="M60 60 Q100 20 140 60" fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round"/><path d="M36 56 Q100 -6 164 56" fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round"/></svg>`;
+      const bigPhone = (id, x, y, inner) => `<div id="${id}" class="prop" style="left:${x}px; top:${y}px; width:460px; height:560px; border-radius:60px; background:${INK}; padding:14px;">
+          <div style="position:relative; width:100%; height:100%; border-radius:48px; background:#fff; overflow:hidden;">
+            <div style="position:absolute; left:0; top:0; width:100%; height:88px; border-bottom:3px solid #eee; padding:26px 0 0 30px; font-size:30px; font-weight:900; color:${INK};">jess.m <span style="font-size:22px; color:#6b6b6b; font-weight:600;">· Instagram</span></div>
+            ${inner}</div></div>`;
+
+      // ================= timeline helpers =================
       const face = (id, mood, t) => ["smile", "frown", "o"].forEach((m) => tl.set(`#${id}-${m}`, { opacity: m === mood ? 1 : 0 }, t));
-      const show = (sel, t, from = { y: 30 }) => tl.fromTo(sel, { opacity: 0, ...from }, { opacity: 1, x: 0, y: 0, scale: 1, duration: 0.3, ease: "back.out(1.8)" }, t);
+      const show = (sel, t, from = { y: 30 }) => tl.fromTo(sel, { opacity: 0, ...from }, { opacity: 1, x: 0, y: 0, scale: 1, rotation: 0, duration: 0.3, ease: "back.out(1.8)" }, t);
       const hide = (sel, t) => tl.to(sel, { opacity: 0, duration: 0.2 }, t);
-      const title = (id, html, t, endT) => { add(`<div id="${id}" class="ttl">${html}</div>`); tl.fromTo("#" + id, { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2)" }, t); if (endT) hide("#" + id, endT); };
-      const arm = (sel, rot, t, d = 0.25, origin) => tl.to(sel, { rotation: rot, svgOrigin: origin, duration: d, ease: "power2.out" }, t);
+      let tn = 0;
+      const title = (html, t, endT) => { const id = "ttl" + tn++; add(`<div id="${id}" class="ttl">${html}</div>`); tl.fromTo("#" + id, { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2)" }, t); tl.to("#" + id, { opacity: 0, duration: 0.15 }, endT); };
+      const arm = (sel, rot, t, d, origin) => tl.to(sel, { rotation: rot, svgOrigin: origin, duration: d, ease: "power2.out" }, t);
+      const workLoop = (id, t0, t1) => { const n = Math.max(1, Math.floor((t1 - t0) / 0.35)); tl.fromTo(`#${id}-armR`, { rotation: -70, svgOrigin: "145 165" }, { rotation: -95, svgOrigin: "145 165", duration: 0.35, repeat: n - 1, yoyo: true, ease: "sine.inOut" }, t0); };
+      const ring = (phone, wv, t, d) => { const n = Math.round(d / 0.12); tl.fromTo(phone, { rotation: -8 }, { rotation: 8, duration: 0.06, repeat: n, yoyo: true, ease: "none", transformOrigin: "50% 80%" }, t); tl.set(phone, { rotation: 0 }, t + d + 0.1); tl.fromTo(wv, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1.1, duration: 0.3, repeat: Math.max(1, Math.round(d / 0.3) - 1), yoyo: true, ease: "sine.inOut" }, t); tl.to(wv, { opacity: 0, duration: 0.1 }, t + d); };
+      const pop = (sel, t) => show(sel, t, { y: 10, scale: 0.75 });
 
-      // ================= SCENE 1 (0-5.0): the missed call =================
-      title("t1", 'THE <em>MISSED</em> CALL', 0.0, 4.95);
-      // counter + ringing phone (left)
-      add(`<svg id="desk" class="prop" width="300" height="230" viewBox="0 0 300 230" style="left:60px; top:520px;"><rect x="0" y="60" width="300" height="170" rx="14" fill="#f7d4de"/><rect x="0" y="50" width="300" height="22" rx="8" fill="#fff"/><rect x="0" y="210" width="300" height="20" fill="#c9a46a"/></svg>`);
-      add(`<svg id="phone" class="prop" width="150" height="110" viewBox="0 0 150 110" style="left:135px; top:470px;"><path d="M10 50 Q75 0 140 50 L140 66 Q118 70 112 56 L38 56 Q32 70 10 66z" fill="#e05468"/><rect x="28" y="56" width="94" height="50" rx="14" fill="#e05468"/><circle cx="75" cy="80" r="16" fill="#fff"/><circle cx="75" cy="80" r="6" fill="#e05468"/></svg>`);
-      add(`<svg id="waves" class="prop" width="200" height="80" viewBox="0 0 200 80" style="left:110px; top:390px;"><path d="M60 60 Q100 20 140 60" fill="none" stroke="#24222a" stroke-width="6" stroke-linecap="round"/><path d="M36 56 Q100 -6 164 56" fill="none" stroke="#24222a" stroke-width="6" stroke-linecap="round"/></svg>`);
-      // treatment chair + client + owner (right)
-      add(`<svg id="chair" class="prop" width="380" height="230" viewBox="0 0 380 230" style="left:600px; top:520px;"><rect x="20" y="70" width="320" height="70" rx="30" fill="#fff"/><rect x="280" y="10" width="80" height="110" rx="30" fill="#fff"/><rect x="60" y="140" width="24" height="90" fill="#c9a46a"/><rect x="270" y="140" width="24" height="90" fill="#c9a46a"/></svg>`);
-      add(person("owner", { x: 440, y: 290, w: 200, skin: "#c98b63", hairC: "#3b2a24", hair: "bun", top: "#e893ad", pants: "#e893ad", collar: "#c96f8f" }));
-      add(`<div id="b-busy" class="bubble tl" style="left:420px; top:250px;">With a client!</div>`);
-      show(["#desk", "#phone", "#chair"], 0.0, { y: 0 });
-      show("#owner", 0.0, { y: 0 });
-      // owner works on client: arm moves back and forth
-      tl.fromTo("#owner-armR", { rotation: -70, svgOrigin: "145 165" }, { rotation: -95, svgOrigin: "145 165", duration: 0.35, repeat: 11, yoyo: true, ease: "sine.inOut" }, 0.0);
-      // "somebody calls" -> phone rings
-      tl.fromTo("#phone", { rotation: -8 }, { rotation: 8, duration: 0.06, repeat: 27, yoyo: true, ease: "none", transformOrigin: "50% 80%" }, 1.95);
-      tl.fromTo("#waves", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1.1, duration: 0.3, repeat: 5, yoyo: true, ease: "sine.inOut" }, 1.95);
-      // "can't answer the phone" -> owner looks over, can't leave
-      face("owner", "o", 2.5);
-      tl.to("#owner-head", { rotation: -12, svgOrigin: "100 130", duration: 0.2 }, 2.5);
-      show("#b-busy", 2.6, { y: 10, scale: 0.8 });
-      // "losing a customer" -> missed call
-      hide(["#waves", "#b-busy"], 3.75);
-      add(`<div id="l-missed" class="label" style="left:90px; top:400px; background:#e05468;">MISSED CALL</div>`);
-      show("#l-missed", 3.8, { y: 10, scale: 0.7 });
-      face("owner", "frown", 4.0);
-      hide(["#desk", "#phone", "#chair", "#owner", "#l-missed"], 4.95);
+      // ================= S1 (0-4.95) THE MISSED CALL =================
+      title('THE <em>MISSED</em> CALL', 0, 4.95);
+      add(desk("s1desk", 40, 520, 260)); add(deskPhone("s1ph", 95, 470)); add(handset("s1hs", 95, 456)); add(waves("s1wv", 70, 380));
+      add(bedClient("s1bed", 640, 470)); add(person("s1own", OWNER, 450, 290));
+      add(`<div id="s1busy" class="bubble tl" style="left:420px; top:240px;">With a client!</div>`);
+      add(`<div id="s1miss" class="label" style="left:60px; top:400px; background:#e05468;">MISSED CALL</div>`);
+      show(["#s1desk", "#s1ph", "#s1hs", "#s1bed", "#s1own"], 0, { y: 0 });
+      workLoop("s1own", 0, 4.9);
+      ring(["#s1ph", "#s1hs"], "#s1wv", 1.95, 1.75);
+      face("s1own", "o", 2.5); tl.to("#s1own-head", { rotation: -14, svgOrigin: "100 130", duration: 0.2 }, 2.5);
+      pop("#s1busy", 2.6); hide("#s1busy", 3.75);
+      pop("#s1miss", 3.8); face("s1own", "frown", 4.0);
+      hide(["#s1desk", "#s1ph", "#s1hs", "#s1bed", "#s1own", "#s1miss"], 4.95);
 
-      // ================= SCENE 2 (5.0-8.9): no voicemail, calls the next spa =================
-      title("t2", 'NO <em>VOICEMAIL.</em>', 5.0, 6.95);
-      add(person("cust", { x: 200, y: 290, w: 200, skin: "#f1c7a3", hairC: "#a8642e", hair: "long", top: "#3fa3a0", pants: "#2f3550",
-        prop: '<rect x="134" y="250" width="22" height="38" rx="5" fill="#24222a"/>' }));
-      show("#cust", 5.0, { x: -60, y: 0 });
-      arm("#cust-armR", -150, 5.0, 0.01, "145 165");
-      face("cust", "o", 5.0);
-      add(`<svg id="vm" class="prop" width="190" height="190" viewBox="0 0 190 190" style="left:560px; top:330px;"><circle cx="95" cy="95" r="88" fill="#fff" stroke="#24222a" stroke-width="6"/><g fill="none" stroke="#24222a" stroke-width="10"><circle cx="62" cy="98" r="22"/><circle cx="128" cy="98" r="22"/><path d="M62 120h66"/></g><path d="M30 160 L160 30" stroke="#e05468" stroke-width="14" stroke-linecap="round"/></svg>`);
-      show("#vm", 6.4, { scale: 0.6, y: 0 });
-      // hangs up, shrugs
-      arm("#cust-armR", -20, 6.5, 0.3, "145 165");
-      face("cust", "frown", 6.6);
-      hide("#vm", 7.0);
-      title("t3", 'CALLS THE <em>NEXT</em> SPA', 7.0, 8.85);
-      add(`<div id="b-search" class="bubble tl" style="left:300px; top:290px;">med spa near me</div>`);
-      add(`<svg id="other" class="prop" width="360" height="400" viewBox="0 0 360 400" style="left:690px; top:330px;"><rect x="20" y="80" width="320" height="320" rx="10" fill="#fff" stroke="#24222a" stroke-width="5"/><rect x="0" y="40" width="360" height="70" rx="12" fill="#a46d86"/><text x="180" y="88" text-anchor="middle" font-family="Inter" font-weight="900" font-size="36" fill="#fff">GLOW SPA</text><rect x="130" y="240" width="100" height="160" rx="8" fill="#f7d4de" stroke="#24222a" stroke-width="5"/><rect x="50" y="150" width="70" height="70" rx="8" fill="#cfe4f2"/><rect x="240" y="150" width="70" height="70" rx="8" fill="#cfe4f2"/></svg>`);
-      arm("#cust-armR", -150, 7.4, 0.25, "145 165");
-      face("cust", "smile", 7.6);
-      show("#b-search", 7.6, { y: 10, scale: 0.8 });
-      show("#other", 8.2, { x: 80, y: 0 });
-      add(`<div id="l-booked" class="label" style="left:740px; top:250px; background:#a46d86;">BOOKED THERE</div>`);
-      show("#l-booked", 8.45, { y: 10, scale: 0.7 });
-      tl.to("#cust", { x: 230, duration: 0.5, ease: "power2.in" }, 8.4);
-      hide(["#cust", "#b-search", "#other", "#l-booked"], 8.85);
+      // ================= S2 (5.0-8.85) NO VOICEMAIL / NEXT SPA =================
+      title('NO <em>VOICEMAIL.</em>', 5.0, 6.95);
+      add(person("s2c", { ...CUST, prop: PHONE_IN_HAND }, 200, 290));
+      show("#s2c", 5.0, { x: -60, y: 0 }); arm("#s2c-armR", -150, 5.0, 0.01, "145 165"); face("s2c", "o", 5.0);
+      add(`<svg id="s2vm" class="prop" width="190" height="190" viewBox="0 0 190 190" style="left:560px; top:330px;"><circle cx="95" cy="95" r="88" fill="#fff" stroke="${INK}" stroke-width="6"/><g fill="none" stroke="${INK}" stroke-width="10"><circle cx="62" cy="98" r="22"/><circle cx="128" cy="98" r="22"/><path d="M62 120h66"/></g><path d="M30 160 L160 30" stroke="#e05468" stroke-width="14" stroke-linecap="round"/></svg>`);
+      show("#s2vm", 6.4, { scale: 0.6, y: 0 }); arm("#s2c-armR", -20, 6.5, 0.3, "145 165"); face("s2c", "frown", 6.6); hide("#s2vm", 7.0);
+      title('CALLS THE <em>NEXT</em> SPA', 7.0, 8.85);
+      add(`<div id="s2srch" class="bubble tl" style="left:300px; top:290px;">med spa near me</div>`);
+      add(`<svg id="s2oth" class="prop" width="360" height="400" viewBox="0 0 360 400" style="left:690px; top:330px;"><rect x="20" y="80" width="320" height="320" rx="10" fill="#fff" stroke="${INK}" stroke-width="5"/><rect x="0" y="40" width="360" height="70" rx="12" fill="#a46d86"/><text x="180" y="88" text-anchor="middle" font-family="Inter" font-weight="900" font-size="36" fill="#fff">GLOW SPA</text><rect x="130" y="240" width="100" height="160" rx="8" fill="#f7d4de" stroke="${INK}" stroke-width="5"/><rect x="50" y="150" width="70" height="70" rx="8" fill="#cfe4f2"/><rect x="240" y="150" width="70" height="70" rx="8" fill="#cfe4f2"/></svg>`);
+      add(`<div id="s2bk" class="label" style="left:740px; top:250px; background:#a46d86;">BOOKED THERE</div>`);
+      arm("#s2c-armR", -150, 7.4, 0.25, "145 165"); face("s2c", "smile", 7.6); pop("#s2srch", 7.6);
+      show("#s2oth", 8.2, { x: 80, y: 0 }); pop("#s2bk", 8.45);
+      tl.to("#s2c", { x: 230, duration: 0.45, ease: "power2.in" }, 8.4);
+      hide(["#s2c", "#s2srch", "#s2oth", "#s2bk"], 8.85);
 
-      // ================= SCENE 3 (8.9-11.4): "here's what I can build" =================
-      title("t4", 'SO I <em>BUILT</em> THIS.', 8.9);
-      add(robot("bot", 430, 290));
-      add(`<div id="b-bot" class="bubble tr" style="left:560px; top:250px;">Hi! I can help.</div>`);
-      show("#bot", 9.7, { y: 60, scale: 0.6 });
-      tl.fromTo("#bot-armR", { rotation: 0, svgOrigin: "151 165" }, { rotation: -140, svgOrigin: "151 165", duration: 0.25, ease: "power2.out" }, 10.6);
-      tl.to("#bot-armR", { rotation: -110, svgOrigin: "151 165", duration: 0.18, repeat: 3, yoyo: true, ease: "sine.inOut" }, 10.85);
-      show("#b-bot", 10.8, { y: 10, scale: 0.8 });
+      // ================= S3 (8.9-11.4) SO I BUILT THIS =================
+      title('SO I <em>BUILT</em> THIS.', 8.9, 11.4);
+      add(robot("s3bot", 430, 290)); add(`<div id="s3hi" class="bubble tr" style="left:560px; top:250px;">Hi! I can help.</div>`);
+      show("#s3bot", 9.7, { y: 60, scale: 0.6 });
+      tl.fromTo("#s3bot-armR", { rotation: 0, svgOrigin: "151 165" }, { rotation: -140, svgOrigin: "151 165", duration: 0.25 }, 10.6);
+      tl.to("#s3bot-armR", { rotation: -110, svgOrigin: "151 165", duration: 0.18, repeat: 3, yoyo: true, ease: "sine.inOut" }, 10.85);
+      pop("#s3hi", 10.8);
+      hide(["#s3bot", "#s3hi"], 11.4);
 
-      // ---------- captions: word-by-word yellow highlight ----------
+      // ================= S4 (11.5-22.5) AI RECEPTIONIST ANSWERS (owner busy with client) =================
+      title('<em>AI</em> RECEPTIONIST', 11.5, 18.1);
+      add(desk("s4desk", 20, 520, 230)); add(deskPhone("s4ph", 60, 470)); add(handset("s4hs", 60, 456)); add(waves("s4wv", 35, 380));
+      add(robot("s4bot", 215, 300, 200));
+      add(bedClient("s4bed", 680, 470)); add(person("s4own", OWNER, 500, 300, 190));
+      add(`<div id="s4b1" class="bubble tl" style="left:300px; top:240px;">Hi! How can I help?</div>`);
+      add(`<div id="s4q" class="bubble dark tl" style="left:30px; top:240px;">How much is Botox?</div>`);
+      add(`<div id="s4b2" class="bubble tl" style="left:300px; top:240px;">$12 a unit. Friday at 2?</div>`);
+      add(`<svg id="s4cal" class="prop" width="220" height="200" viewBox="0 0 220 200" style="left:820px; top:250px;"><rect x="6" y="20" width="208" height="174" rx="18" fill="#fff" stroke="${INK}" stroke-width="5"/><rect x="6" y="20" width="208" height="50" rx="18" fill="#a46d86"/><text x="110" y="55" text-anchor="middle" font-family="Inter" font-weight="900" font-size="28" fill="#fff">FRIDAY</text><rect id="s4slot" x="26" y="96" width="168" height="70" rx="12" fill="#f3e9df"/><text id="s4slotT" x="110" y="141" text-anchor="middle" font-family="Inter" font-weight="900" font-size="30" fill="${INK}">2:00 PM</text></svg>`);
+      show(["#s4desk", "#s4ph", "#s4hs", "#s4bed", "#s4own"], 11.5, { y: 0 }); show("#s4bot", 11.6, { y: 0, x: -40 });
+      workLoop("s4own", 11.5, 22.4);
+      ring(["#s4ph", "#s4hs"], "#s4wv", 11.7, 1.4);
+      tl.to("#s4hs", { x: 168, y: -46, rotation: -55, duration: 0.35, ease: "power2.out" }, 13.25);
+      arm("#s4bot-armL", 150, 13.25, 0.35, "49 165");
+      pop("#s4b1", 14.2); hide("#s4b1", 15.3);
+      pop("#s4q", 15.4); hide("#s4q", 16.7);
+      pop("#s4b2", 16.8); hide("#s4b2", 18.05);
+      title('<em>BOOKED.</em>', 18.1, 22.45);
+      show("#s4cal", 18.2, { scale: 0.6, y: 0 });
+      tl.to("#s4slot", { fill: "#2f9e6a", duration: 0.2 }, 19.6); tl.to("#s4slotT", { fill: "#ffffff", duration: 0.2 }, 19.6);
+      tl.to("#s4own-head", { rotation: -12, svgOrigin: "100 130", duration: 0.2 }, 21.6); face("s4own", "smile", 21.6);
+      hide(["#s4desk", "#s4ph", "#s4hs", "#s4bot", "#s4bed", "#s4own", "#s4cal"], 22.45);
+
+      // ================= S5 (22.5-27.4) HUNG UP? TEXT IN SECONDS =================
+      title('<em>HUNG UP?</em>', 22.55, 24.95);
+      add(person("s5c", { ...CUST, prop: PHONE_IN_HAND }, 330, 290));
+      add(waves("s5wv", 400, 380, "#a46d86"));
+      add(`<div id="s5txt" class="bubble dark tl" style="left:520px; top:300px;">Sorry we missed you!<br/><span style="font-size:30px;">Book here →</span></div>`);
+      add(`<div id="s5ok" class="label" style="left:600px; top:520px; background:#2f9e6a;">BOOKED ✓</div>`);
+      show("#s5c", 22.55, { x: -60, y: 0 }); arm("#s5c-armR", -150, 22.55, 0.01, "145 165"); face("s5c", "o", 22.6);
+      arm("#s5c-armR", -20, 23.6, 0.3, "145 165"); face("s5c", "frown", 23.7);
+      title('TEXTED IN <em>SECONDS</em>', 25.0, 27.4);
+      tl.fromTo("#s5c-armR", { rotation: -20 }, { rotation: -60, svgOrigin: "145 165", duration: 0.25 }, 25.05);
+      tl.fromTo("#s5wv", { opacity: 0 }, { opacity: 1, duration: 0.15, repeat: 3, yoyo: true }, 25.1);
+      pop("#s5txt", 25.25); face("s5c", "smile", 26.6); pop("#s5ok", 26.7);
+      hide(["#s5c", "#s5txt", "#s5ok", "#s5wv"], 27.4);
+
+      // ================= S6 (27.5-32.1) SAME IN YOUR DMs =================
+      title('SAME IN YOUR <em>DMs</em>', 27.5, 32.1);
+      add(person("s6c", { ...CUST, prop: PHONE_IN_HAND }, 110, 290));
+      add(bigPhone("s6ph", 520, 260, `<div id="s6dm" style="position:absolute; left:26px; top:120px; padding:20px 26px; border-radius:30px; background:#efefef; font-size:36px; font-weight:700; color:${INK}; opacity:0;">Any openings Friday?</div>`));
+      show("#s6c", 27.55, { x: -60, y: 0 }); arm("#s6c-armR", -60, 27.55, 0.01, "145 165");
+      tl.fromTo("#s6c-armR", { rotation: -60 }, { rotation: -70, svgOrigin: "145 165", duration: 0.12, repeat: 9, yoyo: true }, 29.6);
+      show("#s6ph", 29.2, { x: 80, y: 0 }); pop("#s6dm", 30.65);
+      hide(["#s6c", "#s6ph"], 32.1);
+
+      // ================= S7 (32.1-35.4) 11 PM: owner asleep, robot replies =================
+      title('<em>11 PM.</em> ASLEEP.', 33.2, 35.4);
+      tl.to(["#night", "#floorNight"], { opacity: 1, duration: 0.3 }, 32.15);
+      add(bedSleep("s7bed", 600, 480));
+      add(`<svg id="s7moon" class="prop" width="120" height="120" viewBox="0 0 120 120" style="left:900px; top:230px;"><circle cx="60" cy="60" r="46" fill="#f5e6a8"/><circle cx="82" cy="46" r="40" fill="#2b2f4a"/></svg>`);
+      add(`<div id="s7z1" class="zz" style="left:660px; top:440px;">Z</div>`); add(`<div id="s7z2" class="zz" style="left:700px; top:400px;">Z</div>`);
+      add(robot("s7bot", 300, 300, 190));
+      add(`<div id="s7dm" class="bubble dark tl" style="left:560px; top:250px;">Any openings Friday?</div>`);
+      add(`<div id="s7re" class="bubble tl" style="left:250px; top:230px;">On it!</div>`);
+      show(["#s7bed", "#s7moon"], 32.2, { y: 0 }); show("#s7bot", 32.3, { y: 0, x: -30 });
+      tl.fromTo("#s7z1", { opacity: 0, y: 0 }, { opacity: 1, y: -40, duration: 0.8, repeat: 2, ease: "none" }, 32.4);
+      tl.fromTo("#s7z2", { opacity: 0, y: 0 }, { opacity: 1, y: -40, duration: 0.8, repeat: 2, ease: "none" }, 32.8);
+      pop("#s7dm", 33.25); pop("#s7re", 34.5);
+      hide(["#s7bed", "#s7moon", "#s7z1", "#s7z2", "#s7bot", "#s7dm", "#s7re"], 35.35);
+      tl.to(["#night", "#floorNight"], { opacity: 0, duration: 0.3 }, 35.35);
+
+      // ================= S8 (35.4-41.2) 10 AM: owner busy with a client, robot does the work =================
+      title('<em>10 AM.</em> BUSY.', 35.45, 39.7);
+      add(robot("s8bot", 60, 300, 200)); add(bedClient("s8bed", 680, 470, { skin: "#f1c7a3", hairC: "#6b3d1e", gown: "#f7d4de" })); add(person("s8own", OWNER, 500, 300, 190));
+      add(`<div id="s8ph" class="prop" style="left:170px; top:520px; width:60px; height:100px; border-radius:12px; background:${INK}; border:5px solid #555;"></div>`);
+      add(`<div id="s8work" class="bubble tl" style="left:110px; top:230px;">I've got your DMs</div>`);
+      show(["#s8bed", "#s8own"], 35.45, { y: 0 }); show("#s8bot", 35.5, { y: 0, x: -40 }); show("#s8ph", 35.5, { y: 0 });
+      workLoop("s8own", 35.45, 41.1);
+      tl.fromTo("#s8bot-armR", { rotation: 0, svgOrigin: "151 165" }, { rotation: 20, svgOrigin: "151 165", duration: 0.1, repeat: 23, yoyo: true }, 37.3);
+      title('IT DOES <em>THE WORK</em>', 39.75, 41.2);
+      pop("#s8work", 39.8);
+      hide(["#s8bot", "#s8bed", "#s8own", "#s8ph", "#s8work"], 41.2);
+
+      // ================= S9 (41.3-45.8) BOOKED IN THE DM =================
+      title('BOOKED IN <em>THE DM</em>', 41.3, 45.8);
+      add(bigPhone("s9ph", 310, 250, `
+        <div style="position:absolute; left:26px; top:116px; padding:18px 24px; border-radius:28px; background:#efefef; font-size:34px; font-weight:700; color:${INK};">Any openings Friday?</div>
+        <div id="s9re" style="position:absolute; right:26px; top:216px; padding:18px 24px; border-radius:28px; background:#a46d86; font-size:34px; font-weight:700; color:#fff; opacity:0;">Yes! Pick a time</div>
+        <div id="s9btn" style="position:absolute; right:26px; top:318px; padding:16px 26px; border-radius:20px; border:4px solid #a46d86; font-size:32px; font-weight:900; color:#a46d86; background:#fff; opacity:0;">Book Fri 2:00 PM</div>
+        <div id="s9ok" style="position:absolute; left:60px; top:420px; width:320px; padding:16px 0; border-radius:20px; text-align:center; background:#2f9e6a; font-size:34px; font-weight:900; color:#fff; opacity:0;">BOOKED ✓</div>`));
+      add(robot("s9bot", 60, 330, 170)); add(person("s9c", { ...CUST, prop: PHONE_IN_HAND }, 830, 330, 170));
+      show("#s9ph", 41.3, { y: 60 }); show("#s9bot", 41.4, { x: -40, y: 0 }); show("#s9c", 41.4, { x: 40, y: 0 });
+      arm("#s9c-armR", -60, 41.4, 0.01, "145 165");
+      pop("#s9re", 41.9); pop("#s9btn", 42.6);
+      tl.to("#s9btn", { scale: 0.9, duration: 0.1, yoyo: true, repeat: 1 }, 44.1);
+      pop("#s9ok", 44.2); face("s9c", "smile", 44.2);
+      hide(["#s9ph", "#s9bot", "#s9c"], 45.8);
+
+      // ================= S10 (45.9-53.9) PAST CUSTOMERS COME BACK =================
+      title('<em>PAST</em> CLIENTS', 45.9, 51.2);
+      const PAST = [
+        { id: "p1", o: { skin: "#8d5a3c", hairC: "#1f1a18", hair: "curly", top: "#e2a34b", pants: "#2f3550" }, x: 70 },
+        { id: "p2", o: { skin: "#f1c7a3", hairC: "#d8b05a", hair: "long", top: "#7b8ee0", pants: "#2f3550" }, x: 290 },
+        { id: "p3", o: { skin: "#c98b63", hairC: "#3b2a24", hair: "short", top: "#6cbf8e", pants: "#2f3550" }, x: 510 } ];
+      PAST.forEach((p, i) => { add(person(p.id, p.o, p.x, 330, 170)); add(`<div id="${p.id}l" class="label" style="left:${p.x + 20}px; top:290px; background:#6b6670; font-size:26px;">${["7 MO AGO", "9 MO AGO", "1 YEAR"][i]}</div>`); });
+      add(`<svg id="s10door" class="prop" width="220" height="380" viewBox="0 0 220 380" style="left:830px; top:330px;"><rect x="10" y="40" width="200" height="340" rx="10" fill="#fff" stroke="${INK}" stroke-width="5"/><rect x="0" y="0" width="220" height="60" rx="12" fill="#e893ad"/><text x="110" y="42" text-anchor="middle" font-family="Inter" font-weight="900" font-size="28" fill="#fff">YOUR SPA</text><rect x="60" y="150" width="100" height="230" rx="8" fill="#f7d4de" stroke="${INK}" stroke-width="5"/></svg>`);
+      PAST.forEach((p, i) => { show("#" + p.id, 46.5 + i * 0.12, { y: 0 }); tl.set("#" + p.id, { opacity: 0.45 }, 46.85); face(p.id, "frown", 46.5); pop(`#${p.id}l`, 46.6 + i * 0.12); });
+      show("#s10door", 46.6, { x: 60, y: 0 });
+      PAST.forEach((p, i) => {
+        const t = 47.5 + i * 0.35;
+        add(`<svg id="${p.id}e" class="prop" width="70" height="50" viewBox="0 0 70 50" style="left:${p.x + 50}px; top:220px;"><rect x="3" y="3" width="64" height="44" rx="8" fill="#fff" stroke="${INK}" stroke-width="5"/><path d="M5 6 L35 28 L65 6" fill="none" stroke="${INK}" stroke-width="5"/></svg>`);
+        tl.fromTo(`#${p.id}e`, { opacity: 0, x: -200, y: -60, scale: 0.6 }, { opacity: 1, x: 0, y: 0, scale: 1, duration: 0.35, ease: "power2.out" }, t);
+        tl.to("#" + p.id, { opacity: 1, duration: 0.2 }, t + 0.3); face(p.id, "o", t + 0.3);
+      });
+      add(`<div id="s10gift" class="bubble tl" style="left:250px; top:240px;">Something special!</div>`);
+      title('THEY <em>COME BACK</em>', 51.25, 53.9);
+      tl.to(PAST.map((p) => `#${p.id}e`), { opacity: 0, duration: 0.2 }, 49.4);
+      hide(PAST.map((p) => `#${p.id}l`), 49.4);
+      pop("#s10gift", 49.55); hide("#s10gift", 51.2);
+      ["p1", "p3"].forEach((id, i) => { face(id, "smile", 51.3); tl.to("#" + id, { x: [690, 280][i], duration: 0.9, ease: "power1.inOut" }, 51.4 + i * 0.25); tl.to("#" + id, { opacity: 0, duration: 0.2 }, 52.4 + i * 0.25); });
+      add(`<div id="s10more" class="label" style="left:620px; top:250px; background:#2f9e6a;">+ REPEAT BUSINESS</div>`);
+      pop("#s10more", 52.4);
+      hide(["#p2", "#s10door", "#s10more"], 53.9);
+
+      // ================= S11 (53.95-59.8) THE RESULT =================
+      title('THE <em>RESULT</em>', 53.95, 59.8);
+      add(`<div id="k1" class="chk" style="top:270px;">No more missed calls</div>`); add(`<div id="k2" class="chk" style="top:390px;">No more ignored DMs</div>`); add(`<div id="k3" class="chk" style="top:510px;">Money from past clients</div>`);
+      show("#k1", 54.75, { x: -60, y: 0 }); show("#k2", 55.77, { x: -60, y: 0 }); show("#k3", 57.75, { x: -60, y: 0 });
+      hide(["#k1", "#k2", "#k3"], 59.8);
+
+      // ================= S12 (59.85-END) COMMENT SYSTEM =================
+      title('OWN A <em>BUSINESS?</em>', 59.85, END);
+      add(person("s12own", OWNER, 160, 300, 190)); add(robot("s12bot", 700, 300, 200));
+      add(`<div id="s12sign" class="prop" style="left:330px; top:330px; width:420px; height:200px; border-radius:24px; background:#fff; border:6px solid ${INK}; text-align:center; padding-top:28px;"><div style="font-size:38px; font-weight:800; color:#6b6670;">Comment</div><div style="font-size:72px; font-weight:900; color:#a46d86; letter-spacing:3px;">SYSTEM</div></div>`);
+      show("#s12own", 59.9, { x: -60, y: 0 }); show("#s12bot", 60.0, { x: 60, y: 0 });
+      show("#s12sign", 61.2, { scale: 0.6, y: 0 });
+      tl.fromTo("#s12own-armR", { rotation: 0, svgOrigin: "145 165" }, { rotation: -140, svgOrigin: "145 165", duration: 0.25 }, 61.6);
+      tl.to("#s12own-armR", { rotation: -110, svgOrigin: "145 165", duration: 0.2, repeat: 5, yoyo: true }, 61.85);
+      tl.fromTo("#s12bot-armL", { rotation: 0, svgOrigin: "49 165" }, { rotation: 140, svgOrigin: "49 165", duration: 0.25 }, 61.7);
+
+      // ================= captions: word-by-word yellow highlight =================
       const groups = []; let cur = [];
       WORDS.forEach((w, i) => { cur.push(w); const n = WORDS[i + 1]; if (cur.length >= 4 || /[.,?!]$/.test(w[0]) || !n || n[1] - w[2] > 0.3) { groups.push(cur); cur = []; } });
       const capsEl = document.getElementById("caps");
@@ -188,7 +339,7 @@
         capsEl.appendChild(c);
         const nx = groups[gi + 1];
         tl.set(c, { opacity: 1 }, g[0][1]);
-        tl.set(c, { opacity: 0 }, nx ? nx[0][1] : 11.4);
+        tl.set(c, { opacity: 0 }, nx ? nx[0][1] : END);
         g.forEach((w, wi) => { tl.set(`#cw${gi}_${wi}`, { color: "#f5c518" }, w[1]); tl.set(`#cw${gi}_${wi}`, { color: "#ffffff" }, w[2] + 0.05); });
       });
 
