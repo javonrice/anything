@@ -10,113 +10,111 @@
       @font-face { font-family: "Inter"; font-weight: 700; src: url("assets/fonts/inter-latin-700-normal.woff2") format("woff2"); }
       @font-face { font-family: "Inter"; font-weight: 800; src: url("assets/fonts/inter-latin-800-normal.woff2") format("woff2"); }
       @font-face { font-family: "Inter"; font-weight: 900; src: url("assets/fonts/inter-latin-900-normal.woff2") format("woff2"); }
-      :root {
-        --cream: #f6f0eb; --white: #fffdfc; --mauve: #a46d86; --blush: #e8c8d1; --ink: #24222a; --green: #2f9e6a;
-      }
+      :root { --cream: #f6f0eb; --white: #fffdfc; --mauve: #a46d86; --blush: #e8c8d1; --ink: #24222a; --green: #2f9e6a; }
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
       body { font-family: "Inter", sans-serif; color: var(--ink); }
-      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--ink); }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--cream); }
 
-      /* placeholder for Pexels 16571736 (blocked by network policy): a drawn reception in the brief's palette */
-      #spa { position: absolute; inset: 0; background: linear-gradient(180deg, #ecd3da 0%, #e8c8d1 58%, #d9b3bf 100%); }
-      .arch { position: absolute; left: 250px; top: 260px; width: 580px; height: 980px; border-radius: 290px 290px 0 0;
-        background: linear-gradient(180deg, #f6ebe6 0%, #efdfd8 100%); box-shadow: inset 0 0 0 10px #c9a46a; }
-      .shelf { position: absolute; left: 330px; width: 420px; height: 10px; background: #c9a46a; border-radius: 4px; }
-      .jar { position: absolute; width: 44px; border-radius: 10px 10px 6px 6px; background: var(--white); box-shadow: 0 4px 10px rgba(36,34,42,0.12); }
-      .counter { position: absolute; left: 80px; top: 1230px; width: 920px; height: 420px; border-radius: 210px 210px 24px 24px;
-        background: linear-gradient(180deg, #fffdfc 0%, #efe6df 100%); box-shadow: 0 -6px 0 #c9a46a inset, 0 30px 60px rgba(36,34,42,0.18); }
-      .floor { position: absolute; left: 0; top: 1600px; width: 1080px; height: 320px; background: #d6c3b8; }
-      .glow { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px;
-        background: radial-gradient(700px 500px at 50% 30%, rgba(255,253,252,0.55), rgba(255,253,252,0) 70%); }
-      #ph-tag { position: absolute; left: 32px; top: 1868px; font-size: 20px; font-weight: 700; color: rgba(36,34,42,0.55); letter-spacing: 1px; }
+      /* opening visual: reference 01 (stand-in until the licensed Pexels photo arrives) */
+      #spa { position: absolute; inset: 0; overflow: hidden; }
+      #spa-blur { position: absolute; left: -200px; top: -200px; width: 1480px; height: 2320px; object-fit: cover; filter: blur(40px) saturate(1.1); opacity: 0.9; }
+      #spa-wash { position: absolute; inset: 0; background: rgba(246, 240, 235, 0.35); }
+      #spa-card { position: absolute; left: 50px; top: 470px; width: 980px; height: 1180px; border-radius: 48px; overflow: hidden;
+        box-shadow: 0 40px 100px rgba(36, 34, 42, 0.28); }
+      #spa-img { position: absolute; left: -330px; top: 0; width: 1186px; height: 1180px; object-fit: cover; }
+      #ref-tag { position: absolute; left: 50px; top: 1672px; font-size: 22px; font-weight: 700; color: rgba(36, 34, 42, 0.85); }
 
       #narr-wrap { position: absolute; inset: 0; overflow: hidden; }
       #narr { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; }
       #narr-shade { position: absolute; inset: 0;
-        background: linear-gradient(180deg, rgba(36,34,42,0.35) 0%, rgba(36,34,42,0) 30%, rgba(36,34,42,0) 70%, rgba(36,34,42,0.6) 100%); }
+        background: linear-gradient(180deg, rgba(36,34,42,0.45) 0%, rgba(36,34,42,0) 28%, rgba(36,34,42,0) 68%, rgba(36,34,42,0.65) 100%); }
 
-      /* DM card */
-      #dm { position: absolute; left: 90px; top: 620px; width: 900px; border-radius: 44px; background: var(--white);
-        box-shadow: 0 40px 90px rgba(36,34,42,0.35); padding: 34px 40px 40px; }
-      .dm-head { display: flex; align-items: center; height: 84px; border-bottom: 2px solid #efe6df; margin-bottom: 30px; }
-      .dm-av { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--blush), var(--mauve)); }
-      .dm-who { margin-left: 22px; }
-      .dm-name { font-size: 34px; font-weight: 800; color: var(--ink); }
-      .dm-sub { font-size: 24px; font-weight: 600; color: #7a7480; margin-top: 2px; }
-      .dm-bubble { display: inline-block; max-width: 760px; padding: 28px 36px; border-radius: 40px 40px 40px 12px; background: var(--cream);
-        font-size: 50px; font-weight: 700; line-height: 1.18; color: var(--ink); }
-      .dm-time { margin-top: 18px; font-size: 24px; font-weight: 600; color: #7a7480; }
-      #seen { position: absolute; left: 40px; bottom: 34px; padding: 12px 26px; border-radius: 999px; background: var(--mauve);
-        color: var(--white); font-size: 30px; font-weight: 800; opacity: 0; }
-      #ping { position: absolute; left: 920px; top: 590px; width: 64px; height: 64px; border-radius: 50%; background: var(--mauve);
-        color: var(--white); font-size: 34px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+      /* recreated Instagram thread (fictional names) */
+      #phone { position: absolute; left: 240px; top: 520px; width: 600px; height: 1180px; border-radius: 84px; background: #111;
+        padding: 16px; box-shadow: 0 50px 120px rgba(36, 34, 42, 0.45); }
+      .scr { position: relative; width: 100%; height: 100%; border-radius: 70px; background: #fff; overflow: hidden; }
+      .island { position: absolute; left: 204px; top: 18px; width: 160px; height: 46px; border-radius: 23px; background: #111; }
+      .sbar { position: absolute; left: 44px; top: 24px; font-size: 26px; font-weight: 700; color: #111; }
+      .ighead { position: absolute; left: 0; top: 86px; width: 100%; height: 104px; border-bottom: 2px solid #efefef; }
+      .back { position: absolute; left: 30px; top: 30px; width: 22px; height: 22px; border-left: 5px solid #111; border-bottom: 5px solid #111; transform: rotate(45deg); }
+      .ig-av { position: absolute; left: 76px; top: 22px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #e8c8d1, #a46d86); }
+      .ig-name { position: absolute; left: 152px; top: 22px; font-size: 30px; font-weight: 800; color: #111; }
+      .ig-sub { position: absolute; left: 152px; top: 58px; font-size: 22px; font-weight: 600; color: #6b6b6b; }
+      .msg-av { position: absolute; left: 28px; top: 470px; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #e8c8d1, #a46d86); }
+      #bubble { position: absolute; left: 96px; top: 330px; width: 420px; padding: 26px 30px; border-radius: 38px; background: #efefef;
+        font-size: 44px; font-weight: 600; line-height: 1.18; color: #111; }
+      #stamp { position: absolute; left: 96px; top: 552px; font-size: 22px; font-weight: 600; color: #6b6b6b; }
+      .composer { position: absolute; left: 24px; bottom: 34px; width: 520px; height: 76px; border-radius: 38px; border: 2px solid #e4e4e4;
+        font-size: 26px; font-weight: 500; color: #6b6b6b; padding: 22px 0 0 34px; }
+      #ping { position: absolute; left: 790px; top: 492px; width: 72px; height: 72px; border-radius: 50%; background: #ff3b5c;
+        color: #fff; font-size: 36px; font-weight: 900; display: flex; align-items: center; justify-content: center; opacity: 0; }
+      #seen { position: absolute; left: 36px; top: 940px; padding: 14px 28px; border-radius: 999px; background: var(--mauve);
+        color: var(--white); font-size: 32px; font-weight: 800; opacity: 0; }
 
       #hdr { position: absolute; left: 60px; top: 150px; width: 960px; padding: 30px 36px 34px; border-radius: 40px;
         background: rgba(36, 34, 42, 0.94); text-align: center; box-shadow: 0 24px 60px rgba(36,34,42,0.35); }
       #hdr .h1 { font-size: 92px; font-weight: 900; line-height: 1.0; letter-spacing: -2.5px; color: var(--white); }
       #hdr .h1 em { font-style: normal; color: var(--blush); }
       #hdr .h2 { margin-top: 14px; font-size: 44px; font-weight: 800; line-height: 1.1; color: var(--blush); }
-      .cap { position: absolute; left: 60px; width: 960px; text-align: center; font-size: 76px; font-weight: 900; line-height: 1.08;
-        letter-spacing: -1.5px; color: var(--white); text-shadow: 0 4px 22px rgba(0,0,0,0.7); opacity: 0; }
+      .cap { position: absolute; left: 60px; top: 1560px; width: 960px; text-align: center; font-size: 74px; font-weight: 900; line-height: 1.08;
+        letter-spacing: -1.5px; color: var(--white); text-shadow: 0 4px 22px rgba(0,0,0,0.75); opacity: 0; }
       .cap em { font-style: normal; color: var(--blush); }
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-start="0" data-duration="3.4" data-width="1080" data-height="1920">
-      <div id="spa" class="clip" data-start="0" data-duration="1.6" data-track-index="0" data-layout-allow-overlap>
-        <div class="arch"></div>
-        <div class="shelf" style="top: 640px;"></div>
-        <div class="shelf" style="top: 840px;"></div>
-        <div class="jar" style="left: 380px; top: 572px; height: 68px;"></div>
-        <div class="jar" style="left: 450px; top: 588px; height: 52px;"></div>
-        <div class="jar" style="left: 600px; top: 566px; height: 74px;"></div>
-        <div class="jar" style="left: 420px; top: 776px; height: 64px;"></div>
-        <div class="jar" style="left: 640px; top: 782px; height: 58px;"></div>
-        <div class="floor"></div>
-        <div class="counter"></div>
-        <div class="glow"></div>
-        <div id="ph-tag">PLACEHOLDER: PEXELS PHOTO 16571736 (SOURCE 05)</div>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="3.6" data-width="1080" data-height="1920">
+      <div id="spa" class="clip" data-start="0" data-duration="1.9" data-track-index="0" data-layout-allow-overlap>
+        <img id="spa-blur" src="assets/ref01-reception.png" alt="" />
+        <div id="spa-wash"></div>
+        <div id="spa-card"><img id="spa-img" src="assets/ref01-reception.png" alt="" /></div>
+        <div id="ref-tag" data-layout-allow-occlusion>Mockup stand-in: reference 01 (final uses licensed Pexels photo)</div>
       </div>
 
       <div id="narr-wrap">
-        <video id="narr" src="assets/narrator-placeholder.mp4" data-start="1.0" data-duration="2.4" data-track-index="1" muted></video>
+        <video id="narr" src="assets/narrator-placeholder.mp4" data-start="1.6" data-duration="2.0" data-track-index="1" muted></video>
       </div>
       <div id="narr-shade"></div>
 
-      <div id="dm" data-layout-allow-overlap>
-        <div class="dm-head">
-          <div class="dm-av"></div>
-          <div class="dm-who"><div class="dm-name">jess.m</div><div class="dm-sub">to Blush &amp; Bloom Aesthetics</div></div>
+      <div id="phone" data-layout-allow-overlap>
+        <div class="scr">
+          <div class="island"></div>
+          <div class="sbar">9:41</div>
+          <div class="ighead"><div class="back"></div><div class="ig-av"></div><div class="ig-name">jess.m</div><div class="ig-sub">Instagram</div></div>
+          <div class="msg-av"></div>
+          <div id="bubble">Hi! Do you have any openings on Friday?</div>
+          <div id="stamp">Seen by Blush &amp; Bloom</div>
+          <div class="composer">Message...</div>
         </div>
-        <div class="dm-bubble">Hi! Do you have any openings on Friday?</div>
-        <div class="dm-time" id="dm-time">Instagram · now</div>
-        <div id="seen">No reply yet · 2h</div>
       </div>
       <div id="ping">1</div>
+      <div id="seen">No reply yet · 2h</div>
 
       <div id="hdr"><div class="h1">Opening a <em>med spa?</em></div><div class="h2">Set this up before your first DM</div></div>
-      <div id="cap1" class="cap" style="top: 1560px;">Here's one thing <em>I'd set up</em></div>
-      <div id="cap2" class="cap" style="top: 1560px;">before your first customer <em>messages you.</em></div>
+      <div id="cap1" class="cap">Here's one thing <em>I'd set up</em></div>
+      <div id="cap2" class="cap">before your first customer <em>messages you.</em></div>
     </div>
     <script>
       const tl = gsap.timeline({ paused: true });
       const E = "power3.out";
-      // 0.0-1.0: med spa world + inquiry lands
-      tl.fromTo("#spa", { scale: 1.06 }, { scale: 1.0, duration: 1.6, ease: "none" }, 0);
-      tl.fromTo("#dm", { y: 24, scale: 0.985 }, { y: 0, scale: 1, duration: 0.3, ease: "back.out(1.6)" }, 0.0);
-      tl.fromTo("#ping", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.25, ease: "back.out(3)" }, 0.2);
-      // 1.0-1.4: narrator enters full frame, DM pins above his head
-      tl.fromTo("#narr-wrap", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, 1.0);
-      tl.fromTo("#narr-shade", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 1.0);
-      tl.to("#dm", { x: 150, y: -170, scale: 0.72, duration: 0.45, ease: "power3.inOut", transformOrigin: "50% 0%" }, 1.0);
-      tl.to("#ping", { x: 80, y: -180, opacity: 0, duration: 0.3 }, 1.0);
-      tl.to("#dm-time", { opacity: 0, duration: 0.2 }, 1.3);
-      tl.fromTo("#seen", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: E }, 1.5);
-      // captions on the spoken hook
-      tl.fromTo("#cap1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2, ease: E }, 1.15);
-      tl.to("#cap1", { opacity: 0, duration: 0.1 }, 2.1);
-      tl.fromTo("#cap2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2, ease: E }, 2.15);
+      // 0:00 — med spa visual + header (fully readable at frame 0)
+      tl.fromTo("#spa-img", { scale: 1.08 }, { scale: 1.0, duration: 1.9, ease: "none" }, 0);
+      tl.set("#phone", { opacity: 0, y: 260 }, 0);
+      tl.set(["#bubble", "#stamp"], { opacity: 0 }, 0);
+      // 0:01 — phone rises, DM lands with a ping
+      tl.to("#phone", { opacity: 1, y: 0, duration: 0.45, ease: "back.out(1.3)" }, 0.55);
+      tl.fromTo("#bubble", { opacity: 0, y: 20, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: "back.out(2)" }, 0.95);
+      tl.fromTo("#ping", { opacity: 0, scale: 0 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(3)" }, 1.0);
+      tl.fromTo("#stamp", { opacity: 0 }, { opacity: 1, duration: 0.2 }, 1.3);
+      // 0:02-0:03 — narrator appears, the message moves beside him
+      tl.fromTo("#narr-wrap", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" }, 1.6);
+      tl.fromTo("#narr-shade", { opacity: 0 }, { opacity: 1, duration: 0.35 }, 1.6);
+      tl.to("#phone", { x: -204, y: -80, scale: 0.68, height: 700, duration: 0.5, ease: "power3.inOut", transformOrigin: "0% 0%" }, 1.6);
+      tl.to(["#ping", "#stamp"], { opacity: 0, duration: 0.2 }, 1.6);
+      tl.fromTo("#seen", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: E }, 2.2);
+      tl.fromTo("#cap1", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2, ease: E }, 1.75);
+      tl.to("#cap1", { opacity: 0, duration: 0.1 }, 2.6);
+      tl.fromTo("#cap2", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2, ease: E }, 2.65);
       window.__timelines["main"] = tl;
     </script>
   </body>
