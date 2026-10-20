@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      @font-face { font-family: "Inter"; font-weight: 600; src: url("assets/fonts/inter-latin-600-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 800; src: url("assets/fonts/inter-latin-800-normal.woff2") format("woff2"); }
+      @font-face { font-family: "Inter"; font-weight: 900; src: url("assets/fonts/inter-latin-900-normal.woff2") format("woff2"); }
+      :root { --wall: #f3e9df; --floor: #d9b98e; --ink: #24222a; --pink: #e893ad; --mauve: #a46d86; --yellow: #f5c518; --green: #2f9e6a; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+      body { font-family: "Inter", sans-serif; }
+      #root { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--ink); }
+
+      /* ---- cartoon stage (top) ---- */
+      #stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1000px; overflow: hidden; background: var(--wall); }
+      #floor { position: absolute; left: 0; top: 700px; width: 1080px; height: 300px; background: var(--floor);
+        background-image: repeating-linear-gradient(180deg, rgba(120,80,40,0.10) 0 2px, transparent 2px 60px); }
+      #floor::before { content: ""; position: absolute; left: 0; top: 0; width: 1080px; height: 10px; background: #e8d2b4; }
+      .tag { position: absolute; left: 36px; top: 40px; padding: 10px 22px; border-radius: 999px; background: #3a3842; color: #fff;
+        font-size: 24px; font-weight: 900; letter-spacing: 2px; }
+      .ttl { position: absolute; left: 0; top: 110px; width: 1080px; text-align: center; font-size: 96px; font-weight: 900; letter-spacing: -1px;
+        color: #fff; opacity: 0;
+        text-shadow: -5px -5px 0 var(--ink), 5px -5px 0 var(--ink), -5px 5px 0 var(--ink), 5px 5px 0 var(--ink),
+                     0 -6px 0 var(--ink), 0 6px 0 var(--ink), -6px 0 0 var(--ink), 6px 0 0 var(--ink), 0 10px 0 rgba(36,34,42,0.25); }
+      .ttl em { font-style: normal; color: var(--yellow); }
+      .actor { position: absolute; opacity: 0; }
+      .prop { position: absolute; opacity: 0; }
+      .bubble { position: absolute; padding: 22px 30px; border-radius: 30px; background: #fff; border: 5px solid var(--ink);
+        font-size: 40px; font-weight: 800; color: var(--ink); line-height: 1.12; opacity: 0; white-space: nowrap; }
+      .bubble::after { content: ""; position: absolute; bottom: -24px; width: 0; height: 0; border-left: 18px solid transparent;
+        border-right: 18px solid transparent; border-top: 24px solid var(--ink); }
+      .bubble.tl::after { left: 46px; } .bubble.tr::after { right: 46px; }
+      .label { position: absolute; padding: 12px 24px; border-radius: 16px; font-size: 34px; font-weight: 900; color: #fff; opacity: 0; white-space: nowrap; }
+
+      /* ---- captions on the floor ---- */
+      .cap { position: absolute; left: 60px; top: 800px; width: 960px; height: 150px; display: flex; flex-wrap: wrap; align-items: center;
+        justify-content: center; align-content: center; text-align: center; opacity: 0; font-size: 62px; font-weight: 900; line-height: 1.05;
+        color: #fff; text-shadow: -4px -4px 0 var(--ink), 4px -4px 0 var(--ink), -4px 4px 0 var(--ink), 4px 4px 0 var(--ink), 0 5px 0 var(--ink); }
+      .cap .w { margin: 0 9px; }
+
+      /* ---- narrator (bottom) ---- */
+      #camwrap { position: absolute; left: 0; top: 1000px; width: 1080px; height: 920px; overflow: hidden; background: #000; }
+      #cam { position: absolute; left: 0; top: -700px; width: 1080px; height: 1920px; object-fit: cover; }
+      #seam { position: absolute; left: 0; top: 994px; width: 1080px; height: 12px; background: var(--ink); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="11.4" data-width="1080" data-height="1920">
+      <div id="camwrap">
+        <video id="cam" src="assets/presenter.mp4" data-start="0" data-duration="11.4" data-track-index="8" data-has-audio="true" data-volume="1"></video>
+      </div>
+      <div id="stage" data-layout-allow-overlap>
+        <div id="floor"></div>
+        <div id="set"></div>
+        <div class="tag">MED SPA OWNERS · #1</div>
+      </div>
+      <div id="seam"></div>
+      <div id="caps"></div>
+    </div>
+
+    <script>
+      const WORDS = __WORDS__.filter((w) => w[1] < 11.3);
+      const tl = gsap.timeline({ paused: true });
+      const E = "power3.out";
+      const set = document.getElementById("set");
+      const add = (html) => { const d = document.createElement("div"); d.innerHTML = html.trim(); const n = d.firstChild; set.appendChild(n); return n; };
+
+      // ---------- character rig (flat 2D, viewBox 200x420) ----------
+      // parts: #<id>-armL, #<id>-armR, #<id>-head, mouths #<id>-smile / -frown / -o
+      const person = (id, o) => {
+        const hair = o.hair === "bun"
+          ? `<circle cx="100" cy="44" r="22" fill="${o.hairC}"/><path d="M54 92 Q56 46 100 46 Q144 46 146 92 Q130 64 100 64 Q70 64 54 92z" fill="${o.hairC}"/>`
+          : o.hair === "long"
+          ? `<path d="M50 150 Q42 60 100 46 Q158 60 150 150 L136 150 Q140 80 100 70 Q60 80 64 150z" fill="${o.hairC}"/><path d="M56 88 Q60 48 100 48 Q140 48 144 88 Q124 66 100 66 Q76 66 56 88z" fill="${o.hairC}"/>`
+          : `<path d="M54 90 Q54 46 100 46 Q146 46 146 90 Q128 70 100 72 Q72 70 54 90z" fill="${o.hairC}"/>`;
+        return `<svg id="${id}" class="actor" width="${o.w || 200}" height="${(o.w || 200) * 2.1}" viewBox="0 0 200 420" style="left:${o.x}px; top:${o.y}px;">
+          <ellipse cx="100" cy="410" rx="56" ry="9" fill="rgba(36,34,42,0.15)"/>
+          <rect x="78" y="268" width="18" height="132" rx="8" fill="${o.pants}"/><rect x="104" y="268" width="18" height="132" rx="8" fill="${o.pants}"/>
+          <ellipse cx="84" cy="402" rx="16" ry="8" fill="#24222a"/><ellipse cx="116" cy="402" rx="16" ry="8" fill="#24222a"/>
+          <g id="${id}-armL"><rect x="46" y="158" width="18" height="104" rx="9" fill="${o.top}"/><circle cx="55" cy="266" r="11" fill="${o.skin}"/></g>
+          <g id="${id}-armR"><rect x="136" y="158" width="18" height="104" rx="9" fill="${o.top}"/><circle cx="145" cy="266" r="11" fill="${o.skin}"/>${o.prop || ""}</g>
+          <rect x="60" y="150" width="80" height="132" rx="30" fill="${o.top}"/>
+          ${o.collar ? `<path d="M86 152 L100 176 L114 152z" fill="${o.collar}"/>` : ""}
+          <rect x="92" y="130" width="16" height="24" fill="${o.skin}"/>
+          <g id="${id}-head">
+            ${o.hair === "long" ? hair.split("</path>")[0] + "</path>" : ""}
+            <circle cx="100" cy="96" r="46" fill="${o.skin}"/>
+            ${o.hair === "long" ? hair.split("</path>")[1] + "</path>" : hair}
+            <circle cx="84" cy="98" r="5" fill="#24222a"/><circle cx="116" cy="98" r="5" fill="#24222a"/>
+            <path d="M76 86 L90 84" stroke="#24222a" stroke-width="3" stroke-linecap="round"/><path d="M110 84 L124 86" stroke="#24222a" stroke-width="3" stroke-linecap="round"/>
+            <path id="${id}-smile" d="M86 116 Q100 130 114 116" fill="none" stroke="#24222a" stroke-width="4" stroke-linecap="round"/>
+            <path id="${id}-frown" d="M86 126 Q100 114 114 126" fill="none" stroke="#24222a" stroke-width="4" stroke-linecap="round" opacity="0"/>
+            <ellipse id="${id}-o" cx="100" cy="121" rx="7" ry="9" fill="#24222a" opacity="0"/>
+          </g>
+        </svg>`;
+      };
+      const robot = (id, x, y) => `<svg id="${id}" class="actor" width="220" height="440" viewBox="0 0 200 400" style="left:${x}px; top:${y}px;">
+          <ellipse cx="100" cy="392" rx="56" ry="9" fill="rgba(36,34,42,0.15)"/>
+          <rect x="80" y="260" width="16" height="122" rx="8" fill="#8f86a8"/><rect x="104" y="260" width="16" height="122" rx="8" fill="#8f86a8"/>
+          <g id="${id}-armL"><rect x="40" y="160" width="18" height="96" rx="9" fill="#c9bfe6"/><circle cx="49" cy="258" r="11" fill="#8f86a8"/></g>
+          <g id="${id}-armR"><rect x="142" y="160" width="18" height="96" rx="9" fill="#c9bfe6"/><circle cx="151" cy="258" r="11" fill="#8f86a8"/></g>
+          <rect x="56" y="150" width="88" height="120" rx="26" fill="#e3dcf5"/><circle cx="100" cy="206" r="16" fill="#a46d86"/>
+          <g id="${id}-head"><line x1="100" y1="20" x2="100" y2="44" stroke="#8f86a8" stroke-width="5"/><circle cx="100" cy="18" r="9" fill="#f5c518"/>
+            <rect x="46" y="44" width="108" height="94" rx="30" fill="#e3dcf5" stroke="#8f86a8" stroke-width="4"/>
+            <rect x="60" y="60" width="80" height="58" rx="18" fill="#24222a"/>
+            <circle cx="84" cy="88" r="7" fill="#7ef0c0"/><circle cx="116" cy="88" r="7" fill="#7ef0c0"/>
+            <path d="M88 104 Q100 112 112 104" fill="none" stroke="#7ef0c0" stroke-width="4" stroke-linecap="round"/>
+            <path d="M42 80 Q30 92 42 104" fill="none" stroke="#24222a" stroke-width="5"/><rect x="34" y="96" width="12" height="20" rx="5" fill="#24222a"/></g>
+        </svg>`;
+      const face = (id, mood, t) => ["smile", "frown", "o"].forEach((m) => tl.set(`#${id}-${m}`, { opacity: m === mood ? 1 : 0 }, t));
+      const show = (sel, t, from = { y: 30 }) => tl.fromTo(sel, { opacity: 0, ...from }, { opacity: 1, x: 0, y: 0, scale: 1, duration: 0.3, ease: "back.out(1.8)" }, t);
+      const hide = (sel, t) => tl.to(sel, { opacity: 0, duration: 0.2 }, t);
+      const title = (id, html, t, endT) => { add(`<div id="${id}" class="ttl">${html}</div>`); tl.fromTo("#" + id, { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2)" }, t); if (endT) hide("#" + id, endT); };
+      const arm = (sel, rot, t, d = 0.25, origin) => tl.to(sel, { rotation: rot, svgOrigin: origin, duration: d, ease: "power2.out" }, t);
+
+      // ================= SCENE 1 (0-5.0): the missed call =================
+      title("t1", 'THE <em>MISSED</em> CALL', 0.0, 4.95);
+      // counter + ringing phone (left)
+      add(`<svg id="desk" class="prop" width="300" height="230" viewBox="0 0 300 230" style="left:60px; top:520px;"><rect x="0" y="60" width="300" height="170" rx="14" fill="#f7d4de"/><rect x="0" y="50" width="300" height="22" rx="8" fill="#fff"/><rect x="0" y="210" width="300" height="20" fill="#c9a46a"/></svg>`);
+      add(`<svg id="phone" class="prop" width="150" height="110" viewBox="0 0 150 110" style="left:135px; top:470px;"><path d="M10 50 Q75 0 140 50 L140 66 Q118 70 112 56 L38 56 Q32 70 10 66z" fill="#e05468"/><rect x="28" y="56" width="94" height="50" rx="14" fill="#e05468"/><circle cx="75" cy="80" r="16" fill="#fff"/><circle cx="75" cy="80" r="6" fill="#e05468"/></svg>`);
+      add(`<svg id="waves" class="prop" width="200" height="80" viewBox="0 0 200 80" style="left:110px; top:390px;"><path d="M60 60 Q100 20 140 60" fill="none" stroke="#24222a" stroke-width="6" stroke-linecap="round"/><path d="M36 56 Q100 -6 164 56" fill="none" stroke="#24222a" stroke-width="6" stroke-linecap="round"/></svg>`);
+      // treatment chair + client + owner (right)
+      add(`<svg id="chair" class="prop" width="380" height="230" viewBox="0 0 380 230" style="left:600px; top:520px;"><rect x="20" y="70" width="320" height="70" rx="30" fill="#fff"/><rect x="280" y="10" width="80" height="110" rx="30" fill="#fff"/><rect x="60" y="140" width="24" height="90" fill="#c9a46a"/><rect x="270" y="140" width="24" height="90" fill="#c9a46a"/></svg>`);
+      add(person("owner", { x: 440, y: 290, w: 200, skin: "#c98b63", hairC: "#3b2a24", hair: "bun", top: "#e893ad", pants: "#e893ad", collar: "#c96f8f" }));
+      add(`<div id="b-busy" class="bubble tl" style="left:420px; top:250px;">With a client!</div>`);
+      show(["#desk", "#phone", "#chair"], 0.0, { y: 0 });
+      show("#owner", 0.0, { y: 0 });
+      // owner works on client: arm moves back and forth
+      tl.fromTo("#owner-armR", { rotation: -70, svgOrigin: "145 165" }, { rotation: -95, svgOrigin: "145 165", duration: 0.35, repeat: 11, yoyo: true, ease: "sine.inOut" }, 0.0);
+      // "somebody calls" -> phone rings
+      tl.fromTo("#phone", { rotation: -8 }, { rotation: 8, duration: 0.06, repeat: 27, yoyo: true, ease: "none", transformOrigin: "50% 80%" }, 1.95);
+      tl.fromTo("#waves", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1.1, duration: 0.3, repeat: 5, yoyo: true, ease: "sine.inOut" }, 1.95);
+      // "can't answer the phone" -> owner looks over, can't leave
+      face("owner", "o", 2.5);
+      tl.to("#owner-head", { rotation: -12, svgOrigin: "100 130", duration: 0.2 }, 2.5);
+      show("#b-busy", 2.6, { y: 10, scale: 0.8 });
+      // "losing a customer" -> missed call
+      hide(["#waves", "#b-busy"], 3.75);
+      add(`<div id="l-missed" class="label" style="left:90px; top:400px; background:#e05468;">MISSED CALL</div>`);
+      show("#l-missed", 3.8, { y: 10, scale: 0.7 });
+      face("owner", "frown", 4.0);
+      hide(["#desk", "#phone", "#chair", "#owner", "#l-missed"], 4.95);
+
+      // ================= SCENE 2 (5.0-8.9): no voicemail, calls the next spa =================
+      title("t2", 'NO <em>VOICEMAIL.</em>', 5.0, 6.95);
+      add(person("cust", { x: 200, y: 290, w: 200, skin: "#f1c7a3", hairC: "#a8642e", hair: "long", top: "#3fa3a0", pants: "#2f3550",
+        prop: '<rect x="134" y="250" width="22" height="38" rx="5" fill="#24222a"/>' }));
+      show("#cust", 5.0, { x: -60, y: 0 });
+      arm("#cust-armR", -150, 5.0, 0.01, "145 165");
+      face("cust", "o", 5.0);
+      add(`<svg id="vm" class="prop" width="190" height="190" viewBox="0 0 190 190" style="left:560px; top:330px;"><circle cx="95" cy="95" r="88" fill="#fff" stroke="#24222a" stroke-width="6"/><g fill="none" stroke="#24222a" stroke-width="10"><circle cx="62" cy="98" r="22"/><circle cx="128" cy="98" r="22"/><path d="M62 120h66"/></g><path d="M30 160 L160 30" stroke="#e05468" stroke-width="14" stroke-linecap="round"/></svg>`);
+      show("#vm", 6.4, { scale: 0.6, y: 0 });
+      // hangs up, shrugs
+      arm("#cust-armR", -20, 6.5, 0.3, "145 165");
+      face("cust", "frown", 6.6);
+      hide("#vm", 7.0);
+      title("t3", 'CALLS THE <em>NEXT</em> SPA', 7.0, 8.85);
+      add(`<div id="b-search" class="bubble tl" style="left:300px; top:290px;">med spa near me</div>`);
+      add(`<svg id="other" class="prop" width="360" height="400" viewBox="0 0 360 400" style="left:690px; top:330px;"><rect x="20" y="80" width="320" height="320" rx="10" fill="#fff" stroke="#24222a" stroke-width="5"/><rect x="0" y="40" width="360" height="70" rx="12" fill="#a46d86"/><text x="180" y="88" text-anchor="middle" font-family="Inter" font-weight="900" font-size="36" fill="#fff">GLOW SPA</text><rect x="130" y="240" width="100" height="160" rx="8" fill="#f7d4de" stroke="#24222a" stroke-width="5"/><rect x="50" y="150" width="70" height="70" rx="8" fill="#cfe4f2"/><rect x="240" y="150" width="70" height="70" rx="8" fill="#cfe4f2"/></svg>`);
+      arm("#cust-armR", -150, 7.4, 0.25, "145 165");
+      face("cust", "smile", 7.6);
+      show("#b-search", 7.6, { y: 10, scale: 0.8 });
+      show("#other", 8.2, { x: 80, y: 0 });
+      add(`<div id="l-booked" class="label" style="left:740px; top:250px; background:#a46d86;">BOOKED THERE</div>`);
+      show("#l-booked", 8.45, { y: 10, scale: 0.7 });
+      tl.to("#cust", { x: 230, duration: 0.5, ease: "power2.in" }, 8.4);
+      hide(["#cust", "#b-search", "#other", "#l-booked"], 8.85);
+
+      // ================= SCENE 3 (8.9-11.4): "here's what I can build" =================
+      title("t4", 'SO I <em>BUILT</em> THIS.', 8.9);
+      add(robot("bot", 430, 290));
+      add(`<div id="b-bot" class="bubble tr" style="left:560px; top:250px;">Hi! I can help.</div>`);
+      show("#bot", 9.7, { y: 60, scale: 0.6 });
+      tl.fromTo("#bot-armR", { rotation: 0, svgOrigin: "151 165" }, { rotation: -140, svgOrigin: "151 165", duration: 0.25, ease: "power2.out" }, 10.6);
+      tl.to("#bot-armR", { rotation: -110, svgOrigin: "151 165", duration: 0.18, repeat: 3, yoyo: true, ease: "sine.inOut" }, 10.85);
+      show("#b-bot", 10.8, { y: 10, scale: 0.8 });
+
+      // ---------- captions: word-by-word yellow highlight ----------
+      const groups = []; let cur = [];
+      WORDS.forEach((w, i) => { cur.push(w); const n = WORDS[i + 1]; if (cur.length >= 4 || /[.,?!]$/.test(w[0]) || !n || n[1] - w[2] > 0.3) { groups.push(cur); cur = []; } });
+      const capsEl = document.getElementById("caps");
+      groups.forEach((g, gi) => {
+        const c = document.createElement("div"); c.className = "cap"; c.id = "cap" + gi;
+        c.innerHTML = g.map((w, wi) => `<span class="w" id="cw${gi}_${wi}">${w[0]}</span>`).join("");
+        capsEl.appendChild(c);
+        const nx = groups[gi + 1];
+        tl.set(c, { opacity: 1 }, g[0][1]);
+        tl.set(c, { opacity: 0 }, nx ? nx[0][1] : 11.4);
+        g.forEach((w, wi) => { tl.set(`#cw${gi}_${wi}`, { color: "#f5c518" }, w[1]); tl.set(`#cw${gi}_${wi}`, { color: "#ffffff" }, w[2] + 0.05); });
+      });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
